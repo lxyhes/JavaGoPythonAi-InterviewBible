@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设计面试题 - IT面试宝典</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #f5f7fa; color: #333; line-height: 1.8; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .back-link { display: inline-flex; align-items: center; color: #667eea; text-decoration: none; margin-bottom: 30px; font-weight: 500; }
+        .back-link:hover { color: #764ba2; }
+        h1 { color: #2d3748; margin-bottom: 10px; font-size: 2.5rem; }
+        .subtitle { color: #718096; margin-bottom: 40px; }
+        .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .section h2 { color: #667eea; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; font-size: 1.5rem; }
+        .qa-item { margin-bottom: 30px; }
+        .qa-item:last-child { margin-bottom: 0; }
+        .question { font-weight: 600; color: #2d3748; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: flex-start; }
+        .question::before { content: "Q"; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 12px; flex-shrink: 0; margin-top: 2px; }
+        .answer { color: #4a5568; padding-left: 36px; }
+        .answer p { margin-bottom: 10px; }
+        .answer ul, .answer ol { margin-left: 20px; margin-bottom: 10px; }
+        .answer li { margin-bottom: 5px; }
+        code { background: #edf2f7; padding: 2px 8px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; color: #e53e3e; }
+        pre { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        .tag { display: inline-block; background: #edf2f7; color: #4a5568; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-right: 8px; margin-bottom: 8px; }
+        .tag.frequent { background: #c6f6d5; color: #276749; }
+        .tag.important { background: #fed7d7; color: #c53030; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        <h1>系统设计面试题</h1>
+        <p class="subtitle">涵盖高并发架构、分布式系统、微服务等设计类问题</p>
+        
+        <div class="section">
+            <h2>设计原则</h2>
+            <div class="qa-item">
+                <div class="question">系统设计的步骤是什么？</div>
+                <div class="answer">
+                    <span class="tag important">重要</span>
+                    <ol>
+                        <li><strong>需求分析</strong>：功能需求、非功能需求（QPS、延迟、可用性）</li>
+                        <li><strong>估算</strong>：数据量、QPS、带宽、存储</li>
+                        <li><strong>高层设计</strong>：API设计、数据模型、基本架构</li>
+                        <li><strong>详细设计</strong>：组件详细设计、数据库设计、缓存策略</li>
+                        <li><strong>扩展性</strong>：如何处理高并发、故障恢复</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">如何设计一个高并发系统？</div>
+                <div class="answer">
+                    <span class="tag important">重要</span>
+                    <p><strong>分层优化：</strong></p>
+                    <ul>
+                        <li><strong>客户端</strong>：CDN、静态资源缓存、懒加载</li>
+                        <li><strong>接入层</strong>：DNS轮询、负载均衡（LVS、Nginx）</li>
+                        <li><strong>应用层</strong>：无状态设计、水平扩展、限流熔断</li>
+                        <li><strong>服务层</strong>：微服务、服务降级、异步处理</li>
+                        <li><strong>数据层</strong>：读写分离、分库分表、缓存</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>经典系统设计</h2>
+            <div class="qa-item">
+                <div class="question">如何设计一个短链接系统？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>核心问题：</strong>长URL映射到短URL</p>
+                    <p><strong>方案：</strong></p>
+                    <ul>
+                        <li><strong>发号器</strong>：自增ID，转换为62进制（a-zA-Z0-9）</li>
+                        <li><strong>哈希</strong>：MD5后取前6位，冲突时+1重试</li>
+                    </ul>
+                    <p><strong>存储：</strong></p>
+                    <ul>
+                        <li>MySQL：短URL为唯一索引</li>
+                        <li>Redis：缓存热点数据</li>
+                    </ul>
+                    <p><strong>跳转：</strong>301（永久，浏览器缓存）或302（临时，可统计）</p>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">如何设计一个秒杀系统？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>核心挑战：</strong>高并发、超卖、性能</p>
+                    <p><strong>设计方案：</strong></p>
+                    <ul>
+                        <li><strong>限流</strong>：验证码、答题、令牌桶限流</li>
+                        <li><strong>削峰</strong>：消息队列（RocketMQ、Kafka）</li>
+                        <li><strong>缓存</strong>：Redis预减库存，异步下单</li>
+                        <li><strong>隔离</strong>：秒杀系统独立部署</li>
+                        <li><strong>防超卖</strong>：Redis Lua脚本原子操作，数据库乐观锁</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">如何设计一个即时通讯系统？</div>
+                <div class="answer">
+                    <p><strong>架构：</strong></p>
+                    <ul>
+                        <li><strong>网关层</strong>：WebSocket长连接管理</li>
+                        <li><strong>路由层</strong>：根据userId找到连接所在服务器</li>
+                        <li><strong>业务层</strong>：消息处理、存储、推送</li>
+                    </ul>
+                    <p><strong>消息可靠性：</strong></p>
+                    <ul>
+                        <li>消息确认机制（ACK）</li>
+                        <li>消息存储（离线消息）</li>
+                        <li>消息顺序（时间戳或自增ID）</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">如何设计一个分布式ID生成器？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>方案对比：</strong></p>
+                    <ul>
+                        <li><strong>UUID</strong>：无序，不适合做数据库主键</li>
+                        <li><strong>数据库自增</strong>：单点瓶颈</li>
+                        <li><strong>雪花算法（Snowflake）</strong>：推荐，64位Long类型</li>
+                    </ul>
+                    <p><strong>雪花算法结构：</strong></p>
+                    <ul>
+                        <li>1位符号位 + 41位时间戳 + 10位机器ID + 12位序列号</li>
+                        <li>支持69年，每秒每节点4096个ID</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>分布式系统</h2>
+            <div class="qa-item">
+                <div class="question">CAP理论是什么？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <ul>
+                        <li><strong>C（Consistency）</strong>：一致性，所有节点数据一致</li>
+                        <li><strong>A（Availability）</strong>：可用性，每个请求都能得到响应</li>
+                        <li><strong>P（Partition Tolerance）</strong>：分区容错性，网络分区后仍能运行</li>
+                    </ul>
+                    <p><strong>定理：</strong>CAP无法同时满足，最多满足两个</p>
+                    <p><strong>选择：</strong>CP（ZooKeeper）、AP（Eureka）</p>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">BASE理论是什么？</div>
+                <div class="answer">
+                    <p><strong>BASE</strong>是CAP的延伸，强调最终一致性</p>
+                    <ul>
+                        <li><strong>BA（Basically Available）</strong>：基本可用</li>
+                        <li><strong>S（Soft State）</strong>：软状态，允许中间状态</li>
+                        <li><strong>E（Eventually Consistent）</strong>：最终一致性</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">一致性Hash是什么？解决什么问题？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>解决问题：</strong>普通Hash在节点增减时大量数据需要迁移</p>
+                    <p><strong>原理：</strong></p>
+                    <ul>
+                        <li>将节点和数据都映射到一个Hash环上（0~2^32-1）</li>
+                        <li>数据顺时针找到第一个节点</li>
+                        <li>节点增减只影响相邻节点</li>
+                    </ul>
+                    <p><strong>虚拟节点：</strong>解决数据倾斜问题，一个物理节点对应多个虚拟节点</p>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">限流算法有哪些？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>计数器</strong>：固定窗口，简单但可能有突发流量</li>
+                        <li><strong>滑动窗口</strong>：更平滑，但计算复杂</li>
+                        <li><strong>令牌桶</strong>：以固定速率放入令牌，可应对突发流量</li>
+                        <li><strong>漏桶</strong>：请求进入桶，以固定速率流出，平滑流量</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>消息队列</h2>
+            <div class="qa-item">
+                <div class="question">消息队列的作用？如何保证消息不丢失？</div>
+                <div class="answer">
+                    <span class="tag important">重要</span>
+                    <p><strong>作用：</strong>异步处理、应用解耦、流量削峰</p>
+                    <p><strong>保证不丢失：</strong></p>
+                    <ul>
+                        <li><strong>生产者</strong>：confirm机制，确保消息到达Exchange</li>
+                        <li><strong>MQ</strong>：消息持久化到磁盘</li>
+                        <li><strong>消费者</strong>：手动ACK，处理完再确认</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Kafka、RabbitMQ、RocketMQ的区别？</div>
+                <div class="answer">
+                    <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr style="background: #edf2f7;">
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">特性</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">Kafka</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">RabbitMQ</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">RocketMQ</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">开发语言</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Scala</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Erlang</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Java</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">吞吐量</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">最高</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">万级</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">十万级</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">延迟</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">ms级</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">微秒级</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">ms级</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">适用场景</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">日志、大数据</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">企业级应用</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">金融、电商</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
