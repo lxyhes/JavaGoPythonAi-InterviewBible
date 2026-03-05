@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作系统面试题 - IT面试宝典</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #f5f7fa; color: #333; line-height: 1.8; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .back-link { display: inline-flex; align-items: center; color: #667eea; text-decoration: none; margin-bottom: 30px; font-weight: 500; }
+        .back-link:hover { color: #764ba2; }
+        h1 { color: #2d3748; margin-bottom: 10px; font-size: 2.5rem; }
+        .subtitle { color: #718096; margin-bottom: 40px; }
+        .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .section h2 { color: #667eea; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; font-size: 1.5rem; }
+        .qa-item { margin-bottom: 30px; }
+        .qa-item:last-child { margin-bottom: 0; }
+        .question { font-weight: 600; color: #2d3748; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: flex-start; }
+        .question::before { content: "Q"; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 12px; flex-shrink: 0; margin-top: 2px; }
+        .answer { color: #4a5568; padding-left: 36px; }
+        .answer p { margin-bottom: 10px; }
+        .answer ul, .answer ol { margin-left: 20px; margin-bottom: 10px; }
+        .answer li { margin-bottom: 5px; }
+        code { background: #edf2f7; padding: 2px 8px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; color: #e53e3e; }
+        pre { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        .tag { display: inline-block; background: #edf2f7; color: #4a5568; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-right: 8px; margin-bottom: 8px; }
+        .tag.frequent { background: #c6f6d5; color: #276749; }
+        .tag.important { background: #fed7d7; color: #c53030; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        <h1>操作系统面试题</h1>
+        <p class="subtitle">涵盖Linux、进程管理、内存管理、文件系统等核心知识</p>
+        
+        <div class="section">
+            <h2>进程与线程</h2>
+            <div class="qa-item">
+                <div class="question">进程和线程的区别？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr style="background: #edf2f7;">
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">特性</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">进程</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">线程</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">资源</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">独立地址空间</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">共享进程资源</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">开销</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">大（创建/切换）</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">小</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">通信</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">IPC（管道、消息队列等）</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">直接读写共享内存</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">崩溃影响</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">不影响其他进程</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">可能导致整个进程崩溃</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">进程间通信（IPC）方式有哪些？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <ul>
+                        <li><strong>管道（Pipe）</strong>：半双工，父子进程间通信</li>
+                        <li><strong>命名管道（FIFO）</strong>：无亲缘关系进程间通信</li>
+                        <li><strong>消息队列</strong>：消息的链表，有格式</li>
+                        <li><strong>共享内存</strong>：最快，需配合信号量使用</li>
+                        <li><strong>信号量</strong>：用于进程同步</li>
+                        <li><strong>信号</strong>：异步通知机制</li>
+                        <li><strong>Socket</strong>：不同主机间通信</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">进程的调度算法有哪些？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>先来先服务（FCFS）</strong>：简单但可能产生长作业等待</li>
+                        <li><strong>短作业优先（SJF）</strong>：平均等待时间最短</li>
+                        <li><strong>时间片轮转（RR）</strong>：每个进程分配时间片</li>
+                        <li><strong>优先级调度</strong>：根据优先级选择</li>
+                        <li><strong>多级反馈队列</strong>：结合时间片和优先级</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">死锁产生的条件？如何避免？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>死锁四条件（缺一不可）：</strong></p>
+                    <ol>
+                        <li><strong>互斥</strong>：资源一次只能被一个进程占用</li>
+                        <li><strong>占有且等待</strong>：占有资源同时等待其他资源</li>
+                        <li><strong>不可抢占</strong>：已分配的资源不能被强制剥夺</li>
+                        <li><strong>循环等待</strong>：进程间形成循环等待链</li>
+                    </ol>
+                    <p><strong>避免方法：</strong></p>
+                    <ul>
+                        <li>银行家算法（资源分配前检查安全性）</li>
+                        <li>资源有序分配法（按序申请资源）</li>
+                        <li>超时放弃</li>
+                        <li>一次性申请所有资源</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>内存管理</h2>
+            <div class="qa-item">
+                <div class="question">虚拟内存是什么？有什么作用？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>虚拟内存</strong>是一种内存管理技术，使每个进程认为自己拥有连续的内存空间，实际物理内存可能不连续。</p>
+                    <p><strong>作用：</strong></p>
+                    <ul>
+                        <li>扩大可用内存（使用磁盘作为交换空间）</li>
+                        <li>内存隔离（进程间互不干扰）</li>
+                        <li>简化内存管理（连续的虚拟地址）</li>
+                        <li>实现内存共享（共享库）</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">页面置换算法有哪些？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>OPT（最佳置换）</strong>：淘汰将来最长时间不使用的（理论最优）</li>
+                        <li><strong>FIFO（先进先出）</strong>：可能产生Belady异常</li>
+                        <li><strong>LRU（最近最少使用）</strong>：最常用，基于局部性原理</li>
+                        <li><strong>LFU（最少使用）</strong>：考虑使用频率</li>
+                        <li><strong>Clock（时钟置换）</strong>：LRU的近似实现</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">什么是缺页中断？处理流程？</div>
+                <div class="answer">
+                    <p><strong>缺页中断</strong>：访问的页面不在物理内存中，需要从磁盘加载。</p>
+                    <p><strong>处理流程：</strong></p>
+                    <ol>
+                        <li>CPU产生缺页中断，陷入内核</li>
+                        <li>保存当前进程状态</li>
+                        <li>查找页面在磁盘的位置</li>
+                        <li>分配物理页框（可能需要页面置换）</li>
+                        <li>从磁盘读取页面到内存</li>
+                        <li>更新页表</li>
+                        <li>恢复进程状态，重新执行指令</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Linux</h2>
+            <div class="qa-item">
+                <div class="question">Linux常用命令有哪些？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>文件操作：</strong></p>
+                    <ul>
+                        <li><code>ls</code>、<code>cd</code>、<code>pwd</code>、<code>mkdir</code>、<code>rm</code>、<code>cp</code>、<code>mv</code>、<code>touch</code></li>
+                        <li><code>cat</code>、<code>less</code>、<code>more</code>、<code>head</code>、<code>tail</code>、<code>grep</code></li>
+                        <li><code>find</code>、<code>locate</code>、<code>which</code></li>
+                    </ul>
+                    <p><strong>系统监控：</strong></p>
+                    <ul>
+                        <li><code>ps</code>、<code>top</code>、<code>htop</code>、<code>kill</code>、<code>killall</code></li>
+                        <li><code>df</code>、<code>du</code>、<code>free</code>、<code>vmstat</code>、<code>iostat</code></li>
+                        <li><code>netstat</code>、<code>ss</code>、<code>lsof</code></li>
+                    </ul>
+                    <p><strong>网络：</strong></p>
+                    <ul>
+                        <li><code>ping</code>、<code>curl</code>、<code>wget</code>、<code>ifconfig</code>/<code>ip</code>、<code>telnet</code></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Linux文件权限755、644是什么意思？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p>三位数字分别代表：所有者、所属组、其他用户的权限</p>
+                    <ul>
+                        <li><strong>4</strong>：读（r）</li>
+                        <li><strong>2</strong>：写（w）</li>
+                        <li><strong>1</strong>：执行（x）</li>
+                    </ul>
+                    <p><strong>755</strong> = rwxr-xr-x（所有者可读可写可执行，组和其他只读可执行）</p>
+                    <p><strong>644</strong> = rw-r--r--（所有者可读可写，组和其他只读）</p>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Linux进程状态有哪些？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>R（Running）</strong>：运行中或可运行</li>
+                        <li><strong>S（Sleeping）</strong>：可中断睡眠（等待事件）</li>
+                        <li><strong>D（Disk sleep）</strong>：不可中断睡眠（通常IO）</li>
+                        <li><strong>T（Stopped）</strong>：停止（收到信号）</li>
+                        <li><strong>Z（Zombie）</strong>：僵尸进程（已终止但父进程未回收）</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">如何排查CPU占用高的问题？</div>
+                <div class="answer">
+                    <ol>
+                        <li><code>top</code>或<code>htop</code>查看CPU占用高的进程</li>
+                        <li><code>top -Hp PID</code>查看进程中占用高的线程</li>
+                        <li><code>printf "%x\n" TID</code>将线程ID转为16进制</li>
+                        <li><code>jstack PID | grep TID</code>查看线程堆栈（Java）</li>
+                        <li>分析代码，定位问题</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Linux的IO模型有哪些？</div>
+                <div class="answer">
+                    <span class="tag important">重要</span>
+                    <ul>
+                        <li><strong>阻塞IO</strong>：调用后等待数据准备好</li>
+                        <li><strong>非阻塞IO</strong>：立即返回，轮询检查</li>
+                        <li><strong>IO多路复用</strong>：select/poll/epoll，同时监听多个fd</li>
+                        <li><strong>信号驱动IO</strong>：数据准备好后发送信号</li>
+                        <li><strong>异步IO</strong>：数据准备好并拷贝到用户空间后通知</li>
+                    </ul>
+                    <p><strong>epoll优势：</strong>基于事件通知，无fd数量限制，O(1)时间复杂度</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Shell编程</h2>
+            <div class="qa-item">
+                <div class="question">Shell脚本中$0、$1、$#、$?、$*、$@的区别？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>$0</strong>：脚本名称</li>
+                        <li><strong>$1-$9</strong>：第1-9个参数</li>
+                        <li><strong>$#</strong>：参数个数</li>
+                        <li><strong>$?</strong>：上一个命令的退出状态</li>
+                        <li><strong>$*</strong>：所有参数（作为一个字符串）</li>
+                        <li><strong>$@</strong>：所有参数（作为多个字符串）</li>
+                        <li><strong>$$</strong>：当前进程ID</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Shell中单引号和双引号的区别？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>单引号''</strong>：原样输出，不解析变量和转义字符</li>
+                        <li><strong>双引号""</strong>：解析变量和转义字符</li>
+                    </ul>
+                    <pre><code>name="World"
+echo 'Hello $name'  # 输出：Hello $name
+echo "Hello $name"  # 输出：Hello World</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

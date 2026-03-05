@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps面试题 - IT面试宝典</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: #f5f7fa; color: #333; line-height: 1.8; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .back-link { display: inline-flex; align-items: center; color: #667eea; text-decoration: none; margin-bottom: 30px; font-weight: 500; }
+        .back-link:hover { color: #764ba2; }
+        h1 { color: #2d3748; margin-bottom: 10px; font-size: 2.5rem; }
+        .subtitle { color: #718096; margin-bottom: 40px; }
+        .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .section h2 { color: #667eea; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; font-size: 1.5rem; }
+        .qa-item { margin-bottom: 30px; }
+        .qa-item:last-child { margin-bottom: 0; }
+        .question { font-weight: 600; color: #2d3748; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: flex-start; }
+        .question::before { content: "Q"; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 12px; flex-shrink: 0; margin-top: 2px; }
+        .answer { color: #4a5568; padding-left: 36px; }
+        .answer p { margin-bottom: 10px; }
+        .answer ul, .answer ol { margin-left: 20px; margin-bottom: 10px; }
+        .answer li { margin-bottom: 5px; }
+        code { background: #edf2f7; padding: 2px 8px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; color: #e53e3e; }
+        pre { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        .tag { display: inline-block; background: #edf2f7; color: #4a5568; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-right: 8px; margin-bottom: 8px; }
+        .tag.frequent { background: #c6f6d5; color: #276749; }
+        .tag.important { background: #fed7d7; color: #c53030; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        <h1>DevOps面试题</h1>
+        <p class="subtitle">涵盖Docker、Kubernetes、CI/CD、监控等运维核心知识</p>
+        
+        <div class="section">
+            <h2>Docker</h2>
+            <div class="qa-item">
+                <div class="question">Docker和虚拟机的区别？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr style="background: #edf2f7;">
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">特性</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">Docker</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">虚拟机</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">启动速度</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">秒级</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">分钟级</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">资源占用</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">少（MB级）</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">多（GB级）</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">隔离级别</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">进程级</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">系统级</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">性能</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">接近原生</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">有损耗</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Docker的镜像分层是什么？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>联合文件系统（UnionFS）</strong>：将多个只读层叠加，最上层可写</p>
+                    <p><strong>分层优势：</strong></p>
+                    <ul>
+                        <li>共享基础镜像，节省存储</li>
+                        <li>构建缓存，加速构建</li>
+                        <li>快速部署，只需传输变更层</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Docker的网络模式有哪些？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>bridge</strong>：默认，容器通过网桥通信</li>
+                        <li><strong>host</strong>：共享宿主机网络栈</li>
+                        <li><strong>none</strong>：无网络</li>
+                        <li><strong>container</strong>：共享另一个容器的网络</li>
+                        <li><strong>自定义网络</strong>：支持DNS解析</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Kubernetes</h2>
+            <div class="qa-item">
+                <div class="question">K8s的架构组件有哪些？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>Master节点：</strong></p>
+                    <ul>
+                        <li><strong>API Server</strong>：集群入口，处理REST请求</li>
+                        <li><strong>etcd</strong>：分布式键值存储，保存集群状态</li>
+                        <li><strong>Scheduler</strong>：调度Pod到Node</li>
+                        <li><strong>Controller Manager</strong>：维护集群状态</li>
+                    </ul>
+                    <p><strong>Node节点：</strong></p>
+                    <ul>
+                        <li><strong>kubelet</strong>：管理Pod生命周期</li>
+                        <li><strong>kube-proxy</strong>：网络代理和负载均衡</li>
+                        <li><strong>容器运行时</strong>：Docker/containerd</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Pod、Deployment、Service的区别？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>Pod</strong>：最小部署单元，包含一个或多个容器</li>
+                        <li><strong>Deployment</strong>：管理Pod的副本数、滚动更新、回滚</li>
+                        <li><strong>Service</strong>：提供稳定的网络访问入口，负载均衡</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">K8s的滚动更新和回滚如何实现？</div>
+                <div class="answer">
+                    <p><strong>滚动更新：</strong></p>
+                    <pre><code>kubectl set image deployment/myapp myapp=myapp:v2
+# 或修改yaml后 apply</code></pre>
+                    <p><strong>策略参数：</strong></p>
+                    <ul>
+                        <li>maxSurge：更新时最多可超出的Pod数</li>
+                        <li>maxUnavailable：更新时最大不可用Pod数</li>
+                    </ul>
+                    <p><strong>回滚：</strong></p>
+                    <pre><code>kubectl rollout history deployment/myapp  # 查看历史
+kubectl rollout undo deployment/myapp     # 回滚到上一版
+kubectl rollout undo deployment/myapp --to-revision=2</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>CI/CD</h2>
+            <div class="qa-item">
+                <div class="question">什么是CI/CD？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>CI（Continuous Integration）</strong>：持续集成</p>
+                    <ul>
+                        <li>代码提交后自动构建、测试</li>
+                        <li>工具：Jenkins、GitLab CI、GitHub Actions</li>
+                    </ul>
+                    <p><strong>CD（Continuous Deployment/Delivery）</strong>：持续部署/交付</p>
+                    <ul>
+                        <li>自动部署到测试/生产环境</li>
+                        <li>持续交付需手动触发，持续部署全自动</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Git工作流有哪些？</div>
+                <div class="answer">
+                    <ul>
+                        <li><strong>Git Flow</strong>：master、develop、feature、release、hotfix分支</li>
+                        <li><strong>GitHub Flow</strong>：简单，master + feature分支，PR合并</li>
+                        <li><strong>GitLab Flow</strong>：结合环境分支</li>
+                        <li><strong>Trunk-based</strong>：主干开发，短生命周期分支</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>监控与日志</h2>
+            <div class="qa-item">
+                <div class="question">常用的监控方案有哪些？</div>
+                <div class="answer">
+                    <p><strong>指标监控：</strong></p>
+                    <ul>
+                        <li><strong>Prometheus + Grafana</strong>：时序数据库，强大的查询和可视化</li>
+                        <li><strong>Zabbix</strong>：传统企业级监控</li>
+                    </ul>
+                    <p><strong>日志监控：</strong></p>
+                    <ul>
+                        <li><strong>ELK</strong>：Elasticsearch + Logstash + Kibana</li>
+                        <li><strong>EFK</strong>：Elasticsearch + Fluentd + Kibana</li>
+                        <li><strong>Loki</strong>：轻量级，与Grafana集成</li>
+                    </ul>
+                    <p><strong>链路追踪：</strong></p>
+                    <ul>
+                        <li>Jaeger、Zipkin、SkyWalking</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">什么是可观测性（Observability）？</div>
+                <div class="answer">
+                    <p><strong>三大支柱：</strong></p>
+                    <ul>
+                        <li><strong>Metrics（指标）</strong>：数值型数据，如CPU、内存、QPS</li>
+                        <li><strong>Logs（日志）</strong>：离散事件记录</li>
+                        <li><strong>Traces（链路）</strong>：请求在分布式系统中的流转路径</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>云原生</h2>
+            <div class="qa-item">
+                <div class="question">什么是云原生（Cloud Native）？</div>
+                <div class="answer">
+                    <span class="tag frequent">高频</span>
+                    <p><strong>CNCF定义：</strong></p>
+                    <ul>
+                        <li><strong>容器化</strong>：Docker、containerd</li>
+                        <li><strong>微服务</strong>：服务拆分，独立部署</li>
+                        <li><strong>DevOps</strong>：开发与运维协作</li>
+                        <li><strong>持续交付</strong>：自动化部署</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="qa-item">
+                <div class="question">Service Mesh是什么？</div>
+                <div class="answer">
+                    <p><strong>概念：</strong>服务间通信的基础设施层，对应用透明</p>
+                    <p><strong>功能：</strong></p>
+                    <ul>
+                        <li>服务发现、负载均衡</li>
+                        <li>流量管理（灰度发布、熔断）</li>
+                        <li>安全（mTLS）</li>
+                        <li>可观测性</li>
+                    </ul>
+                    <p><strong>产品：</strong>Istio、Linkerd、Consul Connect</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
