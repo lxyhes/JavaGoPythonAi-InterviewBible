@@ -1,0 +1,48 @@
+{
+  "name": "interview-guide",
+  "version": "1.0.0",
+  "description": "IT面试宝典 - 全面覆盖前端、后端、数据库、算法等核心技术",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "format": "prettier --write src/",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5",
+    "pinia": "^2.1.7",
+    "@vueuse/core": "^10.7.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/tsconfig": "^0.5.1",
+    "typescript": "~5.3.0",
+    "vue-tsc": "^1.8.27",
+    "vite": "^5.0.11",
+    "@rushstack/eslint-patch": "^1.6.1",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^20.11.5",
+    "@vue/eslint-config-prettier": "^10.0.0",
+    "@vue/eslint-config-typescript": "^12.0.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.20.1",
+    "prettier": "^3.2.4",
+    "npm-run-all2": "^6.1.1"
+  },
+  "keywords": [
+    "interview",
+    "frontend",
+    "backend",
+    "vue3",
+    "typescript"
+  ],
+  "author": "IT Interview Guide Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
