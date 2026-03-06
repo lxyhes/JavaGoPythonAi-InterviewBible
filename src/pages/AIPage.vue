@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -13,22 +13,22 @@
 
       <div class="content-container">
         <section id="ai-basics" class="section">
-          <ContentRenderer title="🤖 AI 基础" :items="aiBasicsQA" />
+          <ContentRenderer title="🤖 AI 基础" :items="aiBasicsQA" anchor-prefix="ai-basics" />
         </section>
         <section id="ai-more" class="section">
-          <ContentRenderer title="📚 AI 进阶" :items="aiMoreQA" />
+          <ContentRenderer title="📚 AI 进阶" :items="aiMoreQA" anchor-prefix="ai-more" />
         </section>
         <section id="deep-learning" class="section">
-          <ContentRenderer title="🧠 深度学习" :items="deepLearningQA" />
+          <ContentRenderer title="🧠 深度学习" :items="deepLearningQA" anchor-prefix="deep-learning" />
         </section>
         <section id="llm" class="section">
-          <ContentRenderer title="🔥 大语言模型" :items="llmQA" />
+          <ContentRenderer title="🔥 大语言模型" :items="llmQA" anchor-prefix="llm" />
         </section>
         <section id="prompt-engineering" class="section">
-          <ContentRenderer title="💬 提示工程" :items="promptEngineeringQA" />
+          <ContentRenderer title="💬 提示工程" :items="promptEngineeringQA" anchor-prefix="prompt-engineering" />
         </section>
         <section id="ai-project" class="section">
-          <ContentRenderer title="💼 AI 项目实战" :items="aiProjectQA" />
+          <ContentRenderer title="💼 AI 项目实战" :items="aiProjectQA" anchor-prefix="ai-project" />
         </section>
       </div>
     </main>
@@ -192,3 +192,4 @@ onMounted(() => {
   }
 }
 </style>
+

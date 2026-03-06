@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -13,13 +13,13 @@
 
       <div class="content-container">
         <section id="mysql" class="section">
-          <ContentRenderer title="🐬 MySQL 面试题" :items="mysqlQA" />
+          <ContentRenderer title="🐬 MySQL 面试题" :items="mysqlQA" anchor-prefix="mysql" />
         </section>
         <section id="redis" class="section">
-          <ContentRenderer title="⚡ Redis 面试题" :items="redisQA" />
+          <ContentRenderer title="⚡ Redis 面试题" :items="redisQA" anchor-prefix="redis" />
         </section>
         <section id="mongodb" class="section">
-          <ContentRenderer title="🍃 MongoDB 面试题" :items="mongodbQA" />
+          <ContentRenderer title="🍃 MongoDB 面试题" :items="mongodbQA" anchor-prefix="mongodb" />
         </section>
       </div>
     </main>
@@ -167,3 +167,4 @@ onMounted(() => {
   }
 }
 </style>
+

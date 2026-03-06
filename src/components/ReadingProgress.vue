@@ -3,20 +3,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 
 const store = useAppStore()
 const progress = computed(() => store.readingProgress)
 
+const handleScroll = () => {
+  store.updateReadingProgress()
+}
+
 onMounted(() => {
-  window.addEventListener(
-    'scroll',
-    () => {
-      store.updateReadingProgress()
-    },
-    { passive: true }
-  )
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 

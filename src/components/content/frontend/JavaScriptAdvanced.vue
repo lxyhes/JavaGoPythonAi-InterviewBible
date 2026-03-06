@@ -95,7 +95,7 @@ function throttle(fn, delay) {
   return function(...args) {
     const now = Date.now();
     const remaining = delay - (now - lastTime);
-    if (remaining <= 0) {
+    if (remaining &lt;= 0) {
       if (timer) {
         clearTimeout(timer);
         timer = null;

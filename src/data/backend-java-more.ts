@@ -1,4 +1,4 @@
-import type { QAItem } from './backend'
+﻿import type { QAItem } from './backend'
 
 export const javaMoreQA: QAItem[] = [
   {
@@ -351,9 +351,9 @@ export const javaFrameworkQA: QAItem[] = [
 4. MappedStatement 封装 SQL 信息
 5. 结果通过 TypeHandler 映射为 Java 对象
 
-**#{} 和 ${} 区别：**
+**#{} 和 \${} 区别：**
 
-| 特性 | #{} | ${} |
+| 特性 | #{} | \${} |
 |------|-----|-----|
 | 处理方式 | 预编译，占位符 | 字符串替换 |
 | SQL 注入 | 安全 | 不安全 |
@@ -364,8 +364,8 @@ export const javaFrameworkQA: QAItem[] = [
 // #{} 预编译
 SELECT * FROM user WHERE id = ?
 
-// ${} 直接替换
-SELECT * FROM user ORDER BY ${column}
+// \${} 直接替换
+SELECT * FROM user ORDER BY \${column}
 \`\`\``
   },
   {
@@ -397,3 +397,4 @@ SELECT * FROM user ORDER BY ${column}
 - Spring Cloud Bus`
   },
 ]
+

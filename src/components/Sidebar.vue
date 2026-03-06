@@ -39,16 +39,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import type { NavConfig } from '@/types'
 
-const props = defineProps<{
-  pageType: string
+defineProps<{
+  pageType?: string
   config: NavConfig
 }>()
 
 const store = useAppStore()
+let observer: IntersectionObserver | null = null
 
 const scrollToSection = (sectionId: string) => {
   const element = document.getElementById(sectionId)
@@ -69,7 +70,7 @@ const scrollToSection = (sectionId: string) => {
 onMounted(() => {
   const sections = document.querySelectorAll('.section[id]')
 
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -83,7 +84,11 @@ onMounted(() => {
     }
   )
 
-  sections.forEach((section) => observer.observe(section))
+  sections.forEach((section) => observer?.observe(section))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>
 

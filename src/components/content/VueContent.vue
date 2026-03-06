@@ -296,7 +296,7 @@ function update() {
   &lt;template #default&gt;默认插槽内容&lt;/template&gt;
   &lt;template #header&gt;头部内容&lt;/template&gt;
   &lt;template #item="{ data }"&gt;
-    {{ data.name }}
+    &#123;&#123; data.name &#125;&#125;
   &lt;/template&gt;
 &lt;/Child&gt;</code></pre>
       </div>

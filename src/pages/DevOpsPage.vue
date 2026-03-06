@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
@@ -44,30 +43,20 @@ const devopsConfig: NavConfig = {
   ],
 }
 
-const currentSection = ref('docker')
-
-const handleNavChange = (id: string) => {
-  currentSection.value = id
-}
 </script>
 
 <template>
   <div class="page-container">
-    <Sidebar :config="devopsConfig" :active-id="currentSection" @nav-change="handleNavChange" />
+    <Sidebar page-type="devops" :config="devopsConfig" />
     <main class="main-content">
       <div class="content-header">
         <h1>{{ devopsConfig.icon }} {{ devopsConfig.title }}</h1>
         <p class="subtitle">掌握DevOps实践，提升运维效率</p>
       </div>
       <div class="content-body">
-        <ContentSection
-          v-for="category in devopsConfig.categories"
-          :key="category.name"
-          v-for="item in category.items"
-          :id="item.id"
-          :title="item.title"
-          :icon="item.icon"
-        />
+        <template v-for="category in devopsConfig.categories" :key="category.name">
+          <ContentSection v-for="item in category.items" :key="item.id" :id="item.id" :title="item.title" />
+        </template>
       </div>
     </main>
   </div>

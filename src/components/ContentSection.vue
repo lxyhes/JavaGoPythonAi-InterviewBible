@@ -1,10 +1,11 @@
-<template>
+﻿<template>
   <div :id="id" class="section" v-html="content || '<div class=\'skeleton-section\'></div>'"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { sanitizeHtml } from '@/utils/sanitizeHtml'
 
 const props = defineProps<{
   id: string
@@ -15,6 +16,7 @@ const props = defineProps<{
 const store = useAppStore()
 const content = ref('')
 const isLoaded = ref(false)
+let observer: IntersectionObserver | null = null
 
 const loadContent = async () => {
   if (isLoaded.value) return
@@ -24,7 +26,8 @@ const loadContent = async () => {
     const pageType = window.location.pathname.split('/')[1] || 'frontend'
     const response = await fetch(`/sections/${pageType}/${props.id}.html`)
     if (response.ok) {
-      content.value = await response.text()
+      const html = await response.text()
+      content.value = sanitizeHtml(html, 'section')
       isLoaded.value = true
     }
   } catch (error) {
@@ -36,12 +39,12 @@ const loadContent = async () => {
 
 onMounted(() => {
   if (props.loading) {
-    const observer = new IntersectionObserver(
+    observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             loadContent()
-            observer.unobserve(entry.target)
+            observer?.unobserve(entry.target)
           }
         })
       },
@@ -53,6 +56,10 @@ onMounted(() => {
   } else {
     loadContent()
   }
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>
 
@@ -318,3 +325,6 @@ onMounted(() => {
   }
 }
 </style>
+
+
+

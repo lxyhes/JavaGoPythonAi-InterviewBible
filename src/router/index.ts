@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -6,6 +6,26 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'Home',
     component: () => import('@/pages/HomePage.vue'),
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/pages/SearchPage.vue'),
+  },
+  {
+    path: '/practice',
+    name: 'Practice',
+    component: () => import('@/pages/PracticePage.vue'),
+  },
+  {
+    path: '/review',
+    name: 'Review',
+    component: () => import('@/pages/ReviewPage.vue'),
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('@/pages/DashboardPage.vue'),
   },
   {
     path: '/frontend',
@@ -62,7 +82,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else if (to.hash) {

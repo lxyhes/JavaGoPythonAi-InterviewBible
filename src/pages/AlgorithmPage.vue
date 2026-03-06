@@ -1,8 +1,45 @@
+﻿<template>
+  <div class="page-layout">
+    <ReadingProgress />
+    <MobileMenuBtn />
+    <Sidebar page-type="algorithm" :config="algorithmConfig" />
+
+    <main class="main-content">
+      <header class="page-header">
+        <router-link to="/" class="back-link">返回首页</router-link>
+        <h1 class="page-title">算法面试题</h1>
+        <p class="page-subtitle">覆盖排序、数据结构与 LeetCode 高频题，支持搜索直达与刷题。</p>
+      </header>
+
+      <div class="content-container">
+        <section id="sorting" class="section">
+          <ContentRenderer title="📊 排序算法" :items="sortQA" anchor-prefix="sorting" />
+        </section>
+        <section id="data-structure" class="section">
+          <ContentRenderer title="📚 数据结构" :items="dataStructureQA" anchor-prefix="data-structure" />
+        </section>
+        <section id="leetcode" class="section">
+          <ContentRenderer title="🧪 LeetCode 高频" :items="leetcodeQA" anchor-prefix="leetcode" />
+        </section>
+      </div>
+    </main>
+
+    <BackToTop />
+  </div>
+</template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
-import Sidebar from '../components/Sidebar.vue'
-import ContentSection from '../components/ContentSection.vue'
-import type { NavConfig } from '../types'
+import { onMounted } from 'vue'
+import { useAppStore } from '@/stores/app'
+import Sidebar from '@/components/Sidebar.vue'
+import BackToTop from '@/components/BackToTop.vue'
+import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
+import ReadingProgress from '@/components/ReadingProgress.vue'
+import ContentRenderer from '@/components/content/ContentRenderer.vue'
+import { dataStructureQA, leetcodeQA, sortQA } from '@/data/algorithm'
+import type { NavConfig } from '@/types'
+
+const store = useAppStore()
 
 const algorithmConfig: NavConfig = {
   title: '算法面试宝典',
@@ -10,111 +47,124 @@ const algorithmConfig: NavConfig = {
   categories: [
     {
       name: '基础算法',
-      items: [
-        { id: 'sorting', title: '排序算法', icon: '📊' },
-        { id: 'searching', title: '查找算法', icon: '🔍' },
-        { id: 'recursion', title: '递归与分治', icon: '🔄' },
-      ],
+      items: [{ id: 'sorting', title: '排序算法', icon: '📊' }],
     },
     {
       name: '数据结构',
-      items: [
-        { id: 'array', title: '数组与链表', icon: '📋' },
-        { id: 'stack-queue', title: '栈与队列', icon: '📚' },
-        { id: 'tree', title: '树与图', icon: '🌳' },
-        { id: 'hash', title: '哈希表', icon: '#️⃣' },
-      ],
-    },
-    {
-      name: '进阶算法',
-      items: [
-        { id: 'dynamic-programming', title: '动态规划', icon: '📈' },
-        { id: 'greedy', title: '贪心算法', icon: '💰' },
-        { id: 'backtracking', title: '回溯算法', icon: '🔙' },
-      ],
+      items: [{ id: 'data-structure', title: '数组 / 链表 / 树', icon: '📚' }],
     },
     {
       name: 'LeetCode',
-      items: [
-        { id: 'leetcode-easy', title: '简单题精选', icon: '🟢' },
-        { id: 'leetcode-medium', title: '中等题精选', icon: '🟡' },
-        { id: 'leetcode-hard', title: '困难题精选', icon: '🔴' },
-      ],
+      items: [{ id: 'leetcode', title: '高频题', icon: '🧪' }],
     },
   ],
 }
 
-const currentSection = ref('sorting')
-
-const handleNavChange = (id: string) => {
-  currentSection.value = id
-}
+onMounted(() => {
+  store.initTheme()
+})
 </script>
 
-<template>
-  <div class="page-container">
-    <Sidebar :config="algorithmConfig" :active-id="currentSection" @nav-change="handleNavChange" />
-    <main class="main-content">
-      <div class="content-header">
-        <h1>{{ algorithmConfig.icon }} {{ algorithmConfig.title }}</h1>
-        <p class="subtitle">掌握核心算法，轻松应对技术面试</p>
-      </div>
-      <div class="content-body">
-        <ContentSection
-          v-for="category in algorithmConfig.categories"
-          :key="category.name"
-          v-for="item in category.items"
-          :id="item.id"
-          :title="item.title"
-          :icon="item.icon"
-        />
-      </div>
-    </main>
-  </div>
-</template>
-
 <style scoped>
-.page-container {
-  display: flex;
+.page-layout {
   min-height: 100vh;
 }
 
 .main-content {
-  flex: 1;
   margin-left: var(--sidebar-width);
-  padding: 2rem;
+  flex: 1;
+  padding: 48px 64px;
   max-width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
 }
 
-.content-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+.page-header {
+  margin-bottom: 48px;
+  padding-bottom: 32px;
   border-bottom: 1px solid var(--border-color);
+  position: relative;
 }
 
-.content-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100px;
+  height: 3px;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  margin-bottom: 16px;
+  transition: var(--transition-base);
+}
+
+.back-link:hover {
+  color: var(--primary-color);
+}
+
+.page-title {
+  font-size: 3rem;
+  font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+.page-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  max-width: 720px;
 }
 
-.content-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.section {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  margin-bottom: 40px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-base);
+  border: 1px solid var(--border-light);
+}
+
+.section:hover {
+  box-shadow: var(--shadow-md);
+  border-color: rgba(99, 102, 241, 0.1);
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 32px;
+  }
 }
 
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 1rem;
+    padding: 24px 20px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .page-subtitle {
+    font-size: 1.0625rem;
+  }
+
+  .section {
+    padding: 24px;
   }
 }
 </style>

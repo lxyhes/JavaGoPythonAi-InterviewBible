@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
@@ -43,30 +42,20 @@ const osConfig: NavConfig = {
   ],
 }
 
-const currentSection = ref('process-thread')
-
-const handleNavChange = (id: string) => {
-  currentSection.value = id
-}
 </script>
 
 <template>
   <div class="page-container">
-    <Sidebar :config="osConfig" :active-id="currentSection" @nav-change="handleNavChange" />
+    <Sidebar page-type="os" :config="osConfig" />
     <main class="main-content">
       <div class="content-header">
         <h1>{{ osConfig.icon }} {{ osConfig.title }}</h1>
         <p class="subtitle">理解操作系统原理，掌握底层机制</p>
       </div>
       <div class="content-body">
-        <ContentSection
-          v-for="category in osConfig.categories"
-          :key="category.name"
-          v-for="item in category.items"
-          :id="item.id"
-          :title="item.title"
-          :icon="item.icon"
-        />
+        <template v-for="category in osConfig.categories" :key="category.name">
+          <ContentSection v-for="item in category.items" :key="item.id" :id="item.id" :title="item.title" />
+        </template>
       </div>
     </main>
   </div>

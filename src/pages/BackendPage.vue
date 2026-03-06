@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -13,31 +13,31 @@
 
       <div class="content-container">
         <section id="java-basics" class="section">
-          <ContentRenderer title="☕ Java 基础" :items="javaBasicsQA" />
+          <ContentRenderer title="☕ Java 基础" :items="javaBasicsQA" anchor-prefix="java-basics" />
         </section>
         <section id="java-advanced" class="section">
-          <ContentRenderer title="🔥 Java 进阶" :items="javaAdvancedQA" />
+          <ContentRenderer title="🔥 Java 进阶" :items="javaAdvancedQA" anchor-prefix="java-advanced" />
         </section>
         <section id="java-jvm" class="section">
-          <ContentRenderer title="⚙️ JVM 原理" :items="javaJVMQA" />
+          <ContentRenderer title="⚙️ JVM 原理" :items="javaJVMQA" anchor-prefix="java-jvm" />
         </section>
         <section id="java-concurrent" class="section">
-          <ContentRenderer title="⚡ Java 并发" :items="javaConcurrentQA" />
+          <ContentRenderer title="⚡ Java 并发" :items="javaConcurrentQA" anchor-prefix="java-concurrent" />
         </section>
         <section id="java-network" class="section">
-          <ContentRenderer title="🌐 网络编程" :items="javaNetworkQA" />
+          <ContentRenderer title="🌐 网络编程" :items="javaNetworkQA" anchor-prefix="java-network" />
         </section>
         <section id="java-spring" class="section">
-          <ContentRenderer title="🍃 Spring 框架" :items="javaSpringQA" />
+          <ContentRenderer title="🍃 Spring 框架" :items="javaSpringQA" anchor-prefix="java-spring" />
         </section>
         <section id="java-distributed" class="section">
-          <ContentRenderer title="🔒 分布式系统" :items="javaDistributedQA" />
+          <ContentRenderer title="🔒 分布式系统" :items="javaDistributedQA" anchor-prefix="java-distributed" />
         </section>
         <section id="microservices" class="section">
-          <ContentRenderer title="🔧 微服务架构" :items="microservicesQA" />
+          <ContentRenderer title="🔧 微服务架构" :items="microservicesQA" anchor-prefix="microservices" />
         </section>
         <section id="project-backend" class="section">
-          <ContentRenderer title="💼 后端项目实战" :items="backendProjectQA" />
+          <ContentRenderer title="💼 后端项目实战" :items="backendProjectQA" anchor-prefix="project-backend" />
         </section>
       </div>
     </main>
@@ -205,3 +205,4 @@ onMounted(() => {
   }
 }
 </style>
+

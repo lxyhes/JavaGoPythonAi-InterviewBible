@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
@@ -37,30 +36,20 @@ const systemDesignConfig: NavConfig = {
   ],
 }
 
-const currentSection = ref('design-principles')
-
-const handleNavChange = (id: string) => {
-  currentSection.value = id
-}
 </script>
 
 <template>
   <div class="page-container">
-    <Sidebar :config="systemDesignConfig" :active-id="currentSection" @nav-change="handleNavChange" />
+    <Sidebar page-type="system-design" :config="systemDesignConfig" />
     <main class="main-content">
       <div class="content-header">
         <h1>{{ systemDesignConfig.icon }} {{ systemDesignConfig.title }}</h1>
         <p class="subtitle">掌握系统设计方法论，应对高阶技术面试</p>
       </div>
       <div class="content-body">
-        <ContentSection
-          v-for="category in systemDesignConfig.categories"
-          :key="category.name"
-          v-for="item in category.items"
-          :id="item.id"
-          :title="item.title"
-          :icon="item.icon"
-        />
+        <template v-for="category in systemDesignConfig.categories" :key="category.name">
+          <ContentSection v-for="item in category.items" :key="item.id" :id="item.id" :title="item.title" />
+        </template>
       </div>
     </main>
   </div>

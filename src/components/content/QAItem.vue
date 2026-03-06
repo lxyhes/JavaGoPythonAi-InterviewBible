@@ -5,8 +5,8 @@
       <span class="q-text">{{ question }}</span>
     </div>
     <div class="answer">
-      <div class="tags" v-if="tags.length">
-        <span v-for="tag in tags" :key="tag" :class="['tag', tag.type]">{{ tag.text }}</span>
+      <div class="tags" v-if="props.tags.length">
+        <span v-for="tag in props.tags" :key="`${tag.type}-${tag.text}`" :class="['tag', tag.type]">{{ tag.text }}</span>
       </div>
       <div class="content">
         <slot></slot>
@@ -21,10 +21,15 @@ interface Tag {
   type: 'must' | 'frequent' | 'important'
 }
 
-defineProps<{
-  question: string
-  tags?: Tag[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    question: string
+    tags?: Tag[]
+  }>(),
+  {
+    tags: () => [],
+  }
+)
 </script>
 
 <style scoped>
