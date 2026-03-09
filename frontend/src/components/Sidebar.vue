@@ -160,11 +160,11 @@ onUnmounted(() => {
   background: var(--card-bg);
   border-right: 1px solid var(--border-color);
   position: fixed;
-  top: 0;
+  top: var(--header-height);
   left: 0;
-  height: 100vh;
+  height: calc(100vh - var(--header-height));
   overflow-y: auto;
-  z-index: 100;
+  z-index: 10;
   padding: 24px 0;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base), background-color var(--transition-base);

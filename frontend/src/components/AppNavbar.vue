@@ -271,7 +271,9 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: var(--header-height);
-  z-index: var(--z-fixed);
+  z-index: 9999;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
   transition: all var(--duration-normal) var(--ease-out);
 }
 
@@ -282,10 +284,16 @@ onUnmounted(() => {
   background: var(--card-bg);
   border-bottom: 1px solid transparent;
   transition: all var(--duration-normal) var(--ease-out);
+  z-index: -1;
 }
 
 .app-navbar.is-scrolled {
-  height: 56px;
+  height: 64px;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: var(--border-color);
+  box-shadow: var(--shadow-md);
 }
 
 .app-navbar.is-scrolled::before {
@@ -293,7 +301,6 @@ onUnmounted(() => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom-color: var(--border-color);
-  box-shadow: var(--shadow-md);
 }
 
 .app-navbar.is-hidden {

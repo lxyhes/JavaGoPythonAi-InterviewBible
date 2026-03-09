@@ -74,6 +74,7 @@ onUnmounted(() => {
 .main-content {
   padding-top: var(--header-height);
   min-height: 100vh;
+  overflow: visible;
 }
 
 .main-content.no-padding {

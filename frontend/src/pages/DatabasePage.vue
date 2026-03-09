@@ -66,29 +66,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-layout {
-  min-height: 100vh;
-}
-
-.main-content {
-  margin-left: var(--sidebar-width);
-  flex: 1;
-  padding: 24px 48px 48px;
-  max-width: calc(100% - var(--sidebar-width));
-  min-height: 100vh;
-}
-
-.page-header {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.page-header :deep(.ant-page-header-heading-title) {
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
 .section-card {
   margin-bottom: 24px;
   border-radius: 12px;
@@ -97,23 +74,5 @@ onMounted(() => {
 
 .section-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 1024px) {
-  .main-content {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 24px 32px;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 16px 20px;
-  }
-
-  .page-header :deep(.ant-page-header-heading-title) {
-    font-size: 1.75rem;
-  }
 }
 </style>

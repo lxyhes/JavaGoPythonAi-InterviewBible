@@ -1,18 +1,20 @@
 <template>
   <div class="dashboard-page">
-    <!-- 页面头部 -->
-    <a-page-header
-      :title="t('dashboard.title')"
-      sub-title="查看你的学习统计和进度"
-      @back="() => $router.push('/practice')"
-    >
-      <template #extra>
-        <a-button type="primary" @click="$router.push('/data-sync')">
-          <template #icon><SaveOutlined /></template>
-          数据同步
-        </a-button>
-      </template>
-    </a-page-header>
+    <!-- 页面头部 - 固定在顶部 -->
+    <div class="page-header-wrapper">
+      <a-page-header
+        :title="t('dashboard.title')"
+        sub-title="查看你的学习统计和进度"
+        @back="() => $router.push('/practice')"
+      >
+        <template #extra>
+          <a-button type="primary" @click="$router.push('/data-sync')">
+            <template #icon><SaveOutlined /></template>
+            数据同步
+          </a-button>
+        </template>
+      </a-page-header>
+    </div>
 
     <!-- 核心统计卡片 -->
     <a-row :gutter="[16, 16]" class="stats-row">
@@ -265,6 +267,21 @@ const getProgressColor = (rate: number) => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px 40px;
+}
+
+.page-header-wrapper {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 10;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+.page-header-wrapper :deep(.ant-page-header) {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
 }
 
 .stats-row {
