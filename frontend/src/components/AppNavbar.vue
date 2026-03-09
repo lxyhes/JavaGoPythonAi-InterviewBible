@@ -1,5 +1,5 @@
 <template>
-  <nav class="app-navbar" :class="{ 'is-scrolled': isScrolled, 'is-hidden': isHidden }">
+  <nav class="app-navbar" :class="{ 'is-scrolled': isScrolled }">
     <div class="navbar-container">
       <!-- Logo -->
       <router-link to="/" class="navbar-brand">
@@ -184,7 +184,6 @@ const i18nStore = useI18nStore()
 const t = i18nStore.t
 
 const isScrolled = ref(false)
-const isHidden = ref(false)
 const mobileMenuOpen = ref(false)
 const hasNotifications = ref(false)
 let lastScrollY = 0
@@ -246,14 +245,7 @@ const handleScroll = () => {
     window.requestAnimationFrame(() => {
       const currentScrollY = window.scrollY
       
-      // 检测滚动方向
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        isHidden.value = true
-      } else {
-        isHidden.value = false
-      }
-      
-      // 检测是否滚动超过阈值
+      // 检测是否滚动超过阈值（只改变样式，不隐藏）
       isScrolled.value = currentScrollY > 10
       
       lastScrollY = currentScrollY

@@ -160,6 +160,8 @@ onUnmounted(() => {
   background: var(--card-bg);
   border-right: 1px solid var(--border-color);
   position: fixed;
+  top: 0;
+  left: 0;
   height: 100vh;
   overflow-y: auto;
   z-index: 100;

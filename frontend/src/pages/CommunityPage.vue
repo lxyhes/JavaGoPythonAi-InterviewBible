@@ -360,7 +360,7 @@ const submitPost = () => {
 .category-filter,
 .hot-tags {
   position: sticky;
-  top: 20px;
+  top: calc(var(--header-height) + 20px);
 }
 
 .main-content {
