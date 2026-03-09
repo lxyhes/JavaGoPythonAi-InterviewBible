@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -6,20 +6,20 @@
 
     <main class="main-content">
       <header class="page-header">
-        <router-link to="/" class="back-link">返回首页</router-link>
-        <h1 class="page-title">数据库面试题</h1>
-        <p class="page-subtitle">涵盖MySQL、Redis、MongoDB等数据库核心知识</p>
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+        <h1 class="page-title">{{ t('pageTitles.database') }}</h1>
+        <p class="page-subtitle">{{ t('pageSubtitles.database') }}</p>
       </header>
 
       <div class="content-container">
         <section id="mysql" class="section">
-          <ContentRenderer title="🐬 MySQL 面试题" :items="mysqlQA" anchor-prefix="mysql" />
+          <ContentRenderer title="MySQL" :items="mysqlQA" anchor-prefix="mysql" />
         </section>
         <section id="redis" class="section">
-          <ContentRenderer title="⚡ Redis 面试题" :items="redisQA" anchor-prefix="redis" />
+          <ContentRenderer title="Redis" :items="redisQA" anchor-prefix="redis" />
         </section>
         <section id="mongodb" class="section">
-          <ContentRenderer title="🍃 MongoDB 面试题" :items="mongodbQA" anchor-prefix="mongodb" />
+          <ContentRenderer title="MongoDB" :items="mongodbQA" anchor-prefix="mongodb" />
         </section>
       </div>
     </main>
@@ -29,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '@/components/Sidebar.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
@@ -40,24 +41,23 @@ import { mysqlQA, redisQA, mongodbQA } from '@/data/database'
 import type { NavConfig } from '@/types'
 
 const store = useAppStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
-const databaseConfig: NavConfig = {
-  title: '数据库面试宝典',
+const databaseConfig = computed<NavConfig>(() => ({
+  title: t('category.database.title'),
   icon: '🗄️',
   categories: [
     {
-      name: '关系型数据库',
-      items: [{ id: 'mysql', title: '🐬 MySQL', icon: '🐬' }],
-    },
-    {
-      name: 'NoSQL',
+      name: t('common.categories.database'),
       items: [
-        { id: 'redis', title: '⚡ Redis', icon: '⚡' },
-        { id: 'mongodb', title: '🍃 MongoDB', icon: '🍃' },
+        { id: 'mysql', title: 'MySQL', icon: '🐬' },
+        { id: 'redis', title: 'Redis', icon: '⚡' },
+        { id: 'mongodb', title: 'MongoDB', icon: '🍃' },
       ],
     },
   ],
-}
+}))
 
 onMounted(() => {
   store.initTheme()
@@ -167,4 +167,3 @@ onMounted(() => {
   }
 }
 </style>
-

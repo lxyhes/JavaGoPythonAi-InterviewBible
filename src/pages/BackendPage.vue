@@ -6,9 +6,9 @@
 
     <main class="main-content">
       <header class="page-header">
-        <router-link to="/" class="back-link">返回首页</router-link>
-        <h1 class="page-title">后端开发面试题</h1>
-        <p class="page-subtitle">涵盖Java基础、进阶、Spring、并发等核心技术</p>
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+        <h1 class="page-title">{{ t('pageTitles.backend') }}</h1>
+        <p class="page-subtitle">{{ t('pageSubtitles.backend') }}</p>
         <div class="ai-actions">
           <CodeAnalyzer />
           <QuestionGenerator />
@@ -17,31 +17,31 @@
 
       <div class="content-container">
         <section id="java-basics" class="section">
-          <ContentRenderer title="☕ Java 基础" :items="javaBasicsQA" anchor-prefix="java-basics" category="Java" />
+          <ContentRenderer :title="t('common.categories.backend') + ' - Java Basics'" :items="javaBasicsQA" anchor-prefix="java-basics" :category="t('common.categories.backend')" />
         </section>
         <section id="java-advanced" class="section">
-          <ContentRenderer title="🔥 Java 进阶" :items="javaAdvancedQA" anchor-prefix="java-advanced" category="Java" />
+          <ContentRenderer :title="t('common.categories.backend') + ' - Java Advanced'" :items="javaAdvancedQA" anchor-prefix="java-advanced" :category="t('common.categories.backend')" />
         </section>
         <section id="java-jvm" class="section">
-          <ContentRenderer title="⚙️ JVM 原理" :items="javaJVMQA" anchor-prefix="java-jvm" category="JVM" />
+          <ContentRenderer title="JVM" :items="javaJVMQA" anchor-prefix="java-jvm" category="JVM" />
         </section>
         <section id="java-concurrent" class="section">
-          <ContentRenderer title="⚡ Java 并发" :items="javaConcurrentQA" anchor-prefix="java-concurrent" category="并发编程" />
+          <ContentRenderer title="Concurrency" :items="javaConcurrentQA" anchor-prefix="java-concurrent" category="Concurrency" />
         </section>
         <section id="java-network" class="section">
-          <ContentRenderer title="🌐 网络编程" :items="javaNetworkQA" anchor-prefix="java-network" category="网络编程" />
+          <ContentRenderer title="Network Programming" :items="javaNetworkQA" anchor-prefix="java-network" category="Network" />
         </section>
         <section id="java-spring" class="section">
-          <ContentRenderer title="🍃 Spring 框架" :items="javaSpringQA" anchor-prefix="java-spring" category="Spring" />
+          <ContentRenderer title="Spring" :items="javaSpringQA" anchor-prefix="java-spring" category="Spring" />
         </section>
         <section id="java-distributed" class="section">
-          <ContentRenderer title="🔒 分布式系统" :items="javaDistributedQA" anchor-prefix="java-distributed" category="分布式" />
+          <ContentRenderer title="Distributed Systems" :items="javaDistributedQA" anchor-prefix="java-distributed" category="Distributed" />
         </section>
         <section id="microservices" class="section">
-          <ContentRenderer title="🔧 微服务架构" :items="microservicesQA" anchor-prefix="microservices" category="微服务" />
+          <ContentRenderer title="Microservices" :items="microservicesQA" anchor-prefix="microservices" category="Microservices" />
         </section>
         <section id="project-backend" class="section">
-          <ContentRenderer title="💼 后端项目实战" :items="backendProjectQA" anchor-prefix="project-backend" category="项目实战" />
+          <ContentRenderer title="Project Practice" :items="backendProjectQA" anchor-prefix="project-backend" category="Project" />
         </section>
       </div>
     </main>
@@ -51,8 +51,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '@/components/Sidebar.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
@@ -66,42 +67,29 @@ import { microservicesQA, backendProjectQA } from '@/data/backend'
 import type { NavConfig } from '@/types'
 
 const store = useAppStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
-const backendConfig: NavConfig = {
-  title: '后端面试宝典',
+const backendConfig = computed<NavConfig>(() => ({
+  title: t('category.backend.title'),
   icon: '☕',
   categories: [
     {
-      name: 'Java 基础',
+      name: t('common.categories.backend'),
       items: [
-        { id: 'java-basics', title: 'Java 基础', icon: '📘' },
-        { id: 'java-advanced', title: 'Java 进阶', icon: '🔥' },
-      ],
-    },
-    {
-      name: 'Java 高级',
-      items: [
-        { id: 'java-jvm', title: 'JVM 原理', icon: '⚙️' },
-        { id: 'java-concurrent', title: '并发编程', icon: '⚡' },
-        { id: 'java-network', title: '网络编程', icon: '🌐' },
-      ],
-    },
-    {
-      name: '框架与架构',
-      items: [
+        { id: 'java-basics', title: 'Java Basics', icon: '📘' },
+        { id: 'java-advanced', title: 'Java Advanced', icon: '🔥' },
+        { id: 'java-jvm', title: 'JVM', icon: '⚙️' },
+        { id: 'java-concurrent', title: 'Concurrency', icon: '⚡' },
+        { id: 'java-network', title: 'Network', icon: '🌐' },
         { id: 'java-spring', title: 'Spring', icon: '🍃' },
-        { id: 'java-distributed', title: '分布式系统', icon: '🔒' },
-        { id: 'microservices', title: '微服务', icon: '🔧' },
-      ],
-    },
-    {
-      name: '项目实战',
-      items: [
-        { id: 'project-backend', title: '后端项目实战', icon: '💼' },
+        { id: 'java-distributed', title: 'Distributed', icon: '🔒' },
+        { id: 'microservices', title: 'Microservices', icon: '🔧' },
+        { id: 'project-backend', title: 'Project', icon: '💼' },
       ],
     },
   ],
-}
+}))
 
 onMounted(() => {
   store.initTheme()
@@ -218,4 +206,3 @@ onMounted(() => {
   }
 }
 </style>
-

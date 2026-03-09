@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -6,29 +6,29 @@
 
     <main class="main-content">
       <header class="page-header">
-        <router-link to="/" class="back-link">返回首页</router-link>
-        <h1 class="page-title">AI 面试题</h1>
-        <p class="page-subtitle">涵盖机器学习、深度学习、大语言模型等 AI 核心技术</p>
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+        <h1 class="page-title">{{ t('pageTitles.ai') }}</h1>
+        <p class="page-subtitle">{{ t('pageSubtitles.ai') }}</p>
       </header>
 
       <div class="content-container">
         <section id="ai-basics" class="section">
-          <ContentRenderer title="🤖 AI 基础" :items="aiBasicsQA" anchor-prefix="ai-basics" />
+          <ContentRenderer title="AI Basics" :items="aiBasicsQA" anchor-prefix="ai-basics" />
         </section>
         <section id="ai-more" class="section">
-          <ContentRenderer title="📚 AI 进阶" :items="aiMoreQA" anchor-prefix="ai-more" />
+          <ContentRenderer title="AI Advanced" :items="aiMoreQA" anchor-prefix="ai-more" />
         </section>
         <section id="deep-learning" class="section">
-          <ContentRenderer title="🧠 深度学习" :items="deepLearningQA" anchor-prefix="deep-learning" />
+          <ContentRenderer title="Deep Learning" :items="deepLearningQA" anchor-prefix="deep-learning" />
         </section>
         <section id="llm" class="section">
-          <ContentRenderer title="🔥 大语言模型" :items="llmQA" anchor-prefix="llm" />
+          <ContentRenderer title="LLM" :items="llmQA" anchor-prefix="llm" />
         </section>
         <section id="prompt-engineering" class="section">
-          <ContentRenderer title="💬 提示工程" :items="promptEngineeringQA" anchor-prefix="prompt-engineering" />
+          <ContentRenderer title="Prompt Engineering" :items="promptEngineeringQA" anchor-prefix="prompt-engineering" />
         </section>
         <section id="ai-project" class="section">
-          <ContentRenderer title="💼 AI 项目实战" :items="aiProjectQA" anchor-prefix="ai-project" />
+          <ContentRenderer title="AI Project" :items="aiProjectQA" anchor-prefix="ai-project" />
         </section>
       </div>
     </main>
@@ -38,8 +38,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '@/components/Sidebar.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
@@ -50,39 +51,26 @@ import { aiMoreQA, llmQA } from '@/data/ai-more'
 import type { NavConfig } from '@/types'
 
 const store = useAppStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
-const aiConfig: NavConfig = {
-  title: 'AI 面试宝典',
+const aiConfig = computed<NavConfig>(() => ({
+  title: t('category.ai.title'),
   icon: '🤖',
   categories: [
     {
-      name: 'AI 基础',
+      name: t('common.categories.ai'),
       items: [
-        { id: 'ai-basics', title: '机器学习基础', icon: '📊' },
-        { id: 'ai-more', title: 'AI 进阶', icon: '📚' },
-      ],
-    },
-    {
-      name: '深度学习',
-      items: [
-        { id: 'deep-learning', title: '深度学习', icon: '🧠' },
-        { id: 'llm', title: '大语言模型', icon: '🔥' },
-      ],
-    },
-    {
-      name: '大模型应用',
-      items: [
-        { id: 'prompt-engineering', title: '提示工程', icon: '💬' },
-      ],
-    },
-    {
-      name: '项目实战',
-      items: [
-        { id: 'ai-project', title: 'AI 项目实战', icon: '💼' },
+        { id: 'ai-basics', title: 'AI Basics', icon: '📊' },
+        { id: 'ai-more', title: 'AI Advanced', icon: '📚' },
+        { id: 'deep-learning', title: 'Deep Learning', icon: '🧠' },
+        { id: 'llm', title: 'LLM', icon: '🔥' },
+        { id: 'prompt-engineering', title: 'Prompt Engineering', icon: '💬' },
+        { id: 'ai-project', title: 'AI Project', icon: '💼' },
       ],
     },
   ],
-}
+}))
 
 onMounted(() => {
   store.initTheme()
@@ -192,4 +180,3 @@ onMounted(() => {
   }
 }
 </style>
-

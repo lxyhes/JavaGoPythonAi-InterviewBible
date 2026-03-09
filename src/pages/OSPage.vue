@@ -1,47 +1,43 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
 
-const osConfig: NavConfig = {
-  title: '操作系统面试宝典',
+const i18nStore = useI18nStore()
+const t = i18nStore.t
+
+const osConfig = computed<NavConfig>(() => ({
+  title: t('category.os.title'),
   icon: '💻',
   categories: [
     {
-      name: '进程管理',
+      name: 'Process Management',
       items: [
-        { id: 'process-thread', title: '进程与线程', icon: '🔄' },
-        { id: 'process-scheduling', title: '进程调度', icon: '⏱️' },
-        { id: 'ipc', title: '进程间通信', icon: '📞' },
+        { id: 'process-thread', title: 'Process vs Thread', icon: '🔄' },
+        { id: 'process-scheduling', title: 'Scheduling', icon: '⏱️' },
+        { id: 'deadlock', title: 'Deadlock', icon: '🔒' },
       ],
     },
     {
-      name: '内存管理',
+      name: 'Memory Management',
       items: [
-        { id: 'memory-model', title: '内存模型', icon: '🧠' },
-        { id: 'virtual-memory', title: '虚拟内存', icon: '💾' },
-        { id: 'page-replacement', title: '页面置换', icon: '🔄' },
+        { id: 'virtual-memory', title: 'Virtual Memory', icon: '💾' },
+        { id: 'page-replacement', title: 'Page Replacement', icon: '📄' },
+        { id: 'memory-allocation', title: 'Allocation', icon: '📦' },
       ],
     },
     {
-      name: '文件系统',
+      name: 'File System',
       items: [
-        { id: 'file-system', title: '文件系统', icon: '📁' },
-        { id: 'io-model', title: 'I/O模型', icon: '📥' },
-        { id: 'disk-scheduling', title: '磁盘调度', icon: '💿' },
-      ],
-    },
-    {
-      name: 'Linux',
-      items: [
-        { id: 'linux-commands', title: '常用命令', icon: '⌨️' },
-        { id: 'shell-scripting', title: 'Shell脚本', icon: '🐚' },
-        { id: 'linux-kernel', title: '内核原理', icon: '⚙️' },
+        { id: 'file-system', title: 'File System', icon: '📁' },
+        { id: 'io-management', title: 'I/O Management', icon: '🔌' },
+        { id: 'disk-scheduling', title: 'Disk Scheduling', icon: '💿' },
       ],
     },
   ],
-}
-
+}))
 </script>
 
 <template>
@@ -49,8 +45,9 @@ const osConfig: NavConfig = {
     <Sidebar page-type="os" :config="osConfig" />
     <main class="main-content">
       <div class="content-header">
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
         <h1>{{ osConfig.icon }} {{ osConfig.title }}</h1>
-        <p class="subtitle">理解操作系统原理，掌握底层机制</p>
+        <p class="subtitle">{{ t('pageSubtitles.os') }}</p>
       </div>
       <div class="content-body">
         <template v-for="category in osConfig.categories" :key="category.name">
@@ -78,6 +75,17 @@ const osConfig: NavConfig = {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }
 
 .content-header h1 {

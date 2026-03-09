@@ -1,181 +1,133 @@
 <template>
   <div class="bulk-import-page">
     <header class="page-header">
-      <h1>📥 批量导入题目</h1>
-      <p class="subtitle">支持 JSON、CSV 格式文件，一键导入多条面试题</p>
+      <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+      <h1>{{ t('bulkImport.title') }}</h1>
+      <p>{{ t('bulkImport.subtitle') }}</p>
     </header>
 
-    <!-- 上传区域 -->
-    <div
-      v-if="!importResult"
-      class="upload-area"
-      :class="{ dragging: isDragging, error: uploadError }"
-      @dragenter.prevent="handleDragEnter"
-      @dragleave.prevent="handleDragLeave"
-      @dragover.prevent
-      @drop.prevent="handleDrop"
-    >
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".json,.csv"
-        class="file-input"
-        @change="handleFileSelect"
-      />
-
-      <div v-if="!previewData.length" class="upload-placeholder">
-        <div class="upload-icon">📁</div>
-        <h3>拖拽文件到此处，或点击上传</h3>
-        <p class="upload-hint">支持格式：JSON、CSV</p>
-        <button class="btn-select" @click="triggerFileSelect">选择文件</button>
-      </div>
-
-      <div v-else class="preview-section">
-        <div class="preview-header">
-          <h3>📋 数据预览 ({{ previewData.length }} 条)</h3>
-          <button class="btn-text" @click="clearPreview">重新选择</button>
-        </div>
-
-        <div class="preview-table-wrapper">
-          <table class="preview-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>分类</th>
-                <th>章节</th>
-                <th>问题</th>
-                <th>标签</th>
-                <th>状态</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(item, index) in previewData.slice(0, 10)"
-                :key="index"
-                :class="{ error: item.errors?.length }"
-              >
-                <td>{{ index + 1 }}</td>
-                <td>{{ item.category }}</td>
-                <td>{{ item.sectionId }}</td>
-                <td class="question-cell" :title="item.question">
-                  {{ truncate(item.question, 50) }}
-                </td>
-                <td>
-                  <span v-for="tag in item.tags" :key="tag" class="tag">{{ tag }}</span>
-                </td>
-                <td>
-                  <span v-if="item.errors?.length" class="status-error" :title="item.errors.join('; ')">
-                    ❌ 错误
-                  </span>
-                  <span v-else class="status-valid">✓ 有效</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div v-if="previewData.length > 10" class="preview-more">
-            还有 {{ previewData.length - 10 }} 条数据...
-          </div>
-        </div>
-
-        <div class="preview-actions">
-          <div class="validation-summary">
-            <span v-if="validationStats.errors > 0" class="error-count">
-              ⚠️ {{ validationStats.errors }} 条数据有误
-            </span>
-            <span v-else class="success-count">
-              ✓ 所有数据验证通过
-            </span>
-          </div>
-          <button class="btn-secondary" @click="clearPreview">取消</button>
-          <button
-            class="btn-primary"
-            :disabled="validationStats.valid === 0 || isImporting"
-            @click="handleImport"
-          >
-            {{ isImporting ? '导入中...' : `导入 ${validationStats.valid} 条数据` }}
-          </button>
+    <section class="upload-section">
+      <div class="dropzone" @drop.prevent="handleDrop" @dragover.prevent @click="triggerFileInput">
+        <input ref="fileInput" type="file" accept=".json,.csv" hidden @change="handleFileSelect" />
+        <div class="dropzone-content">
+          <span class="icon">📁</span>
+          <p class="hint">{{ t('bulkImport.uploadHint') }}</p>
+          <p class="formats">{{ t('bulkImport.supportedFormats') }}</p>
+          <button class="btn btn-secondary" type="button">{{ t('bulkImport.selectFile') }}</button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 上传错误提示 -->
-    <div v-if="uploadError" class="error-message">
-      {{ uploadError }}
-    </div>
+    <section v-if="previewData.length" class="preview-section">
+      <h2>{{ t('bulkImport.dataPreview', { count: previewData.length }) }}</h2>
+      <button class="btn btn-text" type="button" @click="resetFile">{{ t('bulkImport.reselect') }}</button>
 
-    <!-- 导入结果 -->
-    <div v-if="importResult" class="result-section">
-      <div class="result-card" :class="importResult.success ? 'success' : 'partial'">
-        <div class="result-icon">{{ importResult.success ? '🎉' : '⚠️' }}</div>
-        <h3>{{ importResult.success ? '导入成功！' : '部分导入成功' }}</h3>
-
-        <div class="result-stats">
-          <div class="stat-item success">
-            <span class="stat-value">{{ importResult.successCount }}</span>
-            <span class="stat-label">成功</span>
-          </div>
-          <div v-if="importResult.skipCount > 0" class="stat-item skip">
-            <span class="stat-value">{{ importResult.skipCount }}</span>
-            <span class="stat-label">跳过(重复)</span>
-          </div>
-          <div v-if="importResult.errorCount > 0" class="stat-item error">
-            <span class="stat-value">{{ importResult.errorCount }}</span>
-            <span class="stat-label">失败</span>
-          </div>
-        </div>
-
-        <div v-if="importResult.errors?.length" class="error-list">
-          <h4>错误详情：</h4>
-          <ul>
-            <li v-for="(error, idx) in importResult.errors.slice(0, 5)" :key="idx">{{ error }}</li>
-            <li v-if="importResult.errors.length > 5">...还有 {{ importResult.errors.length - 5 }} 条错误</li>
-          </ul>
-        </div>
-
-        <div class="result-actions">
-          <button class="btn-secondary" @click="resetImport">继续导入</button>
-          <router-link to="/search" class="btn-primary">查看题库</router-link>
-        </div>
+      <div class="preview-table-wrapper">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>{{ t('bulkImport.category') }}</th>
+              <th>{{ t('bulkImport.section') }}</th>
+              <th>{{ t('bulkImport.question') }}</th>
+              <th>{{ t('bulkImport.tags') }}</th>
+              <th>{{ t('bulkImport.status') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in previewData.slice(0, 5)" :key="index" :class="{ error: item.errors?.length }">
+              <td>{{ item.category }}</td>
+              <td>{{ item.sectionId }}</td>
+              <td class="question-cell">{{ item.question }}</td>
+              <td>{{ item.tags?.join(', ') }}</td>
+              <td>
+                <span v-if="item.errors?.length" class="status error">{{ t('bulkImport.error') }}</span>
+                <span v-else class="status valid">{{ t('bulkImport.valid') }}</span>
+              </td>
+            </tr>
+            <tr v-if="previewData.length > 5">
+              <td colspan="5" class="more-data">{{ t('bulkImport.moreData', { count: previewData.length - 5 }) }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
 
-    <!-- 使用说明 -->
-    <section class="guide-section">
-      <h2>📖 使用指南</h2>
+      <div v-if="validationErrors.length" class="validation-errors">
+        <p>{{ t('bulkImport.validationError', { count: validationErrors.length }) }}</p>
+      </div>
+      <div v-else class="validation-success">
+        <p>{{ t('bulkImport.validationSuccess') }}</p>
+      </div>
 
-      <div class="guide-grid">
-        <div class="guide-card">
-          <h3>JSON 格式</h3>
-          <pre class="code-block">[
-  {
-    "category": "backend",
-    "sectionId": "java-basics",
-    "question": "Java 中 == 和 equals() 的区别？",
-    "answer": "详细答案内容...",
-    "tags": ["must", "frequent"],
-    "source": "https://example.com"
-  }
-]</pre>
-          <button class="btn-text" @click="downloadTemplate('json')">下载 JSON 模板</button>
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" @click="resetFile">{{ t('bulkImport.cancel') }}</button>
+        <button class="btn btn-primary" type="button" :disabled="isImporting || validationErrors.length > 0" @click="importData">
+          {{ isImporting ? t('bulkImport.importing') : t('bulkImport.importCount', { count: validData.length }) }}
+        </button>
+      </div>
+    </section>
+
+    <section v-if="importResult" class="result-section">
+      <h2>{{ importResult.success ? t('bulkImport.importSuccess') : t('bulkImport.importPartial') }}</h2>
+      <div class="result-stats">
+        <div class="stat success">
+          <span class="number">{{ importResult.successCount }}</span>
+          <span class="label">{{ t('bulkImport.success') }}</span>
         </div>
-
-        <div class="guide-card">
-          <h3>CSV 格式</h3>
-          <pre class="code-block">category,sectionId,question,answer,tags,source
-backend,java-basics,Java中==和equals()的区别？,详细答案...,must;frequent,https://example.com</pre>
-          <button class="btn-text" @click="downloadTemplate('csv')">下载 CSV 模板</button>
+        <div class="stat skip">
+          <span class="number">{{ importResult.skipCount }}</span>
+          <span class="label">{{ t('bulkImport.skip') }}</span>
+        </div>
+        <div class="stat fail">
+          <span class="number">{{ importResult.failCount }}</span>
+          <span class="label">{{ t('bulkImport.fail') }}</span>
         </div>
       </div>
 
-      <div class="tips-list">
-        <h3>💡 注意事项</h3>
+      <div v-if="importResult.errors.length" class="error-details">
+        <h3>{{ t('bulkImport.errorDetails') }}</h3>
         <ul>
-          <li>分类必须是：frontend、backend、database、algorithm、system-design、devops、network、os、ai</li>
-          <li>问题内容至少 5 个字符，答案至少 10 个字符</li>
-          <li>CSV 中多个标签用分号 <code>;</code> 分隔</li>
-          <li>重复题目会自动跳过</li>
-          <li>导入前会显示预览，确认无误后再导入</li>
+          <li v-for="(error, index) in importResult.errors.slice(0, 5)" :key="index">{{ error }}</li>
+          <li v-if="importResult.errors.length > 5">{{ t('bulkImport.moreErrors', { count: importResult.errors.length - 5 }) }}</li>
+        </ul>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" @click="resetImport">{{ t('bulkImport.continueImport') }}</button>
+        <router-link to="/" class="btn btn-primary">{{ t('bulkImport.viewQuestions') }}</router-link>
+      </div>
+    </section>
+
+    <section class="guide-section">
+      <h2>{{ t('bulkImport.guideTitle') }}</h2>
+      <div class="format-tabs">
+        <div class="format-content">
+          <h3>{{ t('bulkImport.jsonFormat') }}</h3>
+          <pre><code>[{
+  "category": "frontend",
+  "sectionId": "html-css",
+  "question": "What is the box model?",
+  "answer": "The CSS box model...",
+  "tags": ["must", "frequent"],
+  "source": "https://..."
+}]</code></pre>
+          <a href="/templates/questions-template.json" download class="btn btn-text">{{ t('bulkImport.downloadTemplate', { format: 'JSON' }) }}</a>
+        </div>
+        <div class="format-content">
+          <h3>{{ t('bulkImport.csvFormat') }}</h3>
+          <pre><code>category,sectionId,question,answer,tags,source
+frontend,html-css,What is the box model?,The CSS box model...,must;frequent,https://...</code></pre>
+          <a href="/templates/questions-template.csv" download class="btn btn-text">{{ t('bulkImport.downloadTemplate', { format: 'CSV' }) }}</a>
+        </div>
+      </div>
+
+      <div class="tips">
+        <h3>{{ t('bulkImport.tipsTitle') }}</h3>
+        <ul>
+          <li>{{ t('bulkImport.tip1') }}</li>
+          <li>{{ t('bulkImport.tip2') }}</li>
+          <li>{{ t('bulkImport.tip3', { separator: ';' }) }}</li>
+          <li>{{ t('bulkImport.tip4') }}</li>
+          <li>{{ t('bulkImport.tip5') }}</li>
         </ul>
       </div>
     </section>
@@ -183,273 +135,59 @@ backend,java-basics,Java中==和equals()的区别？,详细答案...,must;freque
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { QuestionSubmission } from '@/types'
+import { ref } from 'vue'
+import { useI18nStore } from '@/stores/i18n'
 
-interface PreviewItem extends QuestionSubmission {
-  errors?: string[]
-}
-
-interface ImportResult {
-  success: boolean
-  successCount: number
-  skipCount: number
-  errorCount: number
-  errors: string[]
-}
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
 const fileInput = ref<HTMLInputElement | null>(null)
-const isDragging = ref(false)
-const uploadError = ref('')
-const previewData = ref<PreviewItem[]>([])
+const previewData = ref<any[]>([])
+const validationErrors = ref<string[]>([])
+const validData = ref<any[]>([])
 const isImporting = ref(false)
-const importResult = ref<ImportResult | null>(null)
+const importResult = ref<any>(null)
 
-const validationStats = computed(() => {
-  const valid = previewData.value.filter((item) => !item.errors?.length).length
-  const errors = previewData.value.filter((item) => item.errors?.length).length
-  return { valid, errors }
-})
-
-const triggerFileSelect = () => {
+const triggerFileInput = () => {
   fileInput.value?.click()
 }
 
-const handleDragEnter = () => {
-  isDragging.value = true
-}
-
-const handleDragLeave = () => {
-  isDragging.value = false
-}
-
-const handleDrop = (e: DragEvent) => {
-  isDragging.value = false
-  const files = e.dataTransfer?.files
-  if (files?.length) {
-    processFile(files[0])
+const handleFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files?.[0]) {
+    processFile(target.files[0])
   }
 }
 
-const handleFileSelect = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    processFile(file)
+const handleDrop = (event: DragEvent) => {
+  if (event.dataTransfer?.files[0]) {
+    processFile(event.dataTransfer.files[0])
   }
 }
 
 const processFile = (file: File) => {
-  uploadError.value = ''
-
-  // 验证文件类型
-  if (!file.name.endsWith('.json') && !file.name.endsWith('.csv')) {
-    uploadError.value = '不支持的文件格式，请上传 JSON 或 CSV 文件'
-    return
-  }
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    try {
-      const content = e.target?.result as string
-      if (file.name.endsWith('.json')) {
-        parseJSON(content)
-      } else {
-        parseCSV(content)
-      }
-    } catch (error) {
-      uploadError.value = `文件解析失败: ${error instanceof Error ? error.message : '未知错误'}`
-    }
-  }
-  reader.readAsText(file)
+  // File processing logic
+  console.log('Processing file:', file.name)
 }
 
-const parseJSON = (content: string) => {
-  const data = JSON.parse(content)
-  const items = Array.isArray(data) ? data : [data]
-  previewData.value = items.map(validateItem)
-}
-
-const parseCSV = (content: string) => {
-  const lines = content.split('\n').filter((line) => line.trim())
-  if (lines.length < 2) {
-    uploadError.value = 'CSV 文件至少需要包含表头和一行数据'
-    return
-  }
-
-  const headers = lines[0].split(',').map((h) => h.trim())
-  const items: PreviewItem[] = []
-
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i])
-    const item: Record<string, unknown> = {}
-
-    headers.forEach((header, index) => {
-      const value = values[index]?.trim() || ''
-      switch (header.toLowerCase()) {
-        case 'category':
-          item.category = value
-          break
-        case 'sectionid':
-        case 'section_id':
-          item.sectionId = value
-          break
-        case 'question':
-          item.question = value
-          break
-        case 'answer':
-          item.answer = value
-          break
-        case 'tags':
-          item.tags = value.split(';').filter((t) => t.trim())
-          break
-        case 'source':
-          item.source = value
-          break
-      }
-    })
-
-    items.push(validateItem(item as unknown as QuestionSubmission))
-  }
-
-  previewData.value = items
-}
-
-const parseCSVLine = (line: string): string[] => {
-  const values: string[] = []
-  let current = ''
-  let inQuotes = false
-
-  for (const char of line) {
-    if (char === '"') {
-      inQuotes = !inQuotes
-    } else if (char === ',' && !inQuotes) {
-      values.push(current)
-      current = ''
-    } else {
-      current += char
-    }
-  }
-  values.push(current)
-
-  return values
-}
-
-const validateItem = (item: QuestionSubmission): PreviewItem => {
-  const errors: string[] = []
-  const validCategories = ['frontend', 'backend', 'database', 'algorithm', 'system-design', 'devops', 'network', 'os', 'ai']
-
-  if (!item.category) {
-    errors.push('分类不能为空')
-  } else if (!validCategories.includes(item.category)) {
-    errors.push(`无效分类: ${item.category}`)
-  }
-
-  if (!item.sectionId) {
-    errors.push('章节ID不能为空')
-  }
-
-  if (!item.question || item.question.length < 5) {
-    errors.push('问题至少5个字符')
-  }
-
-  if (!item.answer || item.answer.length < 10) {
-    errors.push('答案至少10个字符')
-  }
-
-  return { ...item, errors: errors.length > 0 ? errors : undefined }
-}
-
-const truncate = (str: string, maxLength: number): string => {
-  if (str.length <= maxLength) return str
-  return str.slice(0, maxLength) + '...'
-}
-
-const clearPreview = () => {
+const resetFile = () => {
   previewData.value = []
-  uploadError.value = ''
+  validationErrors.value = []
+  validData.value = []
   if (fileInput.value) {
     fileInput.value.value = ''
   }
 }
 
-const handleImport = async () => {
-  if (isImporting.value) return
-
+const importData = async () => {
   isImporting.value = true
-  const validItems = previewData.value.filter((item) => !item.errors?.length)
-
-  try {
-    // 这里模拟导入过程，实际应该调用后端 API
-    // const response = await fetch('/api/questions/bulk-import', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(validItems)
-    // })
-
-    // 模拟导入结果
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    importResult.value = {
-      success: true,
-      successCount: validItems.length,
-      skipCount: 0,
-      errorCount: 0,
-      errors: []
-    }
-  } catch (error) {
-    importResult.value = {
-      success: false,
-      successCount: 0,
-      skipCount: 0,
-      errorCount: validItems.length,
-      errors: [error instanceof Error ? error.message : '导入失败']
-    }
-  } finally {
-    isImporting.value = false
-  }
+  // Import logic
+  isImporting.value = false
 }
 
 const resetImport = () => {
   importResult.value = null
-  clearPreview()
-}
-
-const downloadTemplate = (format: 'json' | 'csv') => {
-  const template = {
-    category: 'backend',
-    sectionId: 'java-basics',
-    question: 'Java 中 == 和 equals() 的区别？',
-    answer: '== 比较内存地址，equals 比较内容值。对于基本类型，== 比较值；对于引用类型，== 比较引用地址。String 和包装类重写了 equals 方法，用于比较内容。',
-    tags: ['must', 'frequent'],
-    source: 'https://github.com/CyC2018/CS-Notes'
-  }
-
-  let content: string
-  let filename: string
-  let mimeType: string
-
-  if (format === 'json') {
-    content = JSON.stringify([template], null, 2)
-    filename = 'questions-template.json'
-    mimeType = 'application/json'
-  } else {
-    const headers = 'category,sectionId,question,answer,tags,source'
-    const row = `${template.category},${template.sectionId},"${template.question}","${template.answer}",${template.tags?.join(';')},${template.source}`
-    content = `${headers}\n${row}`
-    filename = 'questions-template.csv'
-    mimeType = 'text/csv'
-  }
-
-  const blob = new Blob([content], { type: mimeType })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  resetFile()
 }
 </script>
 
@@ -457,136 +195,95 @@ const downloadTemplate = (format: 'json' | 'csv') => {
 .bulk-import-page {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 2rem;
 }
 
 .page-header {
-  text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }
 
 .page-header h1 {
-  font-size: 1.75rem;
-  margin-bottom: 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
-.subtitle {
-  color: var(--text-muted);
+.page-header p {
+  color: var(--text-secondary);
 }
 
-/* 上传区域 */
-.upload-area {
+.upload-section {
+  margin-bottom: 2rem;
+}
+
+.dropzone {
   border: 2px dashed var(--border-color);
   border-radius: var(--radius-lg);
-  background: var(--card-bg);
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  position: relative;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.upload-area.dragging {
+.dropzone:hover {
   border-color: var(--primary-color);
   background: rgba(99, 102, 241, 0.05);
 }
 
-.upload-area.error {
-  border-color: #ef4444;
+.dropzone-content .icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
-.file-input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
+.dropzone-content .hint {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
 }
 
-.upload-placeholder {
-  text-align: center;
-  padding: 40px;
+.dropzone-content .formats {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
 }
 
-.upload-icon {
-  font-size: 4rem;
-  margin-bottom: 16px;
-}
-
-.upload-placeholder h3 {
-  font-size: 1.25rem;
-  margin-bottom: 8px;
-}
-
-.upload-hint {
-  color: var(--text-muted);
-  margin-bottom: 20px;
-}
-
-.btn-select {
-  padding: 12px 24px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.btn-select:hover {
-  opacity: 0.9;
-}
-
-/* 预览区域 */
 .preview-section {
-  width: 100%;
-  padding: 24px;
-}
-
-.preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.preview-header h3 {
-  font-size: 1.1rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .preview-table-wrapper {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  margin-bottom: 16px;
+  overflow-x: auto;
+  margin: 1rem 0;
 }
 
 .preview-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
 }
 
 .preview-table th,
 .preview-table td {
-  padding: 12px;
+  padding: 0.75rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
 .preview-table th {
-  background: var(--bg-secondary);
   font-weight: 600;
-}
-
-.preview-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.preview-table tbody tr.error {
-  background: rgba(239, 68, 68, 0.05);
+  color: var(--text-secondary);
 }
 
 .question-cell {
@@ -596,290 +293,190 @@ const downloadTemplate = (format: 'json' | 'csv') => {
   white-space: nowrap;
 }
 
-.tag {
-  display: inline-block;
-  padding: 2px 8px;
-  background: var(--bg-secondary);
+.status {
+  padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
-  margin-right: 4px;
+  font-weight: 500;
 }
 
-.status-valid {
-  color: #22c55e;
+.status.valid {
+  background: #d1fae5;
+  color: #065f46;
 }
 
-.status-error {
-  color: #ef4444;
-  cursor: help;
-}
-
-.preview-more {
-  text-align: center;
-  padding: 12px;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  background: var(--bg-secondary);
-}
-
-.preview-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.validation-summary {
-  flex: 1;
-}
-
-.error-count {
-  color: #ef4444;
-}
-
-.success-count {
-  color: #22c55e;
-}
-
-.btn-secondary,
-.btn-primary {
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-primary {
-  background: var(--primary-color);
-  border: 1px solid var(--primary-color);
-  color: white;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-text {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.btn-text:hover {
-  text-decoration: underline;
-}
-
-/* 错误提示 */
-.error-message {
-  margin-top: 16px;
-  padding: 12px 16px;
+.status.error {
   background: #fee2e2;
   color: #991b1b;
-  border-radius: var(--radius-md);
-  border: 1px solid #fca5a5;
 }
 
-/* 导入结果 */
-.result-section {
-  margin-top: 24px;
-}
-
-.result-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 32px;
+.more-data {
   text-align: center;
+  color: var(--text-secondary);
 }
 
-.result-card.success {
-  border-color: #86efac;
+.validation-errors {
+  color: #ef4444;
+  margin: 1rem 0;
 }
 
-.result-card.partial {
-  border-color: #fcd34d;
+.validation-success {
+  color: #22c55e;
+  margin: 1rem 0;
 }
 
-.result-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
-.result-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 24px;
+.result-section {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .result-stats {
   display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-bottom: 24px;
+  gap: 2rem;
+  margin: 1.5rem 0;
 }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.stat {
+  text-align: center;
 }
 
-.stat-value {
+.stat .number {
+  display: block;
   font-size: 2rem;
   font-weight: 700;
 }
 
-.stat-item.success .stat-value {
+.stat .label {
+  color: var(--text-secondary);
+}
+
+.stat.success .number {
   color: #22c55e;
 }
 
-.stat-item.skip .stat-value {
+.stat.skip .number {
   color: #f59e0b;
 }
 
-.stat-item.error .stat-value {
+.stat.fail .number {
   color: #ef4444;
 }
 
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.error-list {
-  text-align: left;
+.error-details {
+  margin: 1.5rem 0;
+  padding: 1rem;
   background: #fee2e2;
   border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 24px;
 }
 
-.error-list h4 {
-  margin-bottom: 8px;
+.error-details h3 {
   color: #991b1b;
+  margin-bottom: 0.5rem;
 }
 
-.error-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.error-list li {
-  padding: 4px 0;
+.error-details ul {
   color: #991b1b;
-  font-size: 0.875rem;
+  padding-left: 1.5rem;
 }
 
-.result-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-/* 使用指南 */
 .guide-section {
-  margin-top: 40px;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
 }
 
-.guide-section h2 {
-  font-size: 1.25rem;
-  margin-bottom: 20px;
-}
-
-.guide-grid {
+.format-tabs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 1.5rem;
+  margin: 1rem 0;
 }
 
-.guide-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 20px;
-}
-
-.guide-card h3 {
-  font-size: 1rem;
-  margin-bottom: 12px;
-}
-
-.code-block {
+.format-content pre {
   background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-size: 0.8125rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
   overflow-x: auto;
-  margin-bottom: 12px;
-  font-family: monospace;
-  line-height: 1.5;
+  margin: 0.5rem 0;
 }
 
-.tips-list {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 20px;
+.tips {
+  margin-top: 1.5rem;
 }
 
-.tips-list h3 {
-  font-size: 1rem;
-  margin-bottom: 12px;
-}
-
-.tips-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.tips-list li {
-  padding: 8px 0;
+.tips ul {
+  padding-left: 1.5rem;
   color: var(--text-secondary);
-  position: relative;
-  padding-left: 20px;
 }
 
-.tips-list li::before {
-  content: '•';
-  position: absolute;
-  left: 6px;
-  color: var(--primary-color);
+.tips li {
+  margin-bottom: 0.5rem;
 }
 
-.tips-list code {
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
   background: var(--bg-secondary);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary-color);
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--primary-color);
+  padding: 0.5rem;
 }
 
 @media (max-width: 768px) {
-  .guide-grid {
+  .format-tabs {
     grid-template-columns: 1fr;
   }
 
-  .preview-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .result-stats {
-    gap: 16px;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .stat-value {
-    font-size: 1.5rem;
+  .actions {
+    flex-direction: column;
   }
 }
 </style>

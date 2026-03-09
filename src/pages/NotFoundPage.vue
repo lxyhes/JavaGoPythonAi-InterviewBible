@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18nStore } from '@/stores/i18n'
 
 const router = useRouter()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
 const goHome = () => {
   router.push('/')
@@ -16,16 +19,16 @@ const goBack = () => {
   <div class="not-found">
     <div class="content">
       <div class="error-code">404</div>
-      <h1>页面未找到</h1>
-      <p>抱歉，您访问的页面不存在或已被移除</p>
+      <h1>{{ t('notFound.title') }}</h1>
+      <p>{{ t('notFound.description') }}</p>
       <div class="actions">
         <button class="btn btn-primary" @click="goHome">
           <span class="icon">🏠</span>
-          返回首页
+          {{ t('notFound.backHome') }}
         </button>
         <button class="btn btn-secondary" @click="goBack">
           <span class="icon">←</span>
-          返回上一页
+          {{ t('notFound.back') }}
         </button>
       </div>
     </div>

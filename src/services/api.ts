@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API service layer for Java backend integration.
  */
 

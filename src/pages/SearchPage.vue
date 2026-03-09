@@ -1,9 +1,9 @@
-﻿<template>
+<template>
   <div class="search-page">
     <header class="search-header">
-      <router-link to="/" class="back-link">返回首页</router-link>
-      <h1>全局搜索</h1>
-      <p>按关键词、分类、标签快速定位面试题。</p>
+      <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+      <h1>{{ t('search.title') }}</h1>
+      <p>{{ t('search.subtitle') }}</p>
     </header>
 
     <section class="search-panel">
@@ -11,14 +11,14 @@
         v-model.trim="keyword"
         class="search-input"
         type="search"
-        placeholder="输入关键词，例如：线程池、Redis、索引、提示工程..."
+        :placeholder="t('search.placeholder')"
       />
 
       <div class="filter-row">
         <label class="filter-item">
-          <span>分类</span>
+          <span>{{ t('search.category') }}</span>
           <select v-model="selectedCategory">
-            <option value="all">全部分类</option>
+            <option value="all">{{ t('search.allCategories') }}</option>
             <option v-for="option in categoryOptions" :key="option.value" :value="option.value">
               {{ option.label }}
             </option>
@@ -26,20 +26,20 @@
         </label>
 
         <label class="filter-item">
-          <span>标签</span>
+          <span>{{ t('search.tag') }}</span>
           <select v-model="selectedTag">
-            <option value="all">全部标签</option>
-            <option value="must">必问</option>
-            <option value="frequent">高频</option>
-            <option value="important">重要</option>
+            <option value="all">{{ t('search.allTags') }}</option>
+            <option value="must">{{ t('common.tags.must') }}</option>
+            <option value="frequent">{{ t('common.tags.frequent') }}</option>
+            <option value="important">{{ t('common.tags.important') }}</option>
           </select>
         </label>
       </div>
     </section>
 
     <section class="result-summary">
-      <p>共找到 <strong>{{ filteredResults.length }}</strong> 条结果</p>
-      <button class="practice-btn" type="button" @click="startPractice">按当前筛选开始刷题</button>
+      <p>{{ t('search.results', { count: filteredResults.length }) }}</p>
+      <button class="practice-btn" type="button" @click="startPractice">{{ t('search.startPractice') }}</button>
     </section>
 
     <section v-if="filteredResults.length" class="result-list">
@@ -67,7 +67,7 @@
     </section>
 
     <section v-else class="empty-state">
-      <p>没有匹配结果，试试换个关键词或筛选条件。</p>
+      <p>{{ t('search.noResults') }}</p>
     </section>
   </div>
 </template>
@@ -76,10 +76,13 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchItems } from '@/data/search-index'
+import { useI18nStore } from '@/stores/i18n'
 import type { SearchCategory, SearchItem, SearchTag } from '@/types/search'
 
 const router = useRouter()
 const route = useRoute()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
 const keyword = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const selectedCategory = ref<'all' | SearchCategory>(
@@ -89,34 +92,34 @@ const selectedTag = ref<'all' | SearchTag>(
   typeof route.query.tag === 'string' ? (route.query.tag as 'all' | SearchTag) : 'all'
 )
 
-const categoryOptions: { value: SearchCategory; label: string }[] = [
-  { value: 'frontend', label: '前端开发' },
-  { value: 'backend', label: '后端开发' },
-  { value: 'database', label: '数据库' },
-  { value: 'algorithm', label: '算法' },
-  { value: 'system-design', label: '系统设计' },
-  { value: 'devops', label: 'DevOps' },
-  { value: 'network', label: '计算机网络' },
-  { value: 'os', label: '操作系统' },
-  { value: 'ai', label: '人工智能' },
-]
+const categoryOptions = computed(() => [
+  { value: 'frontend' as const, label: t('common.categories.frontend') },
+  { value: 'backend' as const, label: t('common.categories.backend') },
+  { value: 'database' as const, label: t('common.categories.database') },
+  { value: 'algorithm' as const, label: t('common.categories.algorithm') },
+  { value: 'system-design' as const, label: t('common.categories.system-design') },
+  { value: 'devops' as const, label: t('common.categories.devops') },
+  { value: 'network' as const, label: t('common.categories.network') },
+  { value: 'os' as const, label: t('common.categories.os') },
+  { value: 'ai' as const, label: t('common.categories.ai') },
+])
 
-const categoryLabelMap: Record<SearchCategory, string> = {
-  frontend: '前端开发',
-  backend: '后端开发',
-  database: '数据库',
-  algorithm: '算法',
-  'system-design': '系统设计',
-  devops: 'DevOps',
-  network: '计算机网络',
-  os: '操作系统',
-  ai: '人工智能',
-}
+const categoryLabelMap = computed<Record<SearchCategory, string>>(() => ({
+  frontend: t('common.categories.frontend'),
+  backend: t('common.categories.backend'),
+  database: t('common.categories.database'),
+  algorithm: t('common.categories.algorithm'),
+  'system-design': t('common.categories.system-design'),
+  devops: t('common.categories.devops'),
+  network: t('common.categories.network'),
+  os: t('common.categories.os'),
+  ai: t('common.categories.ai'),
+}))
 
 const tagLabelMap: Record<SearchTag, string> = {
-  must: '必问',
-  frequent: '高频',
-  important: '重要',
+  must: t('common.tags.must'),
+  frequent: t('common.tags.frequent'),
+  important: t('common.tags.important'),
 }
 
 const normalize = (text: string) => text.toLowerCase().trim()
@@ -387,7 +390,3 @@ const startPractice = () => {
   }
 }
 </style>
-
-
-
-

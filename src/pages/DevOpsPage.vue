@@ -1,48 +1,43 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
 
-const devopsConfig: NavConfig = {
-  title: 'DevOps面试宝典',
-  icon: '🚀',
+const i18nStore = useI18nStore()
+const t = i18nStore.t
+
+const devopsConfig = computed<NavConfig>(() => ({
+  title: t('category.devops.title'),
+  icon: '🔧',
   categories: [
     {
-      name: '容器化',
+      name: 'Containerization',
       items: [
         { id: 'docker', title: 'Docker', icon: '🐳' },
         { id: 'kubernetes', title: 'Kubernetes', icon: '☸️' },
-        { id: 'container-orchestration', title: '容器编排', icon: '📦' },
+        { id: 'container-orchestration', title: 'Orchestration', icon: '📦' },
       ],
     },
     {
       name: 'CI/CD',
       items: [
-        { id: 'jenkins', title: 'Jenkins', icon: '🔧' },
-        { id: 'gitlab-ci', title: 'GitLab CI', icon: '🦊' },
-        { id: 'github-actions', title: 'GitHub Actions', icon: '🐙' },
+        { id: 'jenkins', title: 'Jenkins', icon: '🔨' },
+        { id: 'gitops', title: 'GitOps', icon: '🔀' },
+        { id: 'deployment-strategies', title: 'Deployment', icon: '🚀' },
       ],
     },
     {
-      name: '运维工具',
+      name: 'Monitoring',
       items: [
         { id: 'prometheus', title: 'Prometheus', icon: '📊' },
         { id: 'grafana', title: 'Grafana', icon: '📈' },
-        { id: 'ansible', title: 'Ansible', icon: '🤖' },
-        { id: 'terraform', title: 'Terraform', icon: '🏗️' },
-      ],
-    },
-    {
-      name: '云平台',
-      items: [
-        { id: 'aws', title: 'AWS', icon: '☁️' },
-        { id: 'aliyun', title: '阿里云', icon: '🇨🇳' },
-        { id: 'tencent-cloud', title: '腾讯云', icon: '🔷' },
+        { id: 'logging', title: 'Logging', icon: '📝' },
       ],
     },
   ],
-}
-
+}))
 </script>
 
 <template>
@@ -50,8 +45,9 @@ const devopsConfig: NavConfig = {
     <Sidebar page-type="devops" :config="devopsConfig" />
     <main class="main-content">
       <div class="content-header">
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
         <h1>{{ devopsConfig.icon }} {{ devopsConfig.title }}</h1>
-        <p class="subtitle">掌握DevOps实践，提升运维效率</p>
+        <p class="subtitle">{{ t('pageSubtitles.devops') }}</p>
       </div>
       <div class="content-body">
         <template v-for="category in devopsConfig.categories" :key="category.name">
@@ -79,6 +75,17 @@ const devopsConfig: NavConfig = {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }
 
 .content-header h1 {

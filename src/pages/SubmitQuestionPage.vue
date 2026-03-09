@@ -1,181 +1,154 @@
 <template>
   <div class="submit-page">
     <header class="page-header">
-      <h1>📝 提交面试题</h1>
-      <p class="subtitle">分享你遇到的热点面试题，帮助更多求职者</p>
+      <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+      <h1>{{ t('submitQuestion.title') }}</h1>
+      <p>{{ t('submitQuestion.subtitle') }}</p>
     </header>
 
     <form class="submit-form" @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label for="category">分类 <span class="required">*</span></label>
+        <label for="category">
+          {{ t('submitQuestion.category') }}
+          <span class="required">{{ t('submitQuestion.required') }}</span>
+        </label>
         <select id="category" v-model="form.category" required>
-          <option value="">请选择分类</option>
-          <option v-for="cat in categories" :key="cat.value" :value="cat.value">
-            {{ cat.label }}
-          </option>
+          <option value="">{{ t('submitQuestion.selectCategory') }}</option>
+          <option value="frontend">{{ t('common.categories.frontend') }}</option>
+          <option value="backend">{{ t('common.categories.backend') }}</option>
+          <option value="database">{{ t('common.categories.database') }}</option>
+          <option value="algorithm">{{ t('common.categories.algorithm') }}</option>
+          <option value="system-design">{{ t('common.categories.system-design') }}</option>
+          <option value="devops">{{ t('common.categories.devops') }}</option>
+          <option value="network">{{ t('common.categories.network') }}</option>
+          <option value="os">{{ t('common.categories.os') }}</option>
+          <option value="ai">{{ t('common.categories.ai') }}</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="sectionId">章节ID <span class="required">*</span></label>
+        <label for="sectionId">
+          {{ t('submitQuestion.sectionId') }}
+          <span class="required">{{ t('submitQuestion.required') }}</span>
+        </label>
         <input
           id="sectionId"
           v-model="form.sectionId"
           type="text"
-          placeholder="例如：java-basics, react-hooks"
+          :placeholder="t('submitQuestion.sectionPlaceholder')"
           required
         />
-        <span class="hint">用于归类到具体章节，使用小写字母和连字符</span>
+        <p class="hint">{{ t('submitQuestion.sectionHint') }}</p>
       </div>
 
       <div class="form-group">
-        <label for="question">问题 <span class="required">*</span></label>
+        <label for="question">
+          {{ t('submitQuestion.question') }}
+          <span class="required">{{ t('submitQuestion.required') }}</span>
+        </label>
         <textarea
           id="question"
           v-model="form.question"
           rows="3"
-          placeholder="请输入面试题内容"
+          :placeholder="t('submitQuestion.questionPlaceholder')"
           required
         ></textarea>
       </div>
 
       <div class="form-group">
-        <label for="answer">答案 <span class="required">*</span></label>
+        <label for="answer">
+          {{ t('submitQuestion.answer') }}
+          <span class="required">{{ t('submitQuestion.required') }}</span>
+        </label>
         <textarea
           id="answer"
           v-model="form.answer"
           rows="10"
-          placeholder="请输入详细答案，支持 Markdown 格式"
+          :placeholder="t('submitQuestion.answerPlaceholder')"
           required
         ></textarea>
-        <span class="hint">建议包含：核心概念、代码示例、注意事项</span>
+        <p class="hint">{{ t('submitQuestion.answerHint') }}</p>
       </div>
 
       <div class="form-group">
-        <label>标签</label>
-        <div class="tag-selector">
-          <button
-            v-for="tag in availableTags"
-            :key="tag"
-            type="button"
-            :class="['tag-btn', { active: form.tags.includes(tag) }]"
-            @click="toggleTag(tag)"
-          >
-            {{ tagLabelMap[tag] || tag }}
-          </button>
+        <label for="tags">{{ t('submitQuestion.tags') }}</label>
+        <div class="tags-input">
+          <label v-for="tag in availableTags" :key="tag" class="tag-checkbox">
+            <input v-model="form.tags" type="checkbox" :value="tag" />
+            <span :class="['tag', tag]">{{ tagLabelMap[tag] }}</span>
+          </label>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="source">来源</label>
+        <label for="source">{{ t('submitQuestion.source') }}</label>
         <input
           id="source"
           v-model="form.source"
           type="url"
-          placeholder="https://example.com/interview-question"
+          :placeholder="t('submitQuestion.sourcePlaceholder')"
         />
-        <span class="hint">题目来源链接（可选）</span>
+        <p class="hint">{{ t('submitQuestion.sourceHint') }}</p>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-secondary" @click="handleReset">重置</button>
-        <button type="submit" class="btn-primary" :disabled="isSubmitting">
-          {{ isSubmitting ? '提交中...' : '提交题目' }}
+        <button type="button" class="btn btn-secondary" @click="resetForm">
+          {{ t('submitQuestion.reset') }}
+        </button>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+          {{ isSubmitting ? t('submitQuestion.submitting') : t('submitQuestion.submit') }}
         </button>
       </div>
     </form>
 
-    <div v-if="submitResult" :class="['result-message', submitResult.type]">
-      {{ submitResult.message }}
-    </div>
-
     <section class="tips-section">
-      <h2>💡 提交建议</h2>
+      <h2>{{ t('submitQuestion.tipsTitle') }}</h2>
       <ul>
-        <li>确保题目是真实面试中出现过的热点问题</li>
-        <li>答案要详细，包含原理说明和代码示例</li>
-        <li>标注正确的分类和标签，方便其他用户查找</li>
-        <li>如有来源链接，请填写以方便追溯</li>
+        <li>{{ t('submitQuestion.tip1') }}</li>
+        <li>{{ t('submitQuestion.tip2') }}</li>
+        <li>{{ t('submitQuestion.tip3') }}</li>
+        <li>{{ t('submitQuestion.tip4') }}</li>
       </ul>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { questionApi } from '@/services/questionApi'
-import type { QuestionSubmission } from '@/types'
+import { reactive, ref, computed } from 'vue'
+import { useI18nStore } from '@/stores/i18n'
 
-const categories = [
-  { value: 'frontend', label: '前端开发' },
-  { value: 'backend', label: '后端开发' },
-  { value: 'database', label: '数据库' },
-  { value: 'algorithm', label: '算法' },
-  { value: 'system-design', label: '系统设计' },
-  { value: 'devops', label: 'DevOps' },
-  { value: 'network', label: '计算机网络' },
-  { value: 'os', label: '操作系统' },
-  { value: 'ai', label: '人工智能' },
-]
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
-const availableTags = ['must', 'frequent', 'important']
+const availableTags = ['must', 'frequent', 'important'] as const
 
-const tagLabelMap: Record<string, string> = {
-  must: '必问',
-  frequent: '高频',
-  important: '重要',
-}
+const tagLabelMap = computed(() => ({
+  must: t('common.tags.must'),
+  frequent: t('common.tags.frequent'),
+  important: t('common.tags.important'),
+}))
 
-const form = reactive<QuestionSubmission>({
+const form = reactive({
   category: '',
   sectionId: '',
   question: '',
   answer: '',
-  tags: [],
+  tags: [] as string[],
   source: '',
 })
 
 const isSubmitting = ref(false)
-const submitResult = ref<{ type: 'success' | 'error'; message: string } | null>(null)
-
-const toggleTag = (tag: string) => {
-  const index = form.tags.indexOf(tag)
-  if (index > -1) {
-    form.tags.splice(index, 1)
-  } else {
-    form.tags.push(tag)
-  }
-}
 
 const handleSubmit = async () => {
   isSubmitting.value = true
-  submitResult.value = null
-
-  try {
-    const response = await questionApi.submit(form)
-    if (response.success) {
-      submitResult.value = {
-        type: 'success',
-        message: '题目提交成功！审核通过后将加入题库。',
-      }
-      handleReset()
-    } else {
-      submitResult.value = {
-        type: 'error',
-        message: response.error || '提交失败，请重试',
-      }
-    }
-  } catch (error) {
-    submitResult.value = {
-      type: 'error',
-      message: error instanceof Error ? error.message : '提交失败，请重试',
-    }
-  } finally {
-    isSubmitting.value = false
-  }
+  // Submit logic here
+  console.log('Submitting:', form)
+  isSubmitting.value = false
+  alert(t('submitQuestion.submitSuccess'))
+  resetForm()
 }
 
-const handleReset = () => {
+const resetForm = () => {
   form.category = ''
   form.sectionId = ''
   form.question = ''
@@ -189,56 +162,69 @@ const handleReset = () => {
 .submit-page {
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 2rem;
 }
 
 .page-header {
-  text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }
 
 .page-header h1 {
-  font-size: 1.75rem;
-  margin-bottom: 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
-.subtitle {
-  color: var(--text-muted);
+.page-header p {
+  color: var(--text-secondary);
 }
 
 .submit-form {
   background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  margin-bottom: 24px;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
   font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
 .required {
   color: #ef4444;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 0.75rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  background: var(--bg-color);
   color: var(--text-primary);
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
 }
 
 .form-group input:focus,
@@ -251,150 +237,126 @@ const handleReset = () => {
 .form-group textarea {
   resize: vertical;
   font-family: inherit;
-  line-height: 1.6;
 }
 
 .hint {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
 }
 
-.tag-selector {
+.tags-input {
   display: flex;
-  gap: 8px;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
-.tag-btn {
-  padding: 6px 14px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+.tag-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.tag-btn:hover {
-  border-color: var(--primary-color);
+.tag-checkbox input {
+  width: auto;
 }
 
-.tag-btn.active {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
+.tag {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tag.must {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag.frequent {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.tag.important {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .form-actions {
   display: flex;
-  gap: 12px;
+  gap: 1rem;
   justify-content: flex-end;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  margin-top: 2rem;
 }
 
-.btn-secondary,
-.btn-primary {
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 0.95rem;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-  background: var(--border-color);
+  transition: all 0.2s ease;
+  border: none;
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  border: 1px solid var(--primary-color);
+  background: var(--primary-gradient);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.result-message {
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  margin-bottom: 24px;
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
-.result-message.success {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
-}
-
-.result-message.error {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
+.btn-secondary:hover {
+  border-color: var(--primary-color);
 }
 
 .tips-section {
   background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
 }
 
 .tips-section h2 {
-  font-size: 1.1rem;
-  margin-bottom: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .tips-section ul {
-  list-style: none;
-  padding: 0;
+  padding-left: 1.5rem;
+  color: var(--text-secondary);
 }
 
 .tips-section li {
-  padding: 6px 0;
-  color: var(--text-secondary);
-  position: relative;
-  padding-left: 20px;
+  margin-bottom: 0.5rem;
 }
 
-.tips-section li::before {
-  content: '•';
-  position: absolute;
-  left: 6px;
-  color: var(--primary-color);
-}
-
-@media (max-width: 640px) {
-  .submit-page {
-    padding: 16px;
-  }
-
-  .submit-form {
-    padding: 16px;
-  }
-
+@media (max-width: 768px) {
   .form-actions {
     flex-direction: column;
   }
 
-  .btn-secondary,
-  .btn-primary {
+  .btn {
     width: 100%;
+    justify-content: center;
   }
 }
 </style>

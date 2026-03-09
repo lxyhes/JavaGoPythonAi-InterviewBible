@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -6,20 +6,20 @@
 
     <main class="main-content">
       <header class="page-header">
-        <router-link to="/" class="back-link">返回首页</router-link>
-        <h1 class="page-title">算法面试题</h1>
-        <p class="page-subtitle">覆盖排序、数据结构与 LeetCode 高频题，支持搜索直达与刷题。</p>
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+        <h1 class="page-title">{{ t('pageTitles.algorithm') }}</h1>
+        <p class="page-subtitle">{{ t('pageSubtitles.algorithm') }}</p>
       </header>
 
       <div class="content-container">
         <section id="sorting" class="section">
-          <ContentRenderer title="📊 排序算法" :items="sortQA" anchor-prefix="sorting" />
+          <ContentRenderer title="Sorting" :items="sortQA" anchor-prefix="sorting" />
         </section>
         <section id="data-structure" class="section">
-          <ContentRenderer title="📚 数据结构" :items="dataStructureQA" anchor-prefix="data-structure" />
+          <ContentRenderer title="Data Structures" :items="dataStructureQA" anchor-prefix="data-structure" />
         </section>
         <section id="leetcode" class="section">
-          <ContentRenderer title="🧪 LeetCode 高频" :items="leetcodeQA" anchor-prefix="leetcode" />
+          <ContentRenderer title="LeetCode" :items="leetcodeQA" anchor-prefix="leetcode" />
         </section>
       </div>
     </main>
@@ -29,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '@/components/Sidebar.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
@@ -40,25 +41,23 @@ import { dataStructureQA, leetcodeQA, sortQA } from '@/data/algorithm'
 import type { NavConfig } from '@/types'
 
 const store = useAppStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
-const algorithmConfig: NavConfig = {
-  title: '算法面试宝典',
+const algorithmConfig = computed<NavConfig>(() => ({
+  title: t('category.algorithm.title'),
   icon: '🧮',
   categories: [
     {
-      name: '基础算法',
-      items: [{ id: 'sorting', title: '排序算法', icon: '📊' }],
-    },
-    {
-      name: '数据结构',
-      items: [{ id: 'data-structure', title: '数组 / 链表 / 树', icon: '📚' }],
-    },
-    {
-      name: 'LeetCode',
-      items: [{ id: 'leetcode', title: '高频题', icon: '🧪' }],
+      name: t('common.categories.algorithm'),
+      items: [
+        { id: 'sorting', title: 'Sorting', icon: '📊' },
+        { id: 'data-structure', title: 'Data Structures', icon: '📚' },
+        { id: 'leetcode', title: 'LeetCode', icon: '🧪' },
+      ],
     },
   ],
-}
+}))
 
 onMounted(() => {
   store.initTheme()

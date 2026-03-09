@@ -6,9 +6,9 @@
 
     <main class="main-content">
       <header class="page-header">
-        <router-link to="/" class="back-link">返回首页</router-link>
-        <h1 class="page-title">前端开发面试题</h1>
-        <p class="page-subtitle">涵盖HTML/CSS/JavaScript、React、Vue等前端核心技术</p>
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
+        <h1 class="page-title">{{ t('pageTitles.frontend') }}</h1>
+        <p class="page-subtitle">{{ t('pageSubtitles.frontend') }}</p>
       </header>
 
       <div class="content-container">
@@ -35,8 +35,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '@/components/Sidebar.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
@@ -45,28 +46,25 @@ import { HtmlCssContent, JavaScriptContent, JavaScriptAdvanced, VueContent, Reac
 import type { NavConfig } from '@/types'
 
 const store = useAppStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
-const frontendConfig: NavConfig = {
-  title: '前端面试宝典',
+const frontendConfig = computed<NavConfig>(() => ({
+  title: t('category.frontend.title'),
   icon: '📚',
   categories: [
     {
-      name: '基础必问',
+      name: t('common.categories.frontend'),
       items: [
-        { id: 'html-css', title: 'HTML/CSS 基础', icon: '📘' },
-        { id: 'javascript', title: 'JavaScript 核心', icon: '📗' },
-        { id: 'js-advanced', title: 'JS 进阶', icon: '🔥' },
-      ],
-    },
-    {
-      name: '框架重点',
-      items: [
+        { id: 'html-css', title: 'HTML/CSS', icon: '📘' },
+        { id: 'javascript', title: 'JavaScript', icon: '📗' },
+        { id: 'js-advanced', title: 'JS Advanced', icon: '🔥' },
         { id: 'vue', title: 'Vue', icon: '💚' },
         { id: 'react', title: 'React', icon: '⚛️' },
       ],
     },
   ],
-}
+}))
 
 onMounted(() => {
   store.initTheme()

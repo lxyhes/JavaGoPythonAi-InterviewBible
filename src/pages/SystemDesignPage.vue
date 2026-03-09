@@ -1,41 +1,45 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
 
-const systemDesignConfig: NavConfig = {
-  title: '系统设计面试宝典',
+const i18nStore = useI18nStore()
+const t = i18nStore.t
+
+const systemDesignConfig = computed<NavConfig>(() => ({
+  title: t('category.systemDesign.title'),
   icon: '🏗️',
   categories: [
     {
-      name: '设计基础',
+      name: 'Design Basics',
       items: [
-        { id: 'design-principles', title: '设计原则', icon: '📐' },
-        { id: 'scalability', title: '可扩展性', icon: '📈' },
-        { id: 'reliability', title: '可靠性', icon: '🛡️' },
+        { id: 'design-principles', title: 'Design Principles', icon: '📐' },
+        { id: 'scalability', title: 'Scalability', icon: '📈' },
+        { id: 'reliability', title: 'Reliability', icon: '🛡️' },
       ],
     },
     {
-      name: '经典案例',
+      name: 'Classic Cases',
       items: [
-        { id: 'url-shortener', title: '短链服务', icon: '🔗' },
-        { id: 'rate-limiter', title: '限流器', icon: '🚦' },
-        { id: 'chat-system', title: '聊天系统', icon: '💬' },
-        { id: 'news-feed', title: '信息流', icon: '📰' },
+        { id: 'url-shortener', title: 'URL Shortener', icon: '🔗' },
+        { id: 'rate-limiter', title: 'Rate Limiter', icon: '🚦' },
+        { id: 'chat-system', title: 'Chat System', icon: '💬' },
+        { id: 'news-feed', title: 'News Feed', icon: '📰' },
       ],
     },
     {
-      name: '组件设计',
+      name: 'Components',
       items: [
-        { id: 'load-balancer', title: '负载均衡', icon: '⚖️' },
-        { id: 'cache', title: '缓存设计', icon: '💾' },
-        { id: 'message-queue', title: '消息队列', icon: '📮' },
-        { id: 'database-sharding', title: '分库分表', icon: '🗄️' },
+        { id: 'load-balancer', title: 'Load Balancer', icon: '⚖️' },
+        { id: 'cache', title: 'Cache Design', icon: '💾' },
+        { id: 'message-queue', title: 'Message Queue', icon: '📮' },
+        { id: 'database-sharding', title: 'DB Sharding', icon: '🗄️' },
       ],
     },
   ],
-}
-
+}))
 </script>
 
 <template>
@@ -43,8 +47,9 @@ const systemDesignConfig: NavConfig = {
     <Sidebar page-type="system-design" :config="systemDesignConfig" />
     <main class="main-content">
       <div class="content-header">
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
         <h1>{{ systemDesignConfig.icon }} {{ systemDesignConfig.title }}</h1>
-        <p class="subtitle">掌握系统设计方法论，应对高阶技术面试</p>
+        <p class="subtitle">{{ t('pageSubtitles.systemDesign') }}</p>
       </div>
       <div class="content-body">
         <template v-for="category in systemDesignConfig.categories" :key="category.name">
@@ -72,6 +77,17 @@ const systemDesignConfig: NavConfig = {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }
 
 .content-header h1 {

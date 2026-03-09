@@ -83,6 +83,26 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/BulkImportPage.vue'),
   },
   {
+    path: '/sync',
+    name: 'DataSync',
+    component: () => import('@/pages/DataSyncPage.vue'),
+  },
+  {
+    path: '/community',
+    name: 'Community',
+    component: () => import('@/pages/CommunityPage.vue'),
+  },
+  {
+    path: '/community/post/:id',
+    name: 'PostDetail',
+    component: () => import('@/pages/PostDetailPage.vue'),
+  },
+  {
+    path: '/leaderboard',
+    name: 'Leaderboard',
+    component: () => import('@/pages/LeaderboardPage.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/pages/NotFoundPage.vue'),

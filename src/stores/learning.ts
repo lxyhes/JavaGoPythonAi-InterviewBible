@@ -1,4 +1,4 @@
-﻿import { computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export type MasteryLevel = 'unknown' | 'vague' | 'mastered'
@@ -37,17 +37,73 @@ export interface LearningAchievement {
 
 export interface LearningCelebration {
   id: string
-  type: 'goal' | 'level' | 'achievement'
+  type: 'goal' | 'level' | 'achievement' | 'milestone'
   title: string
   description: string
+  milestoneDay?: number
+}
+
+export interface StreakMilestone {
+  day: number
+  title: string
+  description: string
+  badgeColor: string
+  rewardXp: number
+}
+
+export interface TomorrowPlan {
+  targetQuestionCount: number
+  focusCategories: string[]
+  estimatedMinutes: number
+  generatedAt: string
 }
 
 const RECORDS_STORAGE_KEY = 'mianshi-learning-records-v1'
 const HISTORY_STORAGE_KEY = 'mianshi-learning-history-v1'
 const SETTINGS_STORAGE_KEY = 'mianshi-learning-settings-v1'
+const MILESTONES_STORAGE_KEY = 'mianshi-learning-milestones-v1'
+const TOMORROW_PLAN_STORAGE_KEY = 'mianshi-learning-tomorrow-plan-v1'
 
 const DEFAULT_DAILY_GOAL = 15
 const LEVEL_XP_STEP = 180
+
+export const STREAK_MILESTONES: StreakMilestone[] = [
+  {
+    day: 3,
+    title: '初出茅庐',
+    description: '连续学习3天，好习惯正在养成！',
+    badgeColor: 'bronze',
+    rewardXp: 30,
+  },
+  {
+    day: 7,
+    title: '坚持不懈',
+    description: '连续学习7天，你比大多数人更有毅力！',
+    badgeColor: 'silver',
+    rewardXp: 70,
+  },
+  {
+    day: 14,
+    title: '面试达人',
+    description: '连续学习14天，知识正在内化为你的能力！',
+    badgeColor: 'gold',
+    rewardXp: 150,
+  },
+  {
+    day: 30,
+    title: '终身学习者',
+    description: '连续学习30天，你已经成为学习的化身！',
+    badgeColor: 'legendary',
+    rewardXp: 300,
+  },
+]
+
+export const MILESTONE_BADGE_COLORS: Record<string, string> = {
+  bronze: '#cd7f32',
+  silver: '#c0c0c0',
+  gold: '#ffd700',
+  legendary: '#ff6b6b',
+}
 
 const addDays = (date: Date, days: number) => {
   const next = new Date(date)
@@ -154,11 +210,17 @@ export const useLearningStore = defineStore('learning', () => {
     loadJSON<LearningSettings>(SETTINGS_STORAGE_KEY, { dailyGoalTarget: DEFAULT_DAILY_GOAL })
   )
   const celebrations = ref<LearningCelebration[]>([])
+  const unlockedMilestones = ref<Set<number>>(new Set(loadJSON<number[]>(MILESTONES_STORAGE_KEY, [])))
+  const tomorrowPlan = ref<TomorrowPlan | null>(loadJSON<TomorrowPlan | null>(TOMORROW_PLAN_STORAGE_KEY, null))
 
   const persist = () => {
     localStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(records.value))
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.value))
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings.value))
+    localStorage.setItem(MILESTONES_STORAGE_KEY, JSON.stringify(Array.from(unlockedMilestones.value)))
+    if (tomorrowPlan.value) {
+      localStorage.setItem(TOMORROW_PLAN_STORAGE_KEY, JSON.stringify(tomorrowPlan.value))
+    }
   }
 
   const getRecord = (questionId: string) => records.value[questionId]
@@ -230,6 +292,8 @@ export const useLearningStore = defineStore('learning', () => {
         title: 'Daily Goal Complete',
         description: `You finished ${settings.value.dailyGoalTarget} reviews today.`,
       })
+      // Auto-generate tomorrow's plan when daily goal is completed
+      generateTomorrowPlan()
     }
 
     const prevAchievementMap = new Map(prevAchievements.map((item) => [item.id, item.unlocked]))
@@ -241,6 +305,22 @@ export const useLearningStore = defineStore('learning', () => {
           title: achievement.title,
           description: achievement.description,
         })
+      }
+    }
+
+    // Check for streak milestones
+    if (nextStreakDays > prevStreakDays) {
+      for (const milestone of STREAK_MILESTONES) {
+        if (nextStreakDays >= milestone.day && !unlockedMilestones.value.has(milestone.day)) {
+          unlockedMilestones.value.add(milestone.day)
+          celebrations.value.push({
+            id: `milestone-${milestone.day}-${now.getTime()}`,
+            type: 'milestone',
+            title: `🎉 ${milestone.title}`,
+            description: `${milestone.description} (+${milestone.rewardXp} XP)`,
+            milestoneDay: milestone.day,
+          })
+        }
       }
     }
 
@@ -385,7 +465,106 @@ export const useLearningStore = defineStore('learning', () => {
     history.value = []
     settings.value = { dailyGoalTarget: DEFAULT_DAILY_GOAL }
     celebrations.value = []
+    unlockedMilestones.value.clear()
+    tomorrowPlan.value = null
     persist()
+  }
+
+  // Streak milestone helpers
+  const getMilestoneProgress = (day: number) => {
+    const currentStreak = streakDays.value
+    if (currentStreak >= day) return 100
+    const prevMilestone = STREAK_MILESTONES.find(m => m.day < day)?.day ?? 0
+    return Math.round(((currentStreak - prevMilestone) / (day - prevMilestone)) * 100)
+  }
+
+  const getNextMilestone = () => {
+    return STREAK_MILESTONES.find(m => !unlockedMilestones.value.has(m.day)) ?? null
+  }
+
+  const getCurrentMilestone = () => {
+    const unlocked = Array.from(unlockedMilestones.value).sort((a, b) => b - a)
+    if (unlocked.length === 0) return null
+    const highestDay = unlocked[0]
+    return STREAK_MILESTONES.find(m => m.day === highestDay) ?? null
+  }
+
+  // Tomorrow plan helpers
+  const generateTomorrowPlan = () => {
+    const now = new Date()
+    
+    // Calculate target based on current progress and streak
+    const baseTarget = settings.value.dailyGoalTarget
+    const streakBonus = Math.min(streakDays.value * 0.5, 5) // Max 5 bonus questions for streak
+    const targetQuestionCount = Math.round(baseTarget + streakBonus)
+    
+    // Determine focus categories based on weak questions
+    const weakCategories = new Map<string, number>()
+    for (const questionId of weakQuestionIds.value.slice(0, 20)) {
+      const category = questionId.split('/')[0] || 'general'
+      weakCategories.set(category, (weakCategories.get(category) ?? 0) + 1)
+    }
+    const focusCategories = Array.from(weakCategories.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([cat]) => cat)
+    
+    // Estimate time (avg 3 min per question)
+    const estimatedMinutes = Math.round(targetQuestionCount * 3)
+    
+    tomorrowPlan.value = {
+      targetQuestionCount,
+      focusCategories,
+      estimatedMinutes,
+      generatedAt: now.toISOString(),
+    }
+    persist()
+  }
+
+  const acceptTomorrowPlan = () => {
+    if (!tomorrowPlan.value) return
+    settings.value.dailyGoalTarget = tomorrowPlan.value.targetQuestionCount
+    persist()
+  }
+
+  const dismissTomorrowPlan = () => {
+    tomorrowPlan.value = null
+    persist()
+  }
+
+  // Data export/import for user account sync
+  const exportUserData = () => {
+    return {
+      records: records.value,
+      history: history.value,
+      settings: settings.value,
+      unlockedMilestones: Array.from(unlockedMilestones.value),
+      exportAt: new Date().toISOString(),
+      version: '1.0',
+    }
+  }
+
+  const importUserData = (data: unknown) => {
+    try {
+      const parsed = data as {
+        records?: Record<string, LearningRecord>
+        history?: LearningHistoryItem[]
+        settings?: LearningSettings
+        unlockedMilestones?: number[]
+      }
+      
+      if (parsed.records) records.value = parsed.records
+      if (parsed.history) history.value = parsed.history
+      if (parsed.settings) settings.value = parsed.settings
+      if (parsed.unlockedMilestones) {
+        unlockedMilestones.value = new Set(parsed.unlockedMilestones)
+      }
+      
+      persist()
+      return true
+    } catch {
+      return false
+    }
   }
 
   return {
@@ -393,6 +572,8 @@ export const useLearningStore = defineStore('learning', () => {
     history,
     settings,
     celebrations,
+    unlockedMilestones,
+    tomorrowPlan,
     reviewQueueIds,
     weakQuestionIds,
     weakQuestionCount,
@@ -423,5 +604,13 @@ export const useLearningStore = defineStore('learning', () => {
     updateDailyGoalTarget,
     dismissCelebration,
     clearAll,
+    getMilestoneProgress,
+    getNextMilestone,
+    getCurrentMilestone,
+    generateTomorrowPlan,
+    acceptTomorrowPlan,
+    dismissTomorrowPlan,
+    exportUserData,
+    importUserData,
   }
 })

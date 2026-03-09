@@ -1,47 +1,43 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
 
-const networkConfig: NavConfig = {
-  title: '网络面试宝典',
+const i18nStore = useI18nStore()
+const t = i18nStore.t
+
+const networkConfig = computed<NavConfig>(() => ({
+  title: t('category.network.title'),
   icon: '🌐',
   categories: [
     {
-      name: '网络基础',
+      name: 'Network Basics',
       items: [
-        { id: 'osi-model', title: 'OSI七层模型', icon: '📚' },
-        { id: 'tcp-ip', title: 'TCP/IP协议', icon: '📡' },
+        { id: 'tcp-ip', title: 'TCP/IP', icon: '📡' },
         { id: 'http-https', title: 'HTTP/HTTPS', icon: '🔒' },
+        { id: 'dns', title: 'DNS', icon: '📖' },
       ],
     },
     {
-      name: '传输层',
+      name: 'Protocols',
       items: [
-        { id: 'tcp', title: 'TCP协议', icon: '📨' },
-        { id: 'udp', title: 'UDP协议', icon: '📬' },
-        { id: 'socket', title: 'Socket编程', icon: '🔌' },
+        { id: 'websocket', title: 'WebSocket', icon: '🔌' },
+        { id: 'grpc', title: 'gRPC', icon: '🔗' },
+        { id: 'rest-api', title: 'REST API', icon: '📋' },
       ],
     },
     {
-      name: '应用层',
+      name: 'Security',
       items: [
-        { id: 'http-methods', title: 'HTTP方法', icon: '🛠️' },
-        { id: 'rest-api', title: 'RESTful API', icon: '🔧' },
-        { id: 'websocket', title: 'WebSocket', icon: '💬' },
-      ],
-    },
-    {
-      name: '网络安全',
-      items: [
-        { id: 'encryption', title: '加密算法', icon: '🔐' },
-        { id: 'authentication', title: '认证授权', icon: '🎫' },
-        { id: 'firewall', title: '防火墙', icon: '🧱' },
+        { id: 'network-security', title: 'Security', icon: '🛡️' },
+        { id: 'firewall', title: 'Firewall', icon: '🔥' },
+        { id: 'ddos', title: 'DDoS', icon: '⚠️' },
       ],
     },
   ],
-}
-
+}))
 </script>
 
 <template>
@@ -49,8 +45,9 @@ const networkConfig: NavConfig = {
     <Sidebar page-type="network" :config="networkConfig" />
     <main class="main-content">
       <div class="content-header">
+        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
         <h1>{{ networkConfig.icon }} {{ networkConfig.title }}</h1>
-        <p class="subtitle">深入理解网络协议，解决网络相关问题</p>
+        <p class="subtitle">{{ t('pageSubtitles.network') }}</p>
       </div>
       <div class="content-body">
         <template v-for="category in networkConfig.categories" :key="category.name">
@@ -78,6 +75,17 @@ const networkConfig: NavConfig = {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }
 
 .content-header h1 {
