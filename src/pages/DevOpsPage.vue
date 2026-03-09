@@ -1,117 +1,110 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useI18nStore } from '@/stores/i18n'
-import Sidebar from '../components/Sidebar.vue'
-import ContentSection from '../components/ContentSection.vue'
-import type { NavConfig } from '../types'
-import PhosphorIcon from '@/components/PhosphorIcon.vue'
+<template>
+  <a-layout class="page-layout">
+    <ReadingProgress />
+    <MobileMenuBtn />
+    <Sidebar page-type="devops" :config="devopsConfig" />
 
+    <a-layout-content class="main-content">
+      <a-page-header
+        :title="t('pageTitles.devops')"
+        :sub-title="t('pageSubtitles.devops')"
+        @back="() => $router.push('/dashboard')"
+        class="page-header"
+      />
+
+      <div class="content-container">
+        <a-card id="devops" class="section-card" :bordered="false">
+          <ContentSection id="devops" title="DevOps" />
+        </a-card>
+      </div>
+    </a-layout-content>
+
+    <BackToTop />
+  </a-layout>
+</template>
+
+<script setup lang="ts">
+import { onMounted, computed } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
+import Sidebar from '@/components/Sidebar.vue'
+import BackToTop from '@/components/BackToTop.vue'
+import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
+import ReadingProgress from '@/components/ReadingProgress.vue'
+import ContentSection from '@/components/ContentSection.vue'
+import type { NavConfig } from '@/types'
+
+const store = useAppStore()
 const i18nStore = useI18nStore()
 const t = i18nStore.t
 
 const devopsConfig = computed<NavConfig>(() => ({
   title: t('category.devops.title'),
-  icon: 'Wrench',
+  icon: 'Gear',
   categories: [
     {
-      name: 'Containerization',
+      name: t('common.categories.devops'),
       items: [
-        { id: 'docker', title: 'Docker', icon: 'Cube' },
-        { id: 'kubernetes', title: 'Kubernetes', icon: 'Asterisk' },
-        { id: 'container-orchestration', title: 'Orchestration', icon: 'Package' },
-      ],
-    },
-    {
-      name: 'CI/CD',
-      items: [
-        { id: 'jenkins', title: 'Jenkins', icon: 'Hammer' },
-        { id: 'gitops', title: 'GitOps', icon: 'GitMerge' },
-        { id: 'deployment-strategies', title: 'Deployment', icon: 'Rocket' },
-      ],
-    },
-    {
-      name: 'Monitoring',
-      items: [
-        { id: 'prometheus', title: 'Prometheus', icon: 'ChartBar' },
-        { id: 'grafana', title: 'Grafana', icon: 'TrendUp' },
-        { id: 'logging', title: 'Logging', icon: 'Note' },
+        { id: 'devops', title: 'DevOps', icon: 'Gear' },
       ],
     },
   ],
 }))
+
+onMounted(() => {
+  store.initTheme()
+})
 </script>
 
-<template>
-  <div class="page-container">
-    <Sidebar page-type="devops" :config="devopsConfig" />
-    <main class="main-content">
-      <div class="content-header">
-        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-        <h1><PhosphorIcon :name="devopsConfig.icon" :size="32" class="header-icon" /> {{ devopsConfig.title }}</h1>
-        <p class="subtitle">{{ t('pageSubtitles.devops') }}</p>
-      </div>
-      <div class="content-body">
-        <template v-for="category in devopsConfig.categories" :key="category.name">
-          <ContentSection v-for="item in category.items" :key="item.id" :id="item.id" :title="item.title" />
-        </template>
-      </div>
-    </main>
-  </div>
-</template>
-
 <style scoped>
-.page-container {
-  display: flex;
+.page-layout {
   min-height: 100vh;
 }
 
 .main-content {
-  flex: 1;
   margin-left: var(--sidebar-width);
-  padding: 2rem;
+  flex: 1;
+  padding: 24px 48px 48px;
   max-width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
 }
 
-.content-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+.page-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 1rem;
-  color: var(--text-tertiary);
-  text-decoration: none;
-}
-
-.back-link:hover {
-  color: var(--primary-color);
-}
-
-.content-header h1 {
-  font-size: 2rem;
+.page-header :deep(.ant-page-header-heading-title) {
+  font-size: 2.5rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
 }
 
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+.section-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  transition: all 0.3s;
 }
 
-.content-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.section-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 24px 32px;
+  }
 }
 
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 1rem;
+    padding: 16px 20px;
+  }
+
+  .page-header :deep(.ant-page-header-heading-title) {
+    font-size: 1.75rem;
   }
 }
 </style>

@@ -1,119 +1,110 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useI18nStore } from '@/stores/i18n'
-import Sidebar from '../components/Sidebar.vue'
-import ContentSection from '../components/ContentSection.vue'
-import type { NavConfig } from '../types'
-import PhosphorIcon from '@/components/PhosphorIcon.vue'
+<template>
+  <a-layout class="page-layout">
+    <ReadingProgress />
+    <MobileMenuBtn />
+    <Sidebar page-type="system-design" :config="systemDesignConfig" />
 
+    <a-layout-content class="main-content">
+      <a-page-header
+        :title="t('pageTitles.systemDesign')"
+        :sub-title="t('pageSubtitles.systemDesign')"
+        @back="() => $router.push('/dashboard')"
+        class="page-header"
+      />
+
+      <div class="content-container">
+        <a-card id="system-design" class="section-card" :bordered="false">
+          <ContentSection id="system-design" title="System Design" />
+        </a-card>
+      </div>
+    </a-layout-content>
+
+    <BackToTop />
+  </a-layout>
+</template>
+
+<script setup lang="ts">
+import { onMounted, computed } from 'vue'
+import { useAppStore } from '@/stores/app'
+import { useI18nStore } from '@/stores/i18n'
+import Sidebar from '@/components/Sidebar.vue'
+import BackToTop from '@/components/BackToTop.vue'
+import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
+import ReadingProgress from '@/components/ReadingProgress.vue'
+import ContentSection from '@/components/ContentSection.vue'
+import type { NavConfig } from '@/types'
+
+const store = useAppStore()
 const i18nStore = useI18nStore()
 const t = i18nStore.t
 
 const systemDesignConfig = computed<NavConfig>(() => ({
   title: t('category.systemDesign.title'),
-  icon: 'Buildings',
+  icon: 'Blueprint',
   categories: [
     {
-      name: 'Design Basics',
+      name: t('common.categories.system-design'),
       items: [
-        { id: 'design-principles', title: 'Design Principles', icon: 'Ruler' },
-        { id: 'scalability', title: 'Scalability', icon: 'TrendUp' },
-        { id: 'reliability', title: 'Reliability', icon: 'Shield' },
-      ],
-    },
-    {
-      name: 'Classic Cases',
-      items: [
-        { id: 'url-shortener', title: 'URL Shortener', icon: 'Link' },
-        { id: 'rate-limiter', title: 'Rate Limiter', icon: 'TrafficSignal' },
-        { id: 'chat-system', title: 'Chat System', icon: 'ChatCircle' },
-        { id: 'news-feed', title: 'News Feed', icon: 'Newspaper' },
-      ],
-    },
-    {
-      name: 'Components',
-      items: [
-        { id: 'load-balancer', title: 'Load Balancer', icon: 'Scales' },
-        { id: 'cache', title: 'Cache Design', icon: 'FloppyDisk' },
-        { id: 'message-queue', title: 'Message Queue', icon: 'Mailbox' },
-        { id: 'database-sharding', title: 'DB Sharding', icon: 'Archive' },
+        { id: 'system-design', title: 'System Design', icon: 'Blueprint' },
       ],
     },
   ],
 }))
+
+onMounted(() => {
+  store.initTheme()
+})
 </script>
 
-<template>
-  <div class="page-container">
-    <Sidebar page-type="system-design" :config="systemDesignConfig" />
-    <main class="main-content">
-      <div class="content-header">
-        <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-        <h1><PhosphorIcon :name="systemDesignConfig.icon" :size="32" class="header-icon" /> {{ systemDesignConfig.title }}</h1>
-        <p class="subtitle">{{ t('pageSubtitles.systemDesign') }}</p>
-      </div>
-      <div class="content-body">
-        <template v-for="category in systemDesignConfig.categories" :key="category.name">
-          <ContentSection v-for="item in category.items" :key="item.id" :id="item.id" :title="item.title" />
-        </template>
-      </div>
-    </main>
-  </div>
-</template>
-
 <style scoped>
-.page-container {
-  display: flex;
+.page-layout {
   min-height: 100vh;
 }
 
 .main-content {
-  flex: 1;
   margin-left: var(--sidebar-width);
-  padding: 2rem;
+  flex: 1;
+  padding: 24px 48px 48px;
   max-width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
 }
 
-.content-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+.page-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 1rem;
-  color: var(--text-tertiary);
-  text-decoration: none;
-}
-
-.back-link:hover {
-  color: var(--primary-color);
-}
-
-.content-header h1 {
-  font-size: 2rem;
+.page-header :deep(.ant-page-header-heading-title) {
+  font-size: 2.5rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
 }
 
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+.section-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  transition: all 0.3s;
 }
 
-.content-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.section-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 24px 32px;
+  }
 }
 
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 1rem;
+    padding: 16px 20px;
+  }
+
+  .page-header :deep(.ant-page-header-heading-title) {
+    font-size: 1.75rem;
   }
 }
 </style>
