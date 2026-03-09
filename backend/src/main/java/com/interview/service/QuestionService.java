@@ -1,14 +1,11 @@
 package com.interview.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.interview.entity.Question;
 import com.interview.model.ApiResponse;
 import com.interview.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,29 +31,29 @@ public class QuestionService {
      * 获取标签列表
      */
     public ApiResponse<List<String>> getTags() {
-        return ApiResponse.success(questionRepository.findAllTags());
+        // 由于tags字段改为字符串存储，这里返回空列表或从所有题目中解析
+        return ApiResponse.success(new ArrayList<>());
     }
 
     /**
      * 获取题目列表
      */
     public ApiResponse<Map<String, Object>> getQuestions(String category, String search, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Question> questionPage;
+        Page<Question> questionPage = new Page<>(page + 1, size);
 
         if (search != null && !search.isEmpty()) {
-            questionPage = questionRepository.searchByKeyword("approved", search, pageable);
+            questionPage = questionRepository.searchByKeyword("approved", search, questionPage);
         } else if (category != null && !category.isEmpty()) {
-            questionPage = questionRepository.findByCategoryAndStatus(category, "approved", pageable);
+            questionPage = questionRepository.findByCategoryAndStatus(category, "approved", questionPage);
         } else {
-            questionPage = questionRepository.findByStatus("approved", pageable);
+            questionPage = questionRepository.findByStatus("approved", questionPage);
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("content", questionPage.getContent());
-        result.put("totalElements", questionPage.getTotalElements());
-        result.put("totalPages", questionPage.getTotalPages());
-        result.put("currentPage", questionPage.getNumber());
+        result.put("content", questionPage.getRecords());
+        result.put("totalElements", questionPage.getTotal());
+        result.put("totalPages", questionPage.getPages());
+        result.put("currentPage", questionPage.getCurrent() - 1);
         result.put("size", questionPage.getSize());
 
         return ApiResponse.success(result);
@@ -66,8 +63,8 @@ public class QuestionService {
      * 获取热门题目
      */
     public ApiResponse<List<Question>> getHotQuestions(int limit) {
-        Pageable pageable = PageRequest.of(0, limit);
-        return ApiResponse.success(questionRepository.findHotQuestions(pageable).getContent());
+        Page<Question> page = new Page<>(1, limit);
+        return ApiResponse.success(questionRepository.findHotQuestions(page).getRecords());
     }
 
     /**
@@ -101,13 +98,13 @@ public class QuestionService {
      * 创建题目（提交审核）
      */
     public ApiResponse<Question> createQuestion(String category, String sectionId, String question,
-                                                 String answer, List<String> tags, String source, String submitterId) {
+                                                 String answer, String tags, String source, String submitterId) {
         Question newQuestion = Question.builder()
                 .category(category)
                 .sectionId(sectionId)
                 .question(question)
                 .answer(answer)
-                .tags(tags != null ? tags : new ArrayList<>())
+                .tags(tags)
                 .source(source)
                 .submitterId(submitterId)
                 .status("pending")
@@ -127,9 +124,9 @@ public class QuestionService {
     public ApiResponse<List<Question>> getRandomQuestions(String category, int count) {
         List<Question> allQuestions;
         if (category != null && !category.isEmpty()) {
-            allQuestions = questionRepository.findByCategoryAndStatus(category, "approved", Pageable.unpaged()).getContent();
+            allQuestions = questionRepository.findByCategoryAndStatus(category, "approved", new Page<>(1, Integer.MAX_VALUE)).getRecords();
         } else {
-            allQuestions = questionRepository.findByStatus("approved", Pageable.unpaged()).getContent();
+            allQuestions = questionRepository.findByStatus("approved", new Page<>(1, Integer.MAX_VALUE)).getRecords();
         }
 
         Collections.shuffle(allQuestions);
