@@ -6,6 +6,7 @@ import { useI18nStore } from './stores/i18n'
 import Antd from 'ant-design-vue'
 
 import './assets/styles/main.css'
+import './assets/styles/design-system.css'
 import 'ant-design-vue/dist/reset.css'
 
 const app = createApp(App)

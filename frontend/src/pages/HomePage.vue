@@ -1,66 +1,37 @@
 <template>
   <div class="home-page">
-    <!-- 顶部导航栏 -->
-    <a-affix>
-      <a-page-header
-        class="home-header"
-        :title="null"
-        :sub-title="null"
-      >
-        <template #extra>
-          <a-space>
-            <a-button v-if="!authStore.isLoggedIn" type="primary" @click="$router.push('/login')">
-              <LoginOutlined />
-              登录 / 注册
-            </a-button>
-            <a-dropdown v-else placement="bottomRight">
-              <a-space class="user-dropdown" align="center">
-                <a-avatar :size="32" :style="{ background: 'var(--primary-gradient)' }">
-                  {{ authStore.currentUser?.username?.[0]?.toUpperCase() }}
-                </a-avatar>
-                <span class="username">{{ authStore.currentUser?.username }}</span>
-                <DownOutlined />
-              </a-space>
-              <template #overlay>
-                <a-menu>
-                  <a-menu-item key="dashboard" @click="$router.push('/dashboard')">
-                    <DashboardOutlined />
-                    仪表盘
-                  </a-menu-item>
-                  <a-menu-item key="profile">
-                    <UserOutlined />
-                    个人资料
-                  </a-menu-item>
-                  <a-menu-divider />
-                  <a-menu-item key="logout" @click="handleLogout">
-                    <LogoutOutlined />
-                    退出登录
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown>
-          </a-space>
-        </template>
-      </a-page-header>
-    </a-affix>
-
     <!-- Hero 区域 -->
-    <div class="hero-section">
-      <a-space direction="vertical" align="center" size="large">
-        <a-tag color="blue" size="large">
-          <AimOutlined /> 系统化面试准备平台
-        </a-tag>
-        <h1 class="hero-title">面试指南</h1>
-        <p class="hero-desc">覆盖前端、后端、数据库、算法等核心技术领域，助你高效备战技术面试</p>
-        <a-alert
-          v-if="comebackMessage"
-          type="warning"
-          show-icon
-          :message="comebackMessage"
-          class="comeback-banner"
-        />
-      </a-space>
-    </div>
+    <HeroSection />
+
+    <!-- 快捷操作区 -->
+    <section class="section-wrapper">
+      <div class="section-header">
+        <h2 class="section-title">
+          <PhosphorIcon name="lightning" :size="24" weight="fill" />
+          快速开始
+        </h2>
+        <p class="section-subtitle">选择适合你的学习方式</p>
+      </div>
+      <div class="quick-actions-grid">
+        <router-link
+          v-for="(item, index) in actionItems"
+          :key="item.key"
+          :to="item.to"
+          class="action-card"
+          :class="{ 'primary': item.isPrimary, 'highlight': item.isHighlight }"
+          :style="{ animationDelay: `${index * 100}ms` }"
+        >
+          <div class="action-icon-wrapper">
+            <component :is="item.icon" />
+          </div>
+          <div class="action-content">
+            <h3 class="action-title">{{ item.title }}</h3>
+            <p class="action-desc">{{ item.desc }}</p>
+          </div>
+          <PhosphorIcon name="arrow-right" :size="20" class="action-arrow" />
+        </router-link>
+      </div>
+    </section>
 
     <!-- 快捷操作区 -->
     <a-card title="快速开始" class="section-card">
@@ -319,13 +290,10 @@ import {
   SettingOutlined,
   CodeOutlined,
   ApartmentOutlined,
-  LoginOutlined,
-  DownOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  DashboardOutlined,
 } from '@ant-design/icons-vue'
+import HeroSection from '@/components/HeroSection.vue'
 import LearningCoachPanel from '@/components/LearningCoachPanel.vue'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
 import type { LearningAchievement, MasteryLevel } from '@/stores/learning'
@@ -334,6 +302,7 @@ import { useAuthStore } from '@/stores/auth'
 import type { SearchCategory, SearchItem } from '@/types/search'
 import { loadPracticeSession } from '@/utils/practiceSession'
 
+// @ts-expect-error useRouter is used in template
 const router = useRouter()
 const learningStore = useLearningStore()
 const i18nStore = useI18nStore()
@@ -372,11 +341,7 @@ const masteryColor = (mastery: MasteryLevel) => {
   return colors[mastery] || 'default'
 }
 
-const comebackMessage = computed(() => {
-  if (learningStore.inactiveDays >= 3) return t('home.comebackLong', { days: learningStore.inactiveDays })
-  if (learningStore.inactiveDays >= 1) return t('home.comebackShort')
-  return ''
-})
+// comebackMessage is used in HeroSection component
 
 const duePreview = computed<SearchItem[]>(() => {
   return learningStore.reviewQueueIds.slice(0, 5).reduce<SearchItem[]>((acc, id) => {
@@ -475,10 +440,7 @@ onMounted(() => {
   authStore.initAuth()
 })
 
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/')
-}
+// handleLogout is handled in AppNavbar component
 </script>
 
 <style scoped>
@@ -682,5 +644,152 @@ const handleLogout = () => {
 
 .category-card :deep(.ant-card-meta-description) {
   font-size: 0.875rem;
+}
+
+/* 新增样式 */
+.section-wrapper {
+  padding: 60px 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.section-title :deep(svg) {
+  color: var(--primary-500);
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--text-tertiary);
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--rounded-2xl);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  animation: fadeInUp var(--duration-normal) var(--ease-out) forwards;
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-300);
+}
+
+.action-card.primary {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-color: var(--primary-300);
+}
+
+.action-card.primary .action-icon-wrapper {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.action-card.highlight {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.action-card.highlight .action-icon-wrapper {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+}
+
+.action-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: var(--bg-secondary);
+  border-radius: var(--rounded-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--text-secondary);
+  transition: all var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.action-card:hover .action-icon-wrapper {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.action-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.action-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.action-desc {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-arrow {
+  color: var(--text-muted);
+  transition: all var(--duration-fast) var(--ease-out);
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.action-card:hover .action-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--primary-500);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .section-wrapper {
+    padding: 40px 0;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-card {
+    padding: 20px;
+  }
 }
 </style>

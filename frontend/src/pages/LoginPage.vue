@@ -489,9 +489,10 @@ const handleForgotPassword = async () => {
 
 <style scoped>
 .login-page {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   background: #fff;
+  overflow: hidden;
 }
 
 /* 左侧装饰区域 */
@@ -501,7 +502,7 @@ const handleForgotPassword = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px;
+  padding: 40px;
   position: relative;
   overflow: hidden;
 }
@@ -509,31 +510,31 @@ const handleForgotPassword = async () => {
 .login-left-content {
   position: relative;
   z-index: 2;
-  max-width: 480px;
+  max-width: 420px;
   color: #fff;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 48px;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .brand-logo {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   background: linear-gradient(135deg, #00d4aa 0%, #00a8e8 100%);
-  border-radius: 16px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 22px;
   color: #fff;
 }
 
 .brand-name {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
   margin: 0;
   background: linear-gradient(135deg, #fff 0%, #a0aec0 100%);
@@ -543,10 +544,10 @@ const handleForgotPassword = async () => {
 }
 
 .slogan {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1.2;
-  margin: 0 0 24px 0;
+  margin: 0 0 16px 0;
   background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -554,29 +555,29 @@ const handleForgotPassword = async () => {
 }
 
 .description {
-  font-size: 18px;
+  font-size: 15px;
   color: #94a3b8;
-  line-height: 1.6;
-  margin-bottom: 48px;
+  line-height: 1.5;
+  margin-bottom: 24px;
 }
 
 .features {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 16px;
+  gap: 10px;
+  font-size: 14px;
   color: #e2e8f0;
 }
 
 .feature-icon {
   color: #00d4aa;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 /* 背景装饰 */
@@ -625,46 +626,46 @@ const handleForgotPassword = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 20px 40px;
   background: #f8fafc;
 }
 
 .login-form-container {
   width: 100%;
-  max-width: 440px;
+  max-width: 400px;
   background: #fff;
-  border-radius: 24px;
-  padding: 48px;
+  border-radius: 20px;
+  padding: 32px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .form-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: #1e293b;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 }
 
 .form-subtitle {
-  font-size: 15px;
+  font-size: 14px;
   color: #64748b;
   margin: 0;
 }
 
 .login-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .login-tabs :deep(.ant-tabs-tab) {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: #64748b;
-  padding: 12px 24px;
+  padding: 10px 20px;
 }
 
 .login-tabs :deep(.ant-tabs-tab-active) {
@@ -673,19 +674,24 @@ const handleForgotPassword = async () => {
 
 .login-tabs :deep(.ant-tabs-ink-bar) {
   background: linear-gradient(135deg, #00d4aa 0%, #00a8e8 100%);
-  height: 3px;
-  border-radius: 3px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.auth-form :deep(.ant-form-item) {
+  margin-bottom: 16px;
 }
 
 .auth-form :deep(.ant-form-item-label) {
   font-weight: 500;
   color: #374151;
+  padding-bottom: 4px;
 }
 
 .auth-form :deep(.ant-input-affix-wrapper) {
-  border-radius: 12px;
+  border-radius: 10px;
   border-color: #e2e8f0;
-  padding: 12px 16px;
+  padding: 10px 14px;
   transition: all 0.3s;
 }
 
@@ -696,12 +702,12 @@ const handleForgotPassword = async () => {
 }
 
 .auth-form :deep(.ant-input) {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .auth-form :deep(.ant-input-prefix) {
   color: #94a3b8;
-  margin-right: 12px;
+  margin-right: 10px;
 }
 
 .captcha-display {
@@ -721,6 +727,7 @@ const handleForgotPassword = async () => {
   color: #00a8e8;
   font-weight: 500;
   padding: 0;
+  font-size: 13px;
 }
 
 .forgot-link:hover {
@@ -728,9 +735,9 @@ const handleForgotPassword = async () => {
 }
 
 .submit-btn {
-  border-radius: 12px;
-  height: 52px;
-  font-size: 16px;
+  border-radius: 10px;
+  height: 44px;
+  font-size: 15px;
   font-weight: 600;
   background: linear-gradient(135deg, #00d4aa 0%, #00a8e8 100%);
   border: none;
@@ -744,22 +751,22 @@ const handleForgotPassword = async () => {
 }
 
 .divider {
-  margin: 32px 0;
+  margin: 20px 0;
 }
 
 .divider :deep(.ant-divider-inner-text) {
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .divider-text {
-  padding: 0 16px;
+  padding: 0 12px;
 }
 
 .demo-btn {
-  border-radius: 12px;
-  height: 48px;
-  font-size: 15px;
+  border-radius: 10px;
+  height: 40px;
+  font-size: 14px;
   font-weight: 500;
   border-color: #e2e8f0;
   color: #64748b;
