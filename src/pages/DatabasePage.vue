@@ -46,14 +46,14 @@ const t = i18nStore.t
 
 const databaseConfig = computed<NavConfig>(() => ({
   title: t('category.database.title'),
-  icon: '🗄️',
+  icon: 'Database',
   categories: [
     {
       name: t('common.categories.database'),
       items: [
-        { id: 'mysql', title: 'MySQL', icon: '🐬' },
-        { id: 'redis', title: 'Redis', icon: '⚡' },
-        { id: 'mongodb', title: 'MongoDB', icon: '🍃' },
+        { id: 'mysql', title: 'MySQL', icon: 'Database' },
+        { id: 'redis', title: 'Redis', icon: 'Lightning' },
+        { id: 'mongodb', title: 'MongoDB', icon: 'Leaf' },
       ],
     },
   ],

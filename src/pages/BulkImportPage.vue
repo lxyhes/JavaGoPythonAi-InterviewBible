@@ -10,7 +10,7 @@
       <div class="dropzone" @drop.prevent="handleDrop" @dragover.prevent @click="triggerFileInput">
         <input ref="fileInput" type="file" accept=".json,.csv" hidden @change="handleFileSelect" />
         <div class="dropzone-content">
-          <span class="icon">📁</span>
+          <PhosphorIcon name="Folder" class="icon" />
           <p class="hint">{{ t('bulkImport.uploadHint') }}</p>
           <p class="formats">{{ t('bulkImport.supportedFormats') }}</p>
           <button class="btn btn-secondary" type="button">{{ t('bulkImport.selectFile') }}</button>
@@ -137,6 +137,7 @@ frontend,html-css,What is the box model?,The CSS box model...,must;frequent,http
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const i18nStore = useI18nStore()
 const t = i18nStore.t
@@ -244,6 +245,9 @@ const resetImport = () => {
 .dropzone-content .icon {
   font-size: 3rem;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dropzone-content .hint {

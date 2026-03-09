@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const router = useRouter()
 const i18nStore = useI18nStore()
@@ -23,11 +24,11 @@ const goBack = () => {
       <p>{{ t('notFound.description') }}</p>
       <div class="actions">
         <button class="btn btn-primary" @click="goHome">
-          <span class="icon">🏠</span>
+          <PhosphorIcon name="House" class="icon" />
           {{ t('notFound.backHome') }}
         </button>
         <button class="btn btn-secondary" @click="goBack">
-          <span class="icon">←</span>
+          <PhosphorIcon name="ArrowLeft" class="icon" />
           {{ t('notFound.back') }}
         </button>
       </div>
@@ -116,6 +117,8 @@ p {
 
 .icon {
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
 }
 
 @media (max-width: 480px) {

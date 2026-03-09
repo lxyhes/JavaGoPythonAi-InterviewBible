@@ -72,20 +72,20 @@ const t = i18nStore.t
 
 const backendConfig = computed<NavConfig>(() => ({
   title: t('category.backend.title'),
-  icon: '☕',
+  icon: 'Coffee',
   categories: [
     {
       name: t('common.categories.backend'),
       items: [
-        { id: 'java-basics', title: 'Java Basics', icon: '📘' },
-        { id: 'java-advanced', title: 'Java Advanced', icon: '🔥' },
-        { id: 'java-jvm', title: 'JVM', icon: '⚙️' },
-        { id: 'java-concurrent', title: 'Concurrency', icon: '⚡' },
-        { id: 'java-network', title: 'Network', icon: '🌐' },
-        { id: 'java-spring', title: 'Spring', icon: '🍃' },
-        { id: 'java-distributed', title: 'Distributed', icon: '🔒' },
-        { id: 'microservices', title: 'Microservices', icon: '🔧' },
-        { id: 'project-backend', title: 'Project', icon: '💼' },
+        { id: 'java-basics', title: 'Java Basics', icon: 'Book' },
+        { id: 'java-advanced', title: 'Java Advanced', icon: 'Fire' },
+        { id: 'java-jvm', title: 'JVM', icon: 'Gear' },
+        { id: 'java-concurrent', title: 'Concurrency', icon: 'Lightning' },
+        { id: 'java-network', title: 'Network', icon: 'Globe' },
+        { id: 'java-spring', title: 'Spring', icon: 'Plant' },
+        { id: 'java-distributed', title: 'Distributed', icon: 'LockKey' },
+        { id: 'microservices', title: 'Microservices', icon: 'Wrench' },
+        { id: 'project-backend', title: 'Project', icon: 'Briefcase' },
       ],
     },
   ],

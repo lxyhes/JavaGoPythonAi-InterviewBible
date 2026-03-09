@@ -1,14 +1,17 @@
 <template>
   <aside class="sidebar" :class="{ open: store.sidebarOpen }">
     <div class="sidebar-header">
-      <div class="sidebar-title">{{ config.icon }} {{ config.title }}</div>
+      <div class="sidebar-title">
+        <PhosphorIcon :name="config.icon" :size="28" class="title-icon" />
+        {{ config.title }}
+      </div>
       <div class="sidebar-subtitle">大纲导航</div>
       <button
         class="theme-toggle"
         :title="store.isDark ? '切换到亮色模式' : '切换到暗色模式'"
         @click="store.toggleTheme"
       >
-        {{ store.isDark ? '☀️' : '🌙' }}
+        <PhosphorIcon :name="store.isDark ? 'Sun' : 'Moon'" :size="20" />
       </button>
     </div>
 
@@ -22,7 +25,7 @@
             :class="{ active: store.currentSection === item.id }"
             @click.prevent="scrollToSection(item.id)"
           >
-            <span class="nav-icon">{{ item.icon }}</span>
+            <PhosphorIcon :name="item.icon" :size="18" class="nav-icon" />
             {{ item.title }}
           </a>
         </li>
@@ -30,7 +33,10 @@
     </nav>
 
     <div class="sidebar-footer">
-      <router-link to="/" class="back-link">← 返回首页</router-link>
+      <router-link to="/" class="back-link">
+        <PhosphorIcon name="ArrowLeft" :size="16" />
+        返回首页
+      </router-link>
     </div>
   </aside>
 
@@ -42,6 +48,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import type { NavConfig } from '@/types'
+import PhosphorIcon from './PhosphorIcon.vue'
 
 defineProps<{
   pageType?: string
@@ -215,8 +222,16 @@ onUnmounted(() => {
 
 .nav-icon {
   margin-right: 12px;
-  font-size: 1.2em;
   transition: transform var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 8px;
 }
 
 .nav-link:hover .nav-icon {

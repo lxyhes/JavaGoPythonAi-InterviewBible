@@ -17,7 +17,7 @@
               :class="['filter-btn', { active: filter.category === cat.value }]"
               @click="setCategory(cat.value)"
             >
-              <span class="cat-icon">{{ cat.icon }}</span>
+              <PhosphorIcon :name="cat.icon" class="cat-icon" />
               <span class="cat-label">{{ cat.label }}</span>
               <span class="cat-count">{{ categoryStats[cat.value as keyof typeof categoryStats] || 0 }}</span>
             </button>
@@ -63,7 +63,7 @@
             :class="['post-card', { pinned: post.isPinned }]"
             @click="goToPost(post.id)"
           >
-            <div v-if="post.isPinned" class="pin-badge">📌 {{ t('community.pinned') }}</div>
+            <div v-if="post.isPinned" class="pin-badge"><PhosphorIcon name="PushPin" /> {{ t('community.pinned') }}</div>
             <div class="post-header">
               <div class="author-info">
                 <div class="avatar">{{ post.authorName[0] }}</div>
@@ -84,15 +84,15 @@
 
             <div class="post-stats">
               <span class="stat">
-                <span class="stat-icon">👁</span>
+                <PhosphorIcon name="Eye" class="stat-icon" />
                 {{ post.views }}
               </span>
               <span class="stat">
-                <span class="stat-icon">💬</span>
+                <PhosphorIcon name="ChatCircle" class="stat-icon" />
                 {{ post.commentCount }}
               </span>
               <span class="stat" :class="{ liked: post.isLiked }" @click.stop="toggleLike(post.id)">
-                <span class="stat-icon">{{ post.isLiked ? '❤️' : '🤍' }}</span>
+                <PhosphorIcon :name="post.isLiked ? 'Heart' : 'HeartStraight'" class="stat-icon" :weight="post.isLiked ? 'fill' : 'regular'" />
                 {{ post.likes }}
               </span>
             </div>
@@ -193,6 +193,7 @@ import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
 import { useCommunityStore, type CommunityFilter } from '@/stores/community'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const router = useRouter()
 const i18nStore = useI18nStore()
@@ -216,11 +217,11 @@ const newPost = reactive({
 })
 
 const categoryOptions = computed(() => [
-  { value: 'all', label: t('community.catAll'), icon: '📋' },
-  { value: 'discussion', label: t('community.catDiscussion'), icon: '💬' },
-  { value: 'question', label: t('community.catQuestion'), icon: '❓' },
-  { value: 'share', label: t('community.catShare'), icon: '📤' },
-  { value: 'experience', label: t('community.catExperience'), icon: '📝' },
+  { value: 'all', label: t('community.catAll'), icon: 'ClipboardText' },
+  { value: 'discussion', label: t('community.catDiscussion'), icon: 'ChatCircle' },
+  { value: 'question', label: t('community.catQuestion'), icon: 'Question' },
+  { value: 'share', label: t('community.catShare'), icon: 'Share' },
+  { value: 'experience', label: t('community.catExperience'), icon: 'Note' },
 ])
 
 const sortTabs = computed(() => [
@@ -400,6 +401,8 @@ const submitPost = () => {
 
 .cat-icon {
   font-size: 1rem;
+  display: flex;
+  align-items: center;
 }
 
 .cat-label {

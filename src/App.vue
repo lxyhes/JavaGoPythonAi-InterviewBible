@@ -1,9 +1,12 @@
-﻿<template>
-  <router-view v-slot="{ Component }">
-    <transition name="fade" mode="out-in">
-      <component :is="Component" />
-    </transition>
-  </router-view>
+<template>
+  <AppNavbar />
+  <main class="main-content">
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </main>
   <LanguageSwitcher />
   <CelebrationCenter />
   <BackToTop />
@@ -12,6 +15,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AppNavbar from './components/AppNavbar.vue'
 import BackToTop from './components/BackToTop.vue'
 import CelebrationCenter from './components/CelebrationCenter.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
@@ -62,5 +66,10 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.main-content {
+  padding-top: var(--header-height);
+  min-height: 100vh;
 }
 </style>

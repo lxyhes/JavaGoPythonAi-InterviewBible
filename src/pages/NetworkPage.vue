@@ -4,36 +4,37 @@ import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const i18nStore = useI18nStore()
 const t = i18nStore.t
 
 const networkConfig = computed<NavConfig>(() => ({
   title: t('category.network.title'),
-  icon: '🌐',
+  icon: 'Globe',
   categories: [
     {
       name: 'Network Basics',
       items: [
-        { id: 'tcp-ip', title: 'TCP/IP', icon: '📡' },
-        { id: 'http-https', title: 'HTTP/HTTPS', icon: '🔒' },
-        { id: 'dns', title: 'DNS', icon: '📖' },
+        { id: 'tcp-ip', title: 'TCP/IP', icon: 'Antenna' },
+        { id: 'http-https', title: 'HTTP/HTTPS', icon: 'LockKey' },
+        { id: 'dns', title: 'DNS', icon: 'BookOpen' },
       ],
     },
     {
       name: 'Protocols',
       items: [
-        { id: 'websocket', title: 'WebSocket', icon: '🔌' },
-        { id: 'grpc', title: 'gRPC', icon: '🔗' },
-        { id: 'rest-api', title: 'REST API', icon: '📋' },
+        { id: 'websocket', title: 'WebSocket', icon: 'Plugs' },
+        { id: 'grpc', title: 'gRPC', icon: 'Link' },
+        { id: 'rest-api', title: 'REST API', icon: 'ClipboardText' },
       ],
     },
     {
       name: 'Security',
       items: [
-        { id: 'network-security', title: 'Security', icon: '🛡️' },
-        { id: 'firewall', title: 'Firewall', icon: '🔥' },
-        { id: 'ddos', title: 'DDoS', icon: '⚠️' },
+        { id: 'network-security', title: 'Security', icon: 'Shield' },
+        { id: 'firewall', title: 'Firewall', icon: 'Fire' },
+        { id: 'ddos', title: 'DDoS', icon: 'Warning' },
       ],
     },
   ],
@@ -46,7 +47,7 @@ const networkConfig = computed<NavConfig>(() => ({
     <main class="main-content">
       <div class="content-header">
         <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-        <h1>{{ networkConfig.icon }} {{ networkConfig.title }}</h1>
+        <h1><PhosphorIcon :name="networkConfig.icon" :size="32" class="header-icon" /> {{ networkConfig.title }}</h1>
         <p class="subtitle">{{ t('pageSubtitles.network') }}</p>
       </div>
       <div class="content-body">

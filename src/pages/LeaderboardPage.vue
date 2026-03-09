@@ -13,7 +13,7 @@
         :class="['type-tab', { active: currentType === tab.value }]"
         @click="currentType = tab.value"
       >
-        <span class="tab-icon">{{ tab.icon }}</span>
+        <PhosphorIcon :name="tab.icon" class="tab-icon" />
         <span>{{ tab.label }}</span>
       </button>
     </div>
@@ -89,7 +89,7 @@
 
     <div class="refresh-section">
       <button class="refresh-btn" @click="refresh">
-        <span>🔄</span>
+        <PhosphorIcon name="ArrowCounterClockwise" />
         {{ t('leaderboard.refresh') }}
       </button>
       <span class="last-updated">{{ t('leaderboard.lastUpdated', { time: formatTime(lastUpdated) }) }}</span>
@@ -102,6 +102,7 @@ import { ref, computed } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
 import { useLeaderboardStore, type LeaderboardType } from '@/stores/leaderboard'
 import type { LeaderboardEntry } from '@/stores/leaderboard'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const i18nStore = useI18nStore()
 const leaderboardStore = useLeaderboardStore()
@@ -111,10 +112,10 @@ const currentType = ref<LeaderboardType>('xp')
 const lastUpdated = ref(leaderboardStore.lastUpdated)
 
 const typeTabs = computed(() => [
-  { value: 'xp' as const, label: t('leaderboard.tabXp'), icon: '⭐' },
-  { value: 'streak' as const, label: t('leaderboard.tabStreak'), icon: '🔥' },
-  { value: 'mastered' as const, label: t('leaderboard.tabMastered'), icon: '✅' },
-  { value: 'weekly' as const, label: t('leaderboard.tabWeekly'), icon: '📅' },
+  { value: 'xp' as const, label: t('leaderboard.tabXp'), icon: 'Star' },
+  { value: 'streak' as const, label: t('leaderboard.tabStreak'), icon: 'Fire' },
+  { value: 'mastered' as const, label: t('leaderboard.tabMastered'), icon: 'CheckCircle' },
+  { value: 'weekly' as const, label: t('leaderboard.tabWeekly'), icon: 'Calendar' },
 ])
 
 const leaderboardEntries = computed(() => leaderboardStore.getLeaderboardByType(currentType.value))
@@ -232,6 +233,8 @@ const refresh = () => {
 
 .tab-icon {
   font-size: 1.1rem;
+  display: flex;
+  align-items: center;
 }
 
 .top-three-section {

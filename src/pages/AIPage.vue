@@ -56,17 +56,17 @@ const t = i18nStore.t
 
 const aiConfig = computed<NavConfig>(() => ({
   title: t('category.ai.title'),
-  icon: '🤖',
+  icon: 'Robot',
   categories: [
     {
       name: t('common.categories.ai'),
       items: [
-        { id: 'ai-basics', title: 'AI Basics', icon: '📊' },
-        { id: 'ai-more', title: 'AI Advanced', icon: '📚' },
-        { id: 'deep-learning', title: 'Deep Learning', icon: '🧠' },
-        { id: 'llm', title: 'LLM', icon: '🔥' },
-        { id: 'prompt-engineering', title: 'Prompt Engineering', icon: '💬' },
-        { id: 'ai-project', title: 'AI Project', icon: '💼' },
+        { id: 'ai-basics', title: 'AI Basics', icon: 'ChartBar' },
+        { id: 'ai-more', title: 'AI Advanced', icon: 'Books' },
+        { id: 'deep-learning', title: 'Deep Learning', icon: 'Brain' },
+        { id: 'llm', title: 'LLM', icon: 'Fire' },
+        { id: 'prompt-engineering', title: 'Prompt Engineering', icon: 'ChatCircle' },
+        { id: 'ai-project', title: 'AI Project', icon: 'Briefcase' },
       ],
     },
   ],

@@ -46,14 +46,14 @@ const t = i18nStore.t
 
 const algorithmConfig = computed<NavConfig>(() => ({
   title: t('category.algorithm.title'),
-  icon: '🧮',
+  icon: 'Function',
   categories: [
     {
       name: t('common.categories.algorithm'),
       items: [
-        { id: 'sorting', title: 'Sorting', icon: '📊' },
-        { id: 'data-structure', title: 'Data Structures', icon: '📚' },
-        { id: 'leetcode', title: 'LeetCode', icon: '🧪' },
+        { id: 'sorting', title: 'Sorting', icon: 'ChartBar' },
+        { id: 'data-structure', title: 'Data Structures', icon: 'Books' },
+        { id: 'leetcode', title: 'LeetCode', icon: 'Code' },
       ],
     },
   ],

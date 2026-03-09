@@ -28,11 +28,11 @@
           :class="['action-btn', { active: post.isLiked }]"
           @click="toggleLike"
         >
-          <span class="action-icon">{{ post.isLiked ? '❤️' : '🤍' }}</span>
+          <PhosphorIcon :name="post.isLiked ? 'Heart' : 'HeartStraight'" class="action-icon" :weight="post.isLiked ? 'fill' : 'regular'" />
           <span>{{ post.likes }} {{ t('community.likes') }}</span>
         </button>
         <span class="views-count">
-          <span class="action-icon">👁</span>
+          <PhosphorIcon name="Eye" class="action-icon" />
           {{ post.views }} {{ t('community.views') }}
         </span>
       </div>
@@ -77,7 +77,7 @@
                 :class="['like-btn', { liked: comment.isLiked }]"
                 @click="toggleCommentLike(comment.id)"
               >
-                {{ comment.isLiked ? '❤️' : '🤍' }} {{ comment.likes }}
+                <PhosphorIcon :name="comment.isLiked ? 'Heart' : 'HeartStraight'" :weight="comment.isLiked ? 'fill' : 'regular'" /> {{ comment.likes }}
               </button>
               <button class="reply-btn" @click="replyTo(comment.id)">
                 {{ t('community.reply') }}
@@ -119,6 +119,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
 import { useCommunityStore } from '@/stores/community'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const route = useRoute()
 const i18nStore = useI18nStore()

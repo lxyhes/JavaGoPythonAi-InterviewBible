@@ -34,7 +34,7 @@
         </div>
 
         <button class="btn btn-primary" @click="exportData">
-          <span class="icon">📥</span>
+          <PhosphorIcon name="DownloadSimple" class="icon" />
           {{ t('dataSync.downloadBackup') }}
         </button>
       </section>
@@ -61,7 +61,7 @@
             style="display: none"
             @change="handleFileSelect"
           />
-          <span class="icon">📤</span>
+          <PhosphorIcon name="UploadSimple" class="icon" />
           <p v-if="selectedFile">{{ t('dataSync.selectedFile', { name: selectedFile.name }) }}</p>
           <p v-else>{{ t('dataSync.dropzoneText') }}</p>
         </div>
@@ -71,7 +71,7 @@
           :disabled="!selectedFile || isImporting"
           @click="importData"
         >
-          <span class="icon">🔄</span>
+          <PhosphorIcon name="ArrowCounterClockwise" class="icon" />
           {{ isImporting ? t('dataSync.importing') : t('dataSync.restoreBackup') }}
         </button>
       </section>
@@ -84,7 +84,7 @@
         <p class="description">{{ t('dataSync.resetDesc') }}</p>
 
         <button class="btn btn-danger" @click="showResetConfirm = true">
-          <span class="icon">🗑️</span>
+          <PhosphorIcon name="Trash" class="icon" />
           {{ t('dataSync.resetAllData') }}
         </button>
       </section>
@@ -117,6 +117,7 @@
 import { ref } from 'vue'
 import { useLearningStore } from '@/stores/learning'
 import { useI18nStore } from '@/stores/i18n'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const learningStore = useLearningStore()
 const i18nStore = useI18nStore()
@@ -364,7 +365,9 @@ const resetData = () => {
 
 .dropzone .icon {
   font-size: 2rem;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 0.5rem;
 }
 

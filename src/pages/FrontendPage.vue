@@ -51,16 +51,16 @@ const t = i18nStore.t
 
 const frontendConfig = computed<NavConfig>(() => ({
   title: t('category.frontend.title'),
-  icon: '📚',
+  icon: 'Books',
   categories: [
     {
       name: t('common.categories.frontend'),
       items: [
-        { id: 'html-css', title: 'HTML/CSS', icon: '📘' },
-        { id: 'javascript', title: 'JavaScript', icon: '📗' },
-        { id: 'js-advanced', title: 'JS Advanced', icon: '🔥' },
-        { id: 'vue', title: 'Vue', icon: '💚' },
-        { id: 'react', title: 'React', icon: '⚛️' },
+        { id: 'html-css', title: 'HTML/CSS', icon: 'FileHtml' },
+        { id: 'javascript', title: 'JavaScript', icon: 'FileJs' },
+        { id: 'js-advanced', title: 'JS Advanced', icon: 'Fire' },
+        { id: 'vue', title: 'Vue', icon: 'Hexagon' },
+        { id: 'react', title: 'React', icon: 'Atom' },
       ],
     },
   ],

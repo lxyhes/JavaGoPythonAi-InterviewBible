@@ -4,36 +4,37 @@ import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const i18nStore = useI18nStore()
 const t = i18nStore.t
 
 const devopsConfig = computed<NavConfig>(() => ({
   title: t('category.devops.title'),
-  icon: '🔧',
+  icon: 'Wrench',
   categories: [
     {
       name: 'Containerization',
       items: [
-        { id: 'docker', title: 'Docker', icon: '🐳' },
-        { id: 'kubernetes', title: 'Kubernetes', icon: '☸️' },
-        { id: 'container-orchestration', title: 'Orchestration', icon: '📦' },
+        { id: 'docker', title: 'Docker', icon: 'Cube' },
+        { id: 'kubernetes', title: 'Kubernetes', icon: 'Asterisk' },
+        { id: 'container-orchestration', title: 'Orchestration', icon: 'Package' },
       ],
     },
     {
       name: 'CI/CD',
       items: [
-        { id: 'jenkins', title: 'Jenkins', icon: '🔨' },
-        { id: 'gitops', title: 'GitOps', icon: '🔀' },
-        { id: 'deployment-strategies', title: 'Deployment', icon: '🚀' },
+        { id: 'jenkins', title: 'Jenkins', icon: 'Hammer' },
+        { id: 'gitops', title: 'GitOps', icon: 'GitMerge' },
+        { id: 'deployment-strategies', title: 'Deployment', icon: 'Rocket' },
       ],
     },
     {
       name: 'Monitoring',
       items: [
-        { id: 'prometheus', title: 'Prometheus', icon: '📊' },
-        { id: 'grafana', title: 'Grafana', icon: '📈' },
-        { id: 'logging', title: 'Logging', icon: '📝' },
+        { id: 'prometheus', title: 'Prometheus', icon: 'ChartBar' },
+        { id: 'grafana', title: 'Grafana', icon: 'TrendUp' },
+        { id: 'logging', title: 'Logging', icon: 'Note' },
       ],
     },
   ],
@@ -46,7 +47,7 @@ const devopsConfig = computed<NavConfig>(() => ({
     <main class="main-content">
       <div class="content-header">
         <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-        <h1>{{ devopsConfig.icon }} {{ devopsConfig.title }}</h1>
+        <h1><PhosphorIcon :name="devopsConfig.icon" :size="32" class="header-icon" /> {{ devopsConfig.title }}</h1>
         <p class="subtitle">{{ t('pageSubtitles.devops') }}</p>
       </div>
       <div class="content-body">

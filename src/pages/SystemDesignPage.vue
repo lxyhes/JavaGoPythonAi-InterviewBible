@@ -4,38 +4,39 @@ import { useI18nStore } from '@/stores/i18n'
 import Sidebar from '../components/Sidebar.vue'
 import ContentSection from '../components/ContentSection.vue'
 import type { NavConfig } from '../types'
+import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const i18nStore = useI18nStore()
 const t = i18nStore.t
 
 const systemDesignConfig = computed<NavConfig>(() => ({
   title: t('category.systemDesign.title'),
-  icon: '🏗️',
+  icon: 'Buildings',
   categories: [
     {
       name: 'Design Basics',
       items: [
-        { id: 'design-principles', title: 'Design Principles', icon: '📐' },
-        { id: 'scalability', title: 'Scalability', icon: '📈' },
-        { id: 'reliability', title: 'Reliability', icon: '🛡️' },
+        { id: 'design-principles', title: 'Design Principles', icon: 'Ruler' },
+        { id: 'scalability', title: 'Scalability', icon: 'TrendUp' },
+        { id: 'reliability', title: 'Reliability', icon: 'Shield' },
       ],
     },
     {
       name: 'Classic Cases',
       items: [
-        { id: 'url-shortener', title: 'URL Shortener', icon: '🔗' },
-        { id: 'rate-limiter', title: 'Rate Limiter', icon: '🚦' },
-        { id: 'chat-system', title: 'Chat System', icon: '💬' },
-        { id: 'news-feed', title: 'News Feed', icon: '📰' },
+        { id: 'url-shortener', title: 'URL Shortener', icon: 'Link' },
+        { id: 'rate-limiter', title: 'Rate Limiter', icon: 'TrafficSignal' },
+        { id: 'chat-system', title: 'Chat System', icon: 'ChatCircle' },
+        { id: 'news-feed', title: 'News Feed', icon: 'Newspaper' },
       ],
     },
     {
       name: 'Components',
       items: [
-        { id: 'load-balancer', title: 'Load Balancer', icon: '⚖️' },
-        { id: 'cache', title: 'Cache Design', icon: '💾' },
-        { id: 'message-queue', title: 'Message Queue', icon: '📮' },
-        { id: 'database-sharding', title: 'DB Sharding', icon: '🗄️' },
+        { id: 'load-balancer', title: 'Load Balancer', icon: 'Scales' },
+        { id: 'cache', title: 'Cache Design', icon: 'FloppyDisk' },
+        { id: 'message-queue', title: 'Message Queue', icon: 'Mailbox' },
+        { id: 'database-sharding', title: 'DB Sharding', icon: 'Archive' },
       ],
     },
   ],
@@ -48,7 +49,7 @@ const systemDesignConfig = computed<NavConfig>(() => ({
     <main class="main-content">
       <div class="content-header">
         <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-        <h1>{{ systemDesignConfig.icon }} {{ systemDesignConfig.title }}</h1>
+        <h1><PhosphorIcon :name="systemDesignConfig.icon" :size="32" class="header-icon" /> {{ systemDesignConfig.title }}</h1>
         <p class="subtitle">{{ t('pageSubtitles.systemDesign') }}</p>
       </div>
       <div class="content-body">
