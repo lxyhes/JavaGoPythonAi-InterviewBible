@@ -7,10 +7,20 @@ spring:
 
   # 数据库配置 (MySQL)
   datasource:
-    url: jdbc:mysql://localhost:3306/interview_guide?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/interview_guide?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
+    # 初始化模式：always-总是执行, never-从不执行, embedded-仅嵌入式数据库
+    initialization-mode: always
+    #  schema: classpath:schema.sql
+    #  data: classpath:data.sql
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      # data-locations: classpath:data.sql
 
   jpa:
     hibernate:
@@ -20,6 +30,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
+    # 延迟数据源初始化直到JPA创建表完成后
+    defer-datasource-initialization: true
 
 # iFlow SDK 配置
 iflow:
