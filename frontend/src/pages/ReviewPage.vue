@@ -1,21 +1,23 @@
 <template>
   <div class="review-page">
-    <a-page-header
-      :title="t('review.title')"
-      :sub-title="t('review.desc')"
-      @back="() => $router.push('/dashboard')"
-    >
-      <template #extra>
-        <a-space>
-          <a-tag v-if="dueItems.length" color="red">
-            <ClockCircleOutlined /> {{ t('review.dueToday') }}: {{ dueItems.length }}
-          </a-tag>
-          <a-tag color="blue">
-            <CheckCircleOutlined /> {{ t('review.reviewedToday') }}: {{ learningStore.reviewedTodayCount }}
-          </a-tag>
-        </a-space>
-      </template>
-    </a-page-header>
+    <div class="sticky-header">
+      <a-page-header
+        :title="t('review.title')"
+        :sub-title="t('review.desc')"
+        @back="() => $router.push('/dashboard')"
+      >
+        <template #extra>
+          <a-space>
+            <a-tag v-if="dueItems.length" color="red">
+              <ClockCircleOutlined /> {{ t('review.dueToday') }}: {{ dueItems.length }}
+            </a-tag>
+            <a-tag color="blue">
+              <CheckCircleOutlined /> {{ t('review.reviewedToday') }}: {{ learningStore.reviewedTodayCount }}
+            </a-tag>
+          </a-space>
+        </template>
+      </a-page-header>
+    </div>
 
     <a-row :gutter="[16, 16]" class="summary-row">
       <a-col :xs="24" :sm="8">

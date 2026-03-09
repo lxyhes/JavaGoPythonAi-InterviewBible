@@ -1,22 +1,24 @@
 <template>
   <div class="practice-page">
     <!-- 页面头部 -->
-    <a-page-header
-      :title="t('practice.title')"
-      :sub-title="t('practice.desc')"
-      @back="() => $router.push('/dashboard')"
-    >
-      <template #extra>
-        <a-space v-if="items.length">
-          <a-tag color="blue">
-            <FileTextOutlined /> {{ items.length }} 题
-          </a-tag>
-          <a-tag color="green">
-            <EnvironmentOutlined /> 第 {{ currentIndex + 1 }} 题
-          </a-tag>
-        </a-space>
-      </template>
-    </a-page-header>
+    <div class="sticky-header">
+      <a-page-header
+        :title="t('practice.title')"
+        :sub-title="t('practice.desc')"
+        @back="() => $router.push('/dashboard')"
+      >
+        <template #extra>
+          <a-space v-if="items.length">
+            <a-tag color="blue">
+              <FileTextOutlined /> {{ items.length }} 题
+            </a-tag>
+            <a-tag color="green">
+              <EnvironmentOutlined /> 第 {{ currentIndex + 1 }} 题
+            </a-tag>
+          </a-space>
+        </template>
+      </a-page-header>
+    </div>
 
     <!-- 筛选工具栏 -->
     <a-card class="filter-card" :bordered="false">

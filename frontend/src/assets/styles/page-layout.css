@@ -1,14 +1,21 @@
 /* 通用页面布局样式 - 用于带侧边栏的页面 */
 
 /* 页面标题固定 */
-.page-header {
+.page-header, .sticky-header {
   position: sticky;
   top: var(--header-height);
-  z-index: 10;
+  z-index: 900;
   background: var(--bg-color);
   margin-bottom: 24px;
-  padding: 16px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-base), padding var(--transition-base);
+}
+
+/* 确保在 Ant Design 的 PageHeader 中也生效 */
+.sticky-header :deep(.ant-page-header) {
+  padding: 12px 24px;
+  background: transparent;
 }
 
 /* 内容容器 */

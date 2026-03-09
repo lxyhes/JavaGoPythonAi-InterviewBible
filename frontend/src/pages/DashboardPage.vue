@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-page">
     <!-- 页面头部 - 固定在顶部 -->
-    <div class="page-header-wrapper">
+    <div class="sticky-header">
       <a-page-header
         :title="t('dashboard.title')"
         sub-title="查看你的学习统计和进度"
@@ -269,16 +269,7 @@ const getProgressColor = (rate: number) => {
   padding: 0 20px 40px;
 }
 
-.page-header-wrapper {
-  position: sticky;
-  top: var(--header-height);
-  z-index: 10;
-  background: var(--bg-color);
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 16px;
-}
-
-.page-header-wrapper :deep(.ant-page-header) {
+.sticky-header :deep(.ant-page-header) {
   max-width: 1200px;
   margin: 0 auto;
   padding: 16px 20px;

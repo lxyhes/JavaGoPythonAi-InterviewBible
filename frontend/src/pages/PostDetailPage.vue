@@ -1,25 +1,27 @@
 <template>
   <div v-if="post" class="post-detail-page">
-    <a-page-header @back="() => $router.push('/community')">
-      <template #title>
-        <a-space>
-          <a-avatar :style="{ background: 'var(--primary-gradient)' }">
-            {{ post.authorName[0] }}
-          </a-avatar>
-          <a-space direction="vertical" size="small">
-            <a-typography-text strong>{{ post.authorName }}</a-typography-text>
-            <a-typography-text type="secondary" style="font-size: 0.75rem">
-              {{ formatTime(post.createdAt) }}
-            </a-typography-text>
+    <div class="sticky-header">
+      <a-page-header @back="() => $router.push('/community')">
+        <template #title>
+          <a-space>
+            <a-avatar :style="{ background: 'var(--primary-gradient)' }">
+              {{ post.authorName[0] }}
+            </a-avatar>
+            <a-space direction="vertical" size="small">
+              <a-typography-text strong>{{ post.authorName }}</a-typography-text>
+              <a-typography-text type="secondary" style="font-size: 0.75rem">
+                {{ formatTime(post.createdAt) }}
+              </a-typography-text>
+            </a-space>
           </a-space>
-        </a-space>
-      </template>
-      <template #extra>
-        <a-tag :color="categoryColorMap[post.category]">
-          {{ categoryLabel(post.category) }}
-        </a-tag>
-      </template>
-    </a-page-header>
+        </template>
+        <template #extra>
+          <a-tag :color="categoryColorMap[post.category]">
+            {{ categoryLabel(post.category) }}
+          </a-tag>
+        </template>
+      </a-page-header>
+    </div>
 
     <a-card class="post-content">
       <a-typography-title :level="2">{{ post.title }}</a-typography-title>
