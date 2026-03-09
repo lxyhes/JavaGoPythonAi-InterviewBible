@@ -1,7 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/pages/LoginPage.vue'),
+    meta: { public: true, hideForAuth: true },
+  },
   {
     path: '/',
     name: 'Home',
@@ -16,16 +23,19 @@ const routes: RouteRecordRaw[] = [
     path: '/practice',
     name: 'Practice',
     component: () => import('@/pages/PracticePage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/review',
     name: 'Review',
     component: () => import('@/pages/ReviewPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/pages/DashboardPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/frontend',
@@ -76,16 +86,19 @@ const routes: RouteRecordRaw[] = [
     path: '/submit',
     name: 'SubmitQuestion',
     component: () => import('@/pages/SubmitQuestionPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/import',
     name: 'BulkImport',
     component: () => import('@/pages/BulkImportPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/sync',
     name: 'DataSync',
     component: () => import('@/pages/DataSyncPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/community',
@@ -129,6 +142,33 @@ const router = createRouter({
       return { top: 0, behavior: 'smooth' }
     }
   },
+})
+
+// Navigation guards
+router.beforeEach((to, _from, next) => {
+  const authStore = useAuthStore()
+
+  // Initialize auth state if not already done
+  if (!authStore.user && localStorage.getItem('auth_token')) {
+    authStore.initAuth()
+  }
+
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    next({
+      path: '/login',
+      query: { redirect: to.fullPath },
+    })
+    return
+  }
+
+  // Hide login page for authenticated users
+  if (to.meta.hideForAuth && authStore.isLoggedIn) {
+    next({ path: '/dashboard' })
+    return
+  }
+
+  next()
 })
 
 export default router

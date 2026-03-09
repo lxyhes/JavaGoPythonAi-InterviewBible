@@ -33,6 +33,41 @@
     </nav>
 
     <div class="sidebar-footer">
+      <!-- User Section -->
+      <div v-if="authStore.isLoggedIn" class="user-section">
+        <a-dropdown placement="topLeft">
+          <a-space class="user-info" align="center">
+            <a-avatar :size="32" :style="{ background: 'var(--primary-gradient)' }">
+              {{ authStore.currentUser?.username?.[0]?.toUpperCase() }}
+            </a-avatar>
+            <span class="username">{{ authStore.currentUser?.username }}</span>
+            <DownOutlined />
+          </a-space>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item key="profile">
+                <UserOutlined />
+                {{ t('auth.profile') }}
+              </a-menu-item>
+              <a-menu-item key="settings">
+                <SettingOutlined />
+                {{ t('auth.settings') }}
+              </a-menu-item>
+              <a-menu-divider />
+              <a-menu-item key="logout" @click="handleLogout">
+                <LogoutOutlined />
+                {{ t('auth.logout') }}
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+      </div>
+
+      <router-link v-else to="/login" class="login-link">
+        <LoginOutlined />
+        {{ t('auth.login') }}
+      </router-link>
+
       <router-link to="/" class="back-link">
         <PhosphorIcon name="ArrowLeft" :size="16" />
         返回首页
@@ -46,16 +81,31 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
+import { useAuthStore } from '@/stores/auth'
+import { useI18nStore } from '@/stores/i18n'
 import type { NavConfig } from '@/types'
 import PhosphorIcon from './PhosphorIcon.vue'
+import {
+  DownOutlined,
+  UserOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+  LoginOutlined,
+} from '@ant-design/icons-vue'
 
 defineProps<{
   pageType?: string
   config: NavConfig
 }>()
 
+const router = useRouter()
 const store = useAppStore()
+const authStore = useAuthStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
+
 let observer: IntersectionObserver | null = null
 
 const scrollToSection = (sectionId: string) => {
@@ -72,6 +122,11 @@ const scrollToSection = (sectionId: string) => {
       store.sidebarOpen = false
     }
   }
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/')
 }
 
 onMounted(() => {
@@ -242,6 +297,46 @@ onUnmounted(() => {
   padding: 20px 24px;
   border-top: 1px solid var(--border-color);
   margin-top: 20px;
+}
+
+.user-section {
+  margin-bottom: 12px;
+}
+
+.user-info {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-base);
+  width: 100%;
+}
+
+.user-info:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.username {
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.login-link {
+  display: flex;
+  align-items: center;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: var(--transition-base);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.login-link:hover {
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .back-link {

@@ -1,5 +1,49 @@
 <template>
   <div class="home-page">
+    <!-- 顶部导航栏 -->
+    <a-affix>
+      <a-page-header
+        class="home-header"
+        :title="null"
+        :sub-title="null"
+      >
+        <template #extra>
+          <a-space>
+            <a-button v-if="!authStore.isLoggedIn" type="primary" @click="$router.push('/login')">
+              <LoginOutlined />
+              登录 / 注册
+            </a-button>
+            <a-dropdown v-else placement="bottomRight">
+              <a-space class="user-dropdown" align="center">
+                <a-avatar :size="32" :style="{ background: 'var(--primary-gradient)' }">
+                  {{ authStore.currentUser?.username?.[0]?.toUpperCase() }}
+                </a-avatar>
+                <span class="username">{{ authStore.currentUser?.username }}</span>
+                <DownOutlined />
+              </a-space>
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="dashboard" @click="$router.push('/dashboard')">
+                    <DashboardOutlined />
+                    仪表盘
+                  </a-menu-item>
+                  <a-menu-item key="profile">
+                    <UserOutlined />
+                    个人资料
+                  </a-menu-item>
+                  <a-menu-divider />
+                  <a-menu-item key="logout" @click="handleLogout">
+                    <LogoutOutlined />
+                    退出登录
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </a-space>
+        </template>
+      </a-page-header>
+    </a-affix>
+
     <!-- Hero 区域 -->
     <div class="hero-section">
       <a-space direction="vertical" align="center" size="large">
@@ -252,6 +296,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
+import { useRouter } from 'vue-router'
 import {
   AimOutlined,
   StarFilled,
@@ -274,17 +319,25 @@ import {
   SettingOutlined,
   CodeOutlined,
   ApartmentOutlined,
+  LoginOutlined,
+  DownOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  DashboardOutlined,
 } from '@ant-design/icons-vue'
 import LearningCoachPanel from '@/components/LearningCoachPanel.vue'
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
 import type { LearningAchievement, MasteryLevel } from '@/stores/learning'
 import { useLearningStore } from '@/stores/learning'
+import { useAuthStore } from '@/stores/auth'
 import type { SearchCategory, SearchItem } from '@/types/search'
 import { loadPracticeSession } from '@/utils/practiceSession'
 
+const router = useRouter()
 const learningStore = useLearningStore()
 const i18nStore = useI18nStore()
+const authStore = useAuthStore()
 const t = i18nStore.t
 const itemMap = new Map(searchItems.map((item) => [item.id, item]))
 const practiceSessionUpdatedAt = ref<string | null>(null)
@@ -419,14 +472,47 @@ const navItems = computed(() => [
 onMounted(() => {
   const session = loadPracticeSession()
   practiceSessionUpdatedAt.value = session?.updatedAt ?? null
+  authStore.initAuth()
 })
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/')
+}
 </script>
 
 <style scoped>
 .home-page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 24px 60px;
+  padding: 0 24px 60px;
+}
+
+.home-header {
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  margin: 0 -24px 24px;
+  padding: 0 24px;
+}
+
+.home-header :deep(.ant-page-header-heading) {
+  display: none;
+}
+
+.user-dropdown {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.user-dropdown:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.user-dropdown .username {
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .hero-section {
