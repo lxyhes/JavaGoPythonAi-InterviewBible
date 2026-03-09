@@ -1,257 +1,298 @@
 <template>
   <div class="practice-page">
     <!-- 页面头部 -->
-    <header class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">{{ t('practice.title') }}</h1>
-        <p class="page-desc">{{ t('practice.desc') }}</p>
-      </div>
-      <div class="header-stats" v-if="items.length">
-        <div class="stat-badge">
-          <PhosphorIcon name="ClipboardText" class="stat-icon" />
-          <span class="stat-text">{{ items.length }} 题</span>
-        </div>
-        <div class="stat-badge">
-          <PhosphorIcon name="MapPin" class="stat-icon" />
-          <span class="stat-text">第 {{ currentIndex + 1 }} 题</span>
-        </div>
-      </div>
-    </header>
+    <a-page-header
+      :title="t('practice.title')"
+      :sub-title="t('practice.desc')"
+      @back="() => $router.push('/dashboard')"
+    >
+      <template #extra>
+        <a-space v-if="items.length">
+          <a-tag color="blue">
+            <FileTextOutlined /> {{ items.length }} 题
+          </a-tag>
+          <a-tag color="green">
+            <EnvironmentOutlined /> 第 {{ currentIndex + 1 }} 题
+          </a-tag>
+        </a-space>
+      </template>
+    </a-page-header>
 
     <!-- 筛选工具栏 -->
-    <section class="filter-panel">
-      <div class="filter-grid">
-        <div class="filter-item">
-          <label class="filter-label">
-            <PhosphorIcon name="MagnifyingGlass" class="label-icon" />
-            {{ t('practice.keyword') }}
-          </label>
-          <div class="input-wrapper">
-            <input
-              v-model.trim="keyword"
-              type="search"
+    <a-card class="filter-card" :bordered="false">
+      <a-row :gutter="[16, 16]">
+        <a-col :xs="24" :sm="12" :lg="6">
+          <div class="filter-item">
+            <label class="filter-label">
+              <SearchOutlined /> {{ t('practice.keyword') }}
+            </label>
+            <a-input-search
+              v-model:value="keyword"
               :placeholder="t('practice.keywordPlaceholder')"
-              class="filter-input"
+              allow-clear
+              @search="() => {}"
             />
-            <span v-if="keyword" class="input-clear" @click="keyword = ''">×</span>
           </div>
-        </div>
+        </a-col>
 
-        <div class="filter-item">
-          <label class="filter-label">
-            <PhosphorIcon name="Folder" class="label-icon" />
-            {{ t('practice.category') }}
-          </label>
-          <select v-model="selectedCategory" class="filter-select">
-            <option value="all">{{ t('practice.all') }}</option>
-            <option v-for="option in categoryOptions" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </div>
+        <a-col :xs="24" :sm="12" :lg="6">
+          <div class="filter-item">
+            <label class="filter-label">
+              <FolderOutlined /> {{ t('practice.category') }}
+            </label>
+            <a-select
+              v-model:value="selectedCategory"
+              style="width: 100%"
+              :placeholder="t('practice.all')"
+            >
+              <a-select-option value="all">{{ t('practice.all') }}</a-select-option>
+              <a-select-option v-for="option in categoryOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </a-select-option>
+            </a-select>
+          </div>
+        </a-col>
 
-        <div class="filter-item">
-          <label class="filter-label">
-            <PhosphorIcon name="Tag" class="label-icon" />
-            {{ t('practice.tag') }}
-          </label>
-          <select v-model="selectedTag" class="filter-select">
-            <option value="all">{{ t('practice.all') }}</option>
-            <option value="must">{{ t('common.tags.must') }}</option>
-            <option value="frequent">{{ t('common.tags.frequent') }}</option>
-            <option value="important">{{ t('common.tags.important') }}</option>
-          </select>
-        </div>
+        <a-col :xs="24" :sm="12" :lg="6">
+          <div class="filter-item">
+            <label class="filter-label">
+              <TagOutlined /> {{ t('practice.tag') }}
+            </label>
+            <a-select v-model:value="selectedTag" style="width: 100%">
+              <a-select-option value="all">{{ t('practice.all') }}</a-select-option>
+              <a-select-option value="must">{{ t('common.tags.must') }}</a-select-option>
+              <a-select-option value="frequent">{{ t('common.tags.frequent') }}</a-select-option>
+              <a-select-option value="important">{{ t('common.tags.important') }}</a-select-option>
+            </a-select>
+          </div>
+        </a-col>
 
-        <div class="filter-item">
-          <label class="filter-label">
-            <PhosphorIcon name="Target" class="label-icon" />
-            {{ t('practice.mode') }}
-          </label>
-          <select v-model="mode" class="filter-select">
-            <option value="all">{{ t('practice.allQuestions') }}</option>
-            <option value="review">{{ t('practice.reviewOnly') }}</option>
-            <option value="weak">{{ t('practice.weakOnly') }}</option>
-          </select>
-        </div>
-      </div>
+        <a-col :xs="24" :sm="12" :lg="6">
+          <div class="filter-item">
+            <label class="filter-label">
+              <AimOutlined /> {{ t('practice.mode') }}
+            </label>
+            <a-select v-model:value="mode" style="width: 100%">
+              <a-select-option value="all">{{ t('practice.allQuestions') }}</a-select-option>
+              <a-select-option value="review">{{ t('practice.reviewOnly') }}</a-select-option>
+              <a-select-option value="weak">{{ t('practice.weakOnly') }}</a-select-option>
+            </a-select>
+          </div>
+        </a-col>
+      </a-row>
 
       <!-- 模式提示 -->
-      <div v-if="mode === 'weak'" class="mode-alert">
-        <PhosphorIcon name="Lightbulb" class="alert-icon" />
-        <span class="alert-text">{{ t('practice.weakTip') }}</span>
-      </div>
-    </section>
+      <a-alert
+        v-if="mode === 'weak'"
+        class="mode-alert"
+        type="warning"
+        show-icon
+        :message="t('practice.weakTip')"
+      />
+    </a-card>
 
     <!-- 进度条 -->
-    <section v-if="items.length > 1" class="progress-section">
+    <div v-if="items.length > 1" class="progress-section">
       <div class="progress-header">
         <span class="progress-text">学习进度</span>
         <span class="progress-fraction">{{ currentIndex + 1 }} / {{ items.length }}</span>
       </div>
-      <div class="progress-track">
-        <div class="progress-fill" :style="{ width: `${((currentIndex + 1) / items.length) * 100}%` }"></div>
-      </div>
-    </section>
+      <a-progress
+        :percent="Math.round(((currentIndex + 1) / items.length) * 100)"
+        :show-info="false"
+        status="active"
+      />
+    </div>
 
     <!-- 题目卡片 -->
-    <section v-if="currentItem" class="question-card">
+    <a-card v-if="currentItem" class="question-card" :bordered="false">
       <!-- 题目头部 -->
       <div class="question-header">
-        <div class="breadcrumb">
-          <span class="breadcrumb-item category">{{ categoryLabel(currentItem.category) }}</span>
-          <span class="breadcrumb-separator">/</span>
-          <span class="breadcrumb-item section">{{ currentItem.sectionTitle }}</span>
-        </div>
+        <a-breadcrumb>
+          <a-breadcrumb-item>
+            <a-tag color="blue">{{ categoryLabel(currentItem.category) }}</a-tag>
+          </a-breadcrumb-item>
+          <a-breadcrumb-item>{{ currentItem.sectionTitle }}</a-breadcrumb-item>
+        </a-breadcrumb>
         <div class="question-tags">
-          <span
+          <a-tag
             v-for="tag in currentItem.tags"
             :key="`${currentItem.id}-${tag}`"
-            :class="['tag-badge', tag]"
+            :color="tagColor(tag)"
           >
             {{ tagLabel(tag) }}
-          </span>
-          <span v-if="record" class="tag-badge status" :class="record.mastery">
+          </a-tag>
+          <a-tag v-if="record" :color="masteryColor(record.mastery)">
             {{ masteryLabel(record.mastery) }}
-          </span>
+          </a-tag>
         </div>
       </div>
+
+      <a-divider />
 
       <!-- 题目内容 -->
       <div class="question-body">
         <h2 class="question-title">{{ currentItem.question }}</h2>
 
         <!-- 答案区域 -->
-        <div class="answer-section" :class="{ 'is-visible': showAnswer }">
+        <div class="answer-section">
           <div class="answer-toggle">
-            <button
-              type="button"
-              class="toggle-btn"
-              :class="{ 'is-active': showAnswer }"
+            <a-button
+              type="primary"
+              :ghost="!showAnswer"
               @click="showAnswer = !showAnswer"
             >
-              <PhosphorIcon :name="showAnswer ? 'Eye' : 'EyeClosed'" class="toggle-icon" />
-              <span class="toggle-text">{{ showAnswer ? t('practice.hideAnswer') : t('practice.showAnswer') }}</span>
-              <span class="toggle-hint">(空格键)</span>
-            </button>
-            <button type="button" class="source-btn" @click="goToSource">
-              <PhosphorIcon name="FileText" />
+              <template #icon>
+                <EyeOutlined v-if="!showAnswer" />
+                <EyeInvisibleOutlined v-else />
+              </template>
+              {{ showAnswer ? t('practice.hideAnswer') : t('practice.showAnswer') }}
+              <span class="keyboard-hint">(空格键)</span>
+            </a-button>
+            <a-button @click="goToSource">
+              <template #icon><FileTextOutlined /></template>
               {{ t('practice.source') }}
-            </button>
+            </a-button>
           </div>
 
-          <Transition name="slide">
-            <div v-show="showAnswer" class="answer-content">
+          <a-collapse v-model:activeKey="answerKey" :bordered="false">
+            <a-collapse-panel v-if="showAnswer" key="1" :show-arrow="false">
               <pre class="answer-text">{{ currentItem.answer }}</pre>
-            </div>
-          </Transition>
+            </a-collapse-panel>
+          </a-collapse>
         </div>
       </div>
+
+      <a-divider />
 
       <!-- 操作区域 -->
       <div class="question-footer">
         <!-- 掌握程度标记 -->
         <div class="mastery-actions">
           <span class="actions-label">标记掌握程度：</span>
-          <div class="actions-buttons">
-            <button
-              type="button"
-              class="mastery-btn unknown"
-              :class="{ 'is-active': record?.mastery === 'unknown' }"
+          <a-space :size="12">
+            <a-button
+              size="large"
+              :type="record?.mastery === 'unknown' ? 'primary' : 'default'"
+              :class="{ 'active-btn': record?.mastery === 'unknown' }"
               @click="markAndNext('unknown')"
             >
-              <PhosphorIcon name="Question" class="btn-icon" />
-              <span class="btn-text">不会</span>
-              <span class="btn-key">1</span>
-            </button>
-            <button
-              type="button"
-              class="mastery-btn vague"
-              :class="{ 'is-active': record?.mastery === 'vague' }"
+              <template #icon><QuestionCircleOutlined /></template>
+              不会
+              <span class="keyboard-hint">[1]</span>
+            </a-button>
+            <a-button
+              size="large"
+              :type="record?.mastery === 'vague' ? 'primary' : 'default'"
+              :class="{ 'active-btn': record?.mastery === 'vague' }"
               @click="markAndNext('vague')"
             >
-              <PhosphorIcon name="Confused" class="btn-icon" />
-              <span class="btn-text">模糊</span>
-              <span class="btn-key">2</span>
-            </button>
-            <button
-              type="button"
-              class="mastery-btn mastered"
-              :class="{ 'is-active': record?.mastery === 'mastered' }"
+              <template #icon><ExclamationCircleOutlined /></template>
+              模糊
+              <span class="keyboard-hint">[2]</span>
+            </a-button>
+            <a-button
+              size="large"
+              type="success"
+              :ghost="record?.mastery !== 'mastered'"
+              :class="{ 'active-btn': record?.mastery === 'mastered' }"
               @click="markAndNext('mastered')"
             >
-              <PhosphorIcon name="CheckCircle" class="btn-icon" />
-              <span class="btn-text">掌握</span>
-              <span class="btn-key">3</span>
-            </button>
-          </div>
+              <template #icon><CheckCircleOutlined /></template>
+              掌握
+              <span class="keyboard-hint">[3]</span>
+            </a-button>
+          </a-space>
         </div>
 
         <!-- 导航按钮 -->
         <div class="nav-actions">
-          <button
-            type="button"
-            class="nav-btn prev"
+          <a-button
+            size="large"
             :disabled="currentIndex === 0"
             @click="prev"
           >
-            <PhosphorIcon name="ArrowLeft" class="nav-icon" />
-            <span class="nav-text">上一题</span>
-            <span class="nav-key">←</span>
-          </button>
+            <template #icon><LeftOutlined /></template>
+            上一题
+            <span class="keyboard-hint">[←]</span>
+          </a-button>
 
           <div class="nav-indicators">
-            <button
+            <a-tooltip
               v-for="(_, idx) in items.slice(Math.max(0, currentIndex - 2), Math.min(items.length, currentIndex + 3))"
               :key="idx + Math.max(0, currentIndex - 2)"
-              type="button"
-              class="indicator-dot"
-              :class="{
-                active: idx + Math.max(0, currentIndex - 2) === currentIndex,
-                answered: getMasteryForIndex(idx + Math.max(0, currentIndex - 2))
-              }"
-              @click="goToQuestion(idx + Math.max(0, currentIndex - 2))"
-            ></button>
+              :title="`第 ${idx + Math.max(0, currentIndex - 2) + 1} 题`"
+            >
+              <a-button
+                type="text"
+                shape="circle"
+                size="small"
+                :class="{
+                  'indicator-active': idx + Math.max(0, currentIndex - 2) === currentIndex,
+                  'indicator-answered': getMasteryForIndex(idx + Math.max(0, currentIndex - 2))
+                }"
+                @click="goToQuestion(idx + Math.max(0, currentIndex - 2))"
+              >
+                {{ idx + Math.max(0, currentIndex - 2) + 1 }}
+              </a-button>
+            </a-tooltip>
           </div>
 
-          <button
-            type="button"
-            class="nav-btn next"
+          <a-button
+            size="large"
+            type="primary"
             :disabled="currentIndex >= items.length - 1"
             @click="next"
           >
-            <span class="nav-text">下一题</span>
-            <PhosphorIcon name="ArrowRight" class="nav-icon" />
-            <span class="nav-key">→</span>
-          </button>
+            下一题
+            <template #icon><RightOutlined /></template>
+            <span class="keyboard-hint">[→]</span>
+          </a-button>
         </div>
       </div>
-    </section>
+    </a-card>
 
     <!-- 空状态 -->
-    <section v-else class="empty-state">
-      <div class="empty-content">
-        <PhosphorIcon name="MagnifyingGlass" class="empty-icon" />
-        <h3 class="empty-title">没有找到符合条件的题目</h3>
-        <p class="empty-desc">尝试调整筛选条件或清除关键词</p>
-        <button type="button" class="reset-btn" @click="resetFilters">
-          重置筛选条件
-        </button>
-      </div>
-    </section>
+    <a-card v-else class="empty-card" :bordered="false">
+      <a-empty
+        image="simple"
+        description="没有找到符合条件的题目"
+      >
+        <template #extra>
+          <p class="empty-desc">尝试调整筛选条件或清除关键词</p>
+          <a-button type="primary" @click="resetFilters">
+            重置筛选条件
+          </a-button>
+        </template>
+      </a-empty>
+    </a-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import {
+  FileTextOutlined,
+  EnvironmentOutlined,
+  SearchOutlined,
+  FolderOutlined,
+  TagOutlined,
+  AimOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  QuestionCircleOutlined,
+  ExclamationCircleOutlined,
+  CheckCircleOutlined,
+  LeftOutlined,
+  RightOutlined,
+} from '@ant-design/icons-vue'
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
 import { useLearningStore } from '@/stores/learning'
 import type { MasteryLevel } from '@/stores/learning'
 import type { SearchCategory, SearchItem, SearchTag } from '@/types/search'
 import { loadPracticeSession, savePracticeSession } from '@/utils/practiceSession'
-import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -270,6 +311,7 @@ const showAnswer = ref(false)
 const isApplyingSession = ref(false)
 const revisitQueue = ref<string[]>([])
 const revisitCounts = ref<Record<string, number>>({})
+const answerKey = ref<string[]>([])
 
 const itemLookup = new Map(searchItems.map((item) => [item.id, item]))
 
@@ -288,6 +330,24 @@ const categoryOptions = computed(() => [
 const categoryLabel = (category: SearchCategory) => t(`common.categories.${category}`)
 const tagLabel = (tag: SearchTag) => t(`common.tags.${tag}`)
 const masteryLabel = (mastery: MasteryLevel) => t(`common.mastery.${mastery}`)
+
+const tagColor = (tag: SearchTag) => {
+  const colors: Record<string, string> = {
+    must: 'red',
+    frequent: 'green',
+    important: 'orange',
+  }
+  return colors[tag] || 'default'
+}
+
+const masteryColor = (mastery: MasteryLevel) => {
+  const colors: Record<string, string> = {
+    unknown: 'blue',
+    vague: 'orange',
+    mastered: 'success',
+  }
+  return colors[mastery] || 'default'
+}
 
 const normalize = (value: string) => value.toLowerCase().trim()
 
@@ -350,6 +410,7 @@ watch(items, (list) => {
 watch([keyword, selectedCategory, selectedTag, mode], () => {
   currentIndex.value = 0
   showAnswer.value = false
+  answerKey.value = []
   if (mode.value !== 'weak') resetWeakRevisitState()
 
   void router.replace({
@@ -361,6 +422,10 @@ watch([keyword, selectedCategory, selectedTag, mode], () => {
       mode: mode.value === 'all' ? undefined : mode.value,
     },
   })
+})
+
+watch(showAnswer, (val) => {
+  answerKey.value = val ? ['1'] : []
 })
 
 const persistSession = () => {
@@ -506,75 +571,11 @@ onUnmounted(() => {
 .practice-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 24px 20px 60px;
+  padding: 0 20px 40px;
 }
 
-/* 页面头部 */
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.header-content {
-  flex: 1;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.page-desc {
-  font-size: 1rem;
-  color: var(--text-tertiary);
-}
-
-.header-stats {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.stat-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-}
-
-.stat-icon {
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.stat-text {
-  font-weight: 500;
-}
-
-/* 筛选面板 */
-.filter-panel {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 20px;
+.filter-card {
   margin-bottom: 20px;
-}
-
-.filter-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
 }
 
 .filter-item {
@@ -589,88 +590,18 @@ onUnmounted(() => {
   gap: 6px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #666;
 }
 
-.label-icon {
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.filter-input,
-.filter-select {
-  width: 100%;
-  height: 42px;
-  padding: 0 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.9375rem;
-  transition: all var(--transition-fast);
-}
-
-.filter-input:focus,
-.filter-select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  background: var(--card-bg);
-}
-
-.filter-input {
-  padding-right: 32px;
-}
-
-.input-clear {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--text-muted);
-  color: white;
-  border-radius: 50%;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.input-clear:hover {
-  background: var(--error-color);
-}
-
-/* 模式提示 */
 .mode-alert {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   margin-top: 16px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.2);
-  border-radius: var(--radius-md);
-  color: #92400e;
-  font-size: 0.875rem;
 }
 
-.alert-icon {
-  font-size: 1.125rem;
-  display: flex;
-  align-items: center;
-}
-
-/* 进度区域 */
 .progress-section {
   margin-bottom: 20px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
 }
 
 .progress-header {
@@ -683,134 +614,47 @@ onUnmounted(() => {
 .progress-text {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #666;
 }
 
 .progress-fraction {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #999;
 }
 
-.progress-track {
-  height: 8px;
-  background: var(--bg-secondary);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--primary-gradient);
-  border-radius: 999px;
-  transition: width var(--transition-base);
-}
-
-/* 题目卡片 */
 .question-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .question-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-}
-
-.breadcrumb-item {
-  font-weight: 500;
-}
-
-.breadcrumb-item.category {
-  color: var(--primary-color);
-}
-
-.breadcrumb-item.section {
-  color: var(--text-secondary);
-}
-
-.breadcrumb-separator {
-  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .question-tags {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.tag-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.tag-badge.must {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
-}
-
-.tag-badge.frequent {
-  background: rgba(5, 150, 105, 0.1);
-  color: #059669;
-}
-
-.tag-badge.important {
-  background: rgba(217, 119, 6, 0.1);
-  color: #d97706;
-}
-
-.tag-badge.status {
-  background: rgba(51, 65, 85, 0.1);
-  color: #334155;
-}
-
-.tag-badge.status.unknown {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
-}
-
-.tag-badge.status.vague {
-  background: rgba(217, 119, 6, 0.1);
-  color: #d97706;
-}
-
-.tag-badge.status.mastered {
-  background: rgba(5, 150, 105, 0.1);
-  color: #059669;
-}
-
-/* 题目内容 */
 .question-body {
-  padding: 24px 20px;
+  padding: 20px 0;
 }
 
 .question-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #333;
   line-height: 1.6;
   margin-bottom: 20px;
 }
 
-/* 答案区域 */
 .answer-section {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -819,99 +663,31 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.toggle-btn:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.toggle-btn.is-active {
-  background: var(--primary-gradient);
-  border-color: transparent;
-  color: white;
-}
-
-.toggle-icon {
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.toggle-hint {
+.keyboard-hint {
   font-size: 0.75rem;
   opacity: 0.7;
   margin-left: 4px;
 }
 
-.source-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.source-btn:hover {
-  background: var(--card-bg);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.answer-content {
-  padding: 20px;
-  background: var(--bg-secondary);
-}
-
 .answer-text {
   margin: 0;
+  padding: 20px;
   white-space: pre-wrap;
   line-height: 1.8;
-  color: var(--text-secondary);
+  color: #666;
   font-family: inherit;
   font-size: 0.9375rem;
+  background: #fafafa;
 }
 
-/* 动画 */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all var(--transition-base);
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* 题目底部 */
 .question-footer {
-  padding: 20px;
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  padding-top: 20px;
 }
 
 .mastery-actions {
@@ -922,297 +698,71 @@ onUnmounted(() => {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #666;
   margin-bottom: 12px;
 }
 
-.actions-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+.active-btn {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
 
-.mastery-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 16px;
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.mastery-btn:hover {
-  transform: translateY(-2px);
-}
-
-.mastery-btn.unknown {
-  color: #2563eb;
-  border-color: rgba(37, 99, 235, 0.3);
-}
-
-.mastery-btn.unknown:hover,
-.mastery-btn.unknown.is-active {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: #2563eb;
-}
-
-.mastery-btn.vague {
-  color: #d97706;
-  border-color: rgba(217, 119, 6, 0.3);
-}
-
-.mastery-btn.vague:hover,
-.mastery-btn.vague.is-active {
-  background: rgba(217, 119, 6, 0.1);
-  border-color: #d97706;
-}
-
-.mastery-btn.mastered {
-  color: #059669;
-  border-color: rgba(5, 150, 105, 0.3);
-}
-
-.mastery-btn.mastered:hover,
-.mastery-btn.mastered.is-active {
-  background: rgba(5, 150, 105, 0.1);
-  border-color: #059669;
-}
-
-.btn-icon {
-  font-size: 1.125rem;
-  display: flex;
-  align-items: center;
-}
-
-.btn-key {
-  padding: 2px 6px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-xs);
-  font-size: 0.75rem;
-  font-weight: 600;
-  opacity: 0.7;
-}
-
-/* 导航操作 */
 .nav-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-}
-
-.nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.nav-btn:hover:not(:disabled) {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.nav-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.nav-btn.next {
-  background: var(--primary-gradient);
-  border-color: transparent;
-  color: white;
-}
-
-.nav-btn.next:hover:not(:disabled) {
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-1px);
-}
-
-.nav-key {
-  padding: 2px 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-xs);
-  font-size: 0.75rem;
-  font-weight: 600;
+  flex-wrap: wrap;
 }
 
 .nav-indicators {
   display: flex;
   gap: 8px;
-}
-
-.indicator-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--border-color);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.indicator-dot:hover {
-  background: var(--text-muted);
-}
-
-.indicator-dot.active {
-  background: var(--primary-color);
-  transform: scale(1.2);
-}
-
-.indicator-dot.answered {
-  background: var(--success-color);
-}
-
-/* 空状态 */
-.empty-state {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
+}
+
+.indicator-active {
+  background: #1890ff;
+  color: white;
+}
+
+.indicator-answered {
+  background: #52c41a;
+  color: white;
+}
+
+.empty-card {
   min-height: 400px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-}
-
-.empty-content {
-  text-align: center;
-  padding: 40px;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.empty-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
 }
 
 .empty-desc {
-  font-size: 0.9375rem;
-  color: var(--text-tertiary);
-  margin-bottom: 20px;
+  color: #999;
+  margin-bottom: 16px;
 }
 
-.reset-btn {
-  padding: 10px 20px;
-  background: var(--primary-color);
-  border: none;
-  border-radius: var(--radius-md);
-  color: white;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.reset-btn:hover {
-  background: var(--primary-dark);
-}
-
-/* 响应式 */
-@media (max-width: 900px) {
-  .filter-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .page-header {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .header-stats {
-    width: 100%;
-  }
-
-  .stat-badge {
-    flex: 1;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .practice-page {
-    padding: 16px 16px 40px;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .filter-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .filter-panel {
-    padding: 16px;
+    padding: 0 16px 40px;
   }
 
   .question-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-  }
-
-  .question-title {
-    font-size: 1.1rem;
   }
 
   .answer-toggle {
     flex-direction: column;
-    gap: 10px;
-  }
-
-  .toggle-btn,
-  .source-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .actions-buttons {
-    grid-template-columns: 1fr;
-  }
-
-  .mastery-btn {
-    padding: 14px;
   }
 
   .nav-actions {
-    flex-wrap: wrap;
+    flex-direction: column;
   }
 
   .nav-indicators {
     order: -1;
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 12px;
-  }
-
-  .nav-btn {
-    flex: 1;
-    justify-content: center;
   }
 }
 </style>

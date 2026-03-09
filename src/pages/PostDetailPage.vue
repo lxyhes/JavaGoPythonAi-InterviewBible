@@ -1,125 +1,192 @@
 <template>
   <div v-if="post" class="post-detail-page">
-    <header class="header">
-      <router-link to="/community" class="back-link">← {{ t('community.backToList') }}</router-link>
-    </header>
+    <a-page-header @back="() => $router.push('/community')">
+      <template #title>
+        <a-space>
+          <a-avatar :style="{ background: 'var(--primary-gradient)' }">
+            {{ post.authorName[0] }}
+          </a-avatar>
+          <a-space direction="vertical" size="small">
+            <a-typography-text strong>{{ post.authorName }}</a-typography-text>
+            <a-typography-text type="secondary" style="font-size: 0.75rem">
+              {{ formatTime(post.createdAt) }}
+            </a-typography-text>
+          </a-space>
+        </a-space>
+      </template>
+      <template #extra>
+        <a-tag :color="categoryColorMap[post.category]">
+          {{ categoryLabel(post.category) }}
+        </a-tag>
+      </template>
+    </a-page-header>
 
-    <article class="post-content">
-      <div class="post-header">
-        <div class="author-info">
-          <div class="avatar">{{ post.authorName[0] }}</div>
-          <div class="meta">
-            <span class="author-name">{{ post.authorName }}</span>
-            <span class="post-time">{{ formatTime(post.createdAt) }}</span>
-          </div>
-        </div>
-        <span class="category-badge" :class="post.category">{{ categoryLabel(post.category) }}</span>
-      </div>
+    <a-card class="post-content">
+      <a-typography-title :level="2">{{ post.title }}</a-typography-title>
+      <a-typography-paragraph style="white-space: pre-wrap">
+        {{ post.content }}
+      </a-typography-paragraph>
 
-      <h1 class="post-title">{{ post.title }}</h1>
-      <div class="post-body">{{ post.content }}</div>
+      <a-space wrap style="margin: 16px 0">
+        <a-tag v-for="tag in post.tags" :key="tag" color="default">
+          {{ tag }}
+        </a-tag>
+      </a-space>
 
-      <div class="post-tags">
-        <span v-for="tag in post.tags" :key="tag" class="post-tag">{{ tag }}</span>
-      </div>
+      <a-divider />
 
-      <div class="post-actions">
-        <button
-          :class="['action-btn', { active: post.isLiked }]"
+      <a-space>
+        <a-button
+          :type="post.isLiked ? 'primary' : 'default'"
+          :danger="post.isLiked"
           @click="toggleLike"
         >
-          <PhosphorIcon :name="post.isLiked ? 'Heart' : 'HeartStraight'" class="action-icon" :weight="post.isLiked ? 'fill' : 'regular'" />
-          <span>{{ post.likes }} {{ t('community.likes') }}</span>
-        </button>
-        <span class="views-count">
-          <PhosphorIcon name="Eye" class="action-icon" />
-          {{ post.views }} {{ t('community.views') }}
-        </span>
-      </div>
-    </article>
+          <HeartFilled v-if="post.isLiked" />
+          <HeartOutlined v-else />
+          {{ post.likes }} {{ t('community.likes') }}
+        </a-button>
+        <a-typography-text type="secondary">
+          <EyeOutlined /> {{ post.views }} {{ t('community.views') }}
+        </a-typography-text>
+      </a-space>
+    </a-card>
 
-    <section class="comments-section">
-      <h2>{{ t('community.comments') }} ({{ comments.length }})</h2>
+    <a-card :title="`${t('community.comments')} (${comments.length})`" class="comments-section">
+      <a-comment>
+        <template #avatar>
+          <a-avatar :style="{ background: 'var(--primary-gradient)' }">
+            {{ communityStore.currentUser.name[0] }}
+          </a-avatar>
+        </template>
+        <template #content>
+          <a-form @finish="submitComment">
+            <a-form-item>
+              <a-textarea
+                v-model:value="newComment"
+                :rows="3"
+                :placeholder="t('community.writeComment')"
+                @pressEnter.ctrl="submitComment"
+              />
+            </a-form-item>
+            <a-form-item>
+              <a-space>
+                <a-typography-text type="secondary" style="font-size: 0.75rem">
+                  Ctrl + Enter {{ t('community.toSubmit') }}
+                </a-typography-text>
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  :disabled="!newComment.trim()"
+                >
+                  {{ t('community.submitComment') }}
+                </a-button>
+              </a-space>
+            </a-form-item>
+          </a-form>
+        </template>
+      </a-comment>
 
-      <div class="comment-form">
-        <div class="avatar">{{ communityStore.currentUser.name[0] }}</div>
-        <div class="input-wrapper">
-          <textarea
-            v-model="newComment"
-            :placeholder="t('community.writeComment')"
-            rows="3"
-            @keydown.ctrl.enter="submitComment"
-          />
-          <div class="form-hint">
-            <span>Ctrl + Enter {{ t('community.toSubmit') }}</span>
-            <button
-              class="submit-comment-btn"
-              :disabled="!newComment.trim()"
-              @click="submitComment"
-            >
-              {{ t('community.submitComment') }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="comments-list">
-        <div v-for="comment in comments" :key="comment.id" class="comment-item">
-          <div class="avatar">{{ comment.authorName[0] }}</div>
-          <div class="comment-body">
-            <div class="comment-header">
-              <span class="comment-author">{{ comment.authorName }}</span>
-              <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
-            </div>
-            <p class="comment-content">{{ comment.content }}</p>
-            <div class="comment-actions">
-              <button
-                :class="['like-btn', { liked: comment.isLiked }]"
-                @click="toggleCommentLike(comment.id)"
-              >
-                <PhosphorIcon :name="comment.isLiked ? 'Heart' : 'HeartStraight'" :weight="comment.isLiked ? 'fill' : 'regular'" /> {{ comment.likes }}
-              </button>
-              <button class="reply-btn" @click="replyTo(comment.id)">
+      <a-list
+        :data-source="comments"
+        item-layout="horizontal"
+        class="comments-list"
+      >
+        <template #renderItem="{ item: comment }">
+          <a-comment>
+            <template #avatar>
+              <a-avatar :style="{ background: 'var(--primary-gradient)' }">
+                {{ comment.authorName[0] }}
+              </a-avatar>
+            </template>
+            <template #author>
+              <a-typography-text strong>{{ comment.authorName }}</a-typography-text>
+            </template>
+            <template #datetime>
+              <a-tooltip :title="comment.createdAt">
+                <span>{{ formatTime(comment.createdAt) }}</span>
+              </a-tooltip>
+            </template>
+            <template #content>
+              <p>{{ comment.content }}</p>
+            </template>
+            <template #actions>
+              <span @click="toggleCommentLike(comment.id)">
+                <HeartFilled v-if="comment.isLiked" style="color: #ff4d4f" />
+                <HeartOutlined v-else />
+                {{ comment.likes }}
+              </span>
+              <span @click="replyTo(comment.id)">
                 {{ t('community.reply') }}
-              </button>
-            </div>
+              </span>
+            </template>
 
             <!-- Replies -->
-            <div v-if="comment.replies?.length" class="replies">
-              <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                <div class="avatar small">{{ reply.authorName[0] }}</div>
-                <div class="reply-body">
-                  <div class="reply-header">
-                    <span class="reply-author">{{ reply.authorName }}</span>
-                    <span class="reply-time">{{ formatTime(reply.createdAt) }}</span>
-                  </div>
-                  <p class="reply-content">{{ reply.content }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            <template v-if="comment.replies?.length" #children>
+              <a-comment
+                v-for="reply in comment.replies"
+                :key="reply.id"
+              >
+                <template #avatar>
+                  <a-avatar :size="32" :style="{ background: 'var(--primary-gradient)' }">
+                    {{ reply.authorName[0] }}
+                  </a-avatar>
+                </template>
+                <template #author>
+                  <a-typography-text strong>{{ reply.authorName }}</a-typography-text>
+                </template>
+                <template #datetime>
+                  <a-tooltip :title="reply.createdAt">
+                    <span>{{ formatTime(reply.createdAt) }}</span>
+                  </a-tooltip>
+                </template>
+                <template #content>
+                  <p>{{ reply.content }}</p>
+                </template>
+              </a-comment>
+            </template>
+          </a-comment>
+        </template>
+      </a-list>
 
-        <div v-if="comments.length === 0" class="empty-comments">
-          <p>{{ t('community.noComments') }}</p>
-          <p class="empty-hint">{{ t('community.beFirstComment') }}</p>
-        </div>
-      </div>
-    </section>
+      <a-empty
+        v-if="comments.length === 0"
+        :description="t('community.noComments')"
+      >
+        <template #image>
+          <MessageOutlined style="font-size: 48px; color: #bfbfbf" />
+        </template>
+        <a-typography-text type="secondary">
+          {{ t('community.beFirstComment') }}
+        </a-typography-text>
+      </a-empty>
+    </a-card>
   </div>
 
   <div v-else class="not-found">
-    <p>{{ t('community.postNotFound') }}</p>
-    <router-link to="/community">{{ t('community.backToList') }}</router-link>
+    <a-result
+      status="404"
+      :title="t('community.postNotFound')"
+    >
+      <template #extra>
+        <a-button type="primary" @click="$router.push('/community')">
+          {{ t('community.backToList') }}
+        </a-button>
+      </template>
+    </a-result>
   </div>
 </template>
 
 <script setup lang="ts">
+import {
+  HeartOutlined,
+  HeartFilled,
+  EyeOutlined,
+  MessageOutlined,
+} from '@ant-design/icons-vue'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
 import { useCommunityStore } from '@/stores/community'
-import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const route = useRoute()
 const i18nStore = useI18nStore()
@@ -132,6 +199,13 @@ const comments = computed(() => communityStore.getCommentsByPostId(postId.value)
 
 const newComment = ref('')
 const replyingTo = ref<string | null>(null)
+
+const categoryColorMap: Record<string, string> = {
+  discussion: 'blue',
+  question: 'orange',
+  share: 'green',
+  experience: 'purple',
+}
 
 const categoryLabel = (category: string) => {
   const labels: Record<string, string> = {
@@ -172,7 +246,7 @@ const replyTo = (commentId: string) => {
   replyingTo.value = commentId
   newComment.value = ''
   // Focus the textarea
-  const textarea = document.querySelector('.comment-form textarea') as HTMLTextAreaElement
+  const textarea = document.querySelector('.comments-section textarea') as HTMLTextAreaElement
   textarea?.focus()
 }
 
@@ -198,396 +272,42 @@ onMounted(() => {
 
 <style scoped>
 .post-detail-page {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 36px 20px 56px;
-}
-
-.header {
-  margin-bottom: 20px;
-}
-
-.back-link {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.back-link:hover {
-  text-decoration: underline;
+  padding: 0 20px 56px;
 }
 
 .post-content {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 28px;
-  margin-bottom: 24px;
-}
-
-.post-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.author-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.avatar.small {
-  width: 32px;
-  height: 32px;
-  font-size: 0.8rem;
-}
-
-.meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.author-name {
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.post-time {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.category-badge {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.category-badge.discussion {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-
-.category-badge.question {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.category-badge.share {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-}
-
-.category-badge.experience {
-  background: rgba(168, 85, 247, 0.1);
-  color: #a855f7;
-}
-
-.post-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1.4;
-  margin-bottom: 20px;
-}
-
-.post-body {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--text-secondary);
-  white-space: pre-wrap;
-  margin-bottom: 24px;
-}
-
-.post-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.post-tag {
-  padding: 4px 12px;
-  background: var(--bg-secondary);
-  border-radius: 999px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.post-actions {
-  display: flex;
-  gap: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.action-btn:hover {
-  border-color: var(--primary-color);
-}
-
-.action-btn.active {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-.action-icon {
-  font-size: 1.1rem;
-}
-
-.views-count {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  margin-top: 16px;
 }
 
 .comments-section {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 24px;
-}
-
-.comments-section h2 {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-}
-
-.comment-form {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
-.input-wrapper {
-  flex: 1;
-}
-
-.input-wrapper textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  resize: vertical;
-  min-height: 80px;
-}
-
-.input-wrapper textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-.form-hint {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.form-hint span {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.submit-comment-btn {
-  padding: 8px 16px;
-  background: var(--primary-gradient);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.submit-comment-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-top: 24px;
 }
 
 .comments-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.comment-item {
-  display: flex;
-  gap: 12px;
-}
-
-.comment-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.comment-author {
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.comment-time {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.comment-content {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.comment-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.like-btn,
-.reply-btn {
-  padding: 4px 10px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  border-radius: var(--radius-sm);
-  transition: all 0.2s;
-}
-
-.like-btn:hover,
-.reply-btn:hover {
-  background: var(--bg-secondary);
-}
-
-.like-btn.liked {
-  color: #ef4444;
-}
-
-.replies {
-  margin-top: 16px;
-  padding-left: 16px;
-  border-left: 2px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.reply-item {
-  display: flex;
-  gap: 10px;
-}
-
-.reply-body {
-  flex: 1;
-}
-
-.reply-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.reply-author {
-  font-weight: 500;
-  font-size: 0.85rem;
-}
-
-.reply-time {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-.reply-content {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.empty-comments {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text-tertiary);
-}
-
-.empty-hint {
-  font-size: 0.85rem;
-  margin-top: 8px;
+  margin-top: 24px;
 }
 
 .not-found {
-  text-align: center;
   padding: 80px 20px;
 }
 
-.not-found p {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
+:deep(.ant-comment) {
   margin-bottom: 16px;
 }
 
-.not-found a {
-  color: var(--primary-color);
-  text-decoration: none;
+:deep(.ant-comment-actions) {
+  margin-top: 8px;
 }
 
-@media (max-width: 640px) {
-  .post-content {
-    padding: 20px;
-  }
+:deep(.ant-comment-actions > span) {
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.3s;
+}
 
-  .post-title {
-    font-size: 1.3rem;
-  }
-
-  .comment-form {
-    flex-direction: column;
-  }
-
-  .comment-form .avatar {
-    display: none;
-  }
+:deep(.ant-comment-actions > span:hover) {
+  color: var(--primary-color);
 }
 </style>

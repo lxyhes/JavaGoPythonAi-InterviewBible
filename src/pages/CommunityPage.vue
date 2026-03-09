@@ -1,199 +1,230 @@
 <template>
   <div class="community-page">
-    <header class="header">
-      <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-      <h1>{{ t('community.title') }}</h1>
-      <p>{{ t('community.subtitle') }}</p>
-    </header>
+    <a-page-header
+      :title="t('community.title')"
+      :sub-title="t('community.subtitle')"
+      @back="() => $router.push('/dashboard')"
+    />
 
-    <div class="community-layout">
-      <aside class="sidebar">
-        <div class="category-filter">
-          <h3>{{ t('community.categories') }}</h3>
-          <nav class="filter-list">
-            <button
-              v-for="cat in categoryOptions"
-              :key="cat.value"
-              :class="['filter-btn', { active: filter.category === cat.value }]"
-              @click="setCategory(cat.value)"
+    <a-row :gutter="[24, 24]" class="community-layout">
+      <a-col :xs="24" :lg="6">
+        <a-space direction="vertical" style="width: 100%">
+          <a-card :title="t('community.categories')" class="category-filter">
+            <a-menu
+              v-model:selectedKeys="selectedCategoryKeys"
+              mode="vertical"
+              @click="handleCategoryClick"
             >
-              <PhosphorIcon :name="cat.icon" class="cat-icon" />
-              <span class="cat-label">{{ cat.label }}</span>
-              <span class="cat-count">{{ categoryStats[cat.value as keyof typeof categoryStats] || 0 }}</span>
-            </button>
-          </nav>
-        </div>
+              <a-menu-item v-for="cat in categoryOptions" :key="cat.value">
+                <template #icon>
+                  <component :is="cat.icon" />
+                </template>
+                <span>{{ cat.label }}</span>
+                <a-badge
+                  :count="categoryStats[cat.value as keyof typeof categoryStats] || 0"
+                  :number-style="{ backgroundColor: '#1890ff' }"
+                  style="margin-left: auto"
+                />
+              </a-menu-item>
+            </a-menu>
+          </a-card>
 
-        <div class="hot-tags">
-          <h3>{{ t('community.hotTags') }}</h3>
-          <div class="tag-cloud">
-            <button
-              v-for="tag in hotTags"
-              :key="tag"
-              :class="['tag-btn', { active: filter.tag === tag }]"
-              @click="toggleTag(tag)"
-            >
-              {{ tag }}
-            </button>
-          </div>
-        </div>
-      </aside>
+          <a-card :title="t('community.hotTags')" class="hot-tags">
+            <a-space wrap>
+              <a-checkable-tag
+                v-for="tag in hotTags"
+                :key="tag"
+                :checked="filter.tag === tag"
+                @change="() => toggleTag(tag)"
+              >
+                {{ tag }}
+              </a-checkable-tag>
+            </a-space>
+          </a-card>
+        </a-space>
+      </a-col>
 
-      <main class="main-content">
-        <div class="toolbar">
-          <div class="sort-tabs">
-            <button
-              v-for="tab in sortTabs"
-              :key="tab.value"
-              :class="['tab-btn', { active: filter.sortBy === tab.value }]"
-              @click="setSortBy(tab.value)"
-            >
-              {{ tab.label }}
-            </button>
-          </div>
-          <button class="new-post-btn" @click="showNewPostModal = true">
-            {{ t('community.newPost') }}
-          </button>
-        </div>
+      <a-col :xs="24" :lg="18">
+        <a-card :bordered="false" class="main-content">
+          <template #title>
+            <a-radio-group v-model:value="filter.sortBy" button-style="solid">
+              <a-radio-button v-for="tab in sortTabs" :key="tab.value" :value="tab.value">
+                {{ tab.label }}
+              </a-radio-button>
+            </a-radio-group>
+          </template>
+          <template #extra>
+            <a-button type="primary" @click="showNewPostModal = true">
+              <EditOutlined />
+              {{ t('community.newPost') }}
+            </a-button>
+          </template>
 
-        <div class="posts-list">
-          <article
-            v-for="post in filteredPosts"
-            :key="post.id"
-            :class="['post-card', { pinned: post.isPinned }]"
-            @click="goToPost(post.id)"
+          <a-list
+            :data-source="filteredPosts"
+            :pagination="{ pageSize: 10 }"
+            class="posts-list"
           >
-            <div v-if="post.isPinned" class="pin-badge"><PhosphorIcon name="PushPin" /> {{ t('community.pinned') }}</div>
-            <div class="post-header">
-              <div class="author-info">
-                <div class="avatar">{{ post.authorName[0] }}</div>
-                <div class="meta">
-                  <span class="author-name">{{ post.authorName }}</span>
-                  <span class="post-time">{{ formatTime(post.createdAt) }}</span>
-                </div>
-              </div>
-              <span class="category-badge" :class="post.category">{{ categoryLabel(post.category) }}</span>
-            </div>
+            <template #renderItem="{ item: post }">
+              <a-list-item>
+                <a-card
+                  :class="['post-card', { pinned: post.isPinned }]"
+                  hoverable
+                  @click="goToPost(post.id)"
+                >
+                  <template v-if="post.isPinned" #title>
+                    <a-space>
+                      <PushpinFilled style="color: #f59e0b" />
+                      <span>{{ t('community.pinned') }}</span>
+                    </a-space>
+                  </template>
 
-            <h3 class="post-title">{{ post.title }}</h3>
-            <p class="post-excerpt">{{ excerpt(post.content) }}</p>
+                  <a-space direction="vertical" style="width: 100%" size="middle">
+                    <a-space align="center">
+                      <a-avatar :style="{ background: 'var(--primary-gradient)' }">
+                        {{ post.authorName[0] }}
+                      </a-avatar>
+                      <a-space direction="vertical" size="small">
+                        <a-typography-text strong>{{ post.authorName }}</a-typography-text>
+                        <a-typography-text type="secondary" style="font-size: 0.75rem">
+                          {{ formatTime(post.createdAt) }}
+                        </a-typography-text>
+                      </a-space>
+                      <a-tag :color="categoryColorMap[post.category]">
+                        {{ categoryLabel(post.category) }}
+                      </a-tag>
+                    </a-space>
 
-            <div class="post-tags">
-              <span v-for="tag in post.tags" :key="tag" class="post-tag">{{ tag }}</span>
-            </div>
+                    <a-typography-title :level="4" style="margin: 0">
+                      {{ post.title }}
+                    </a-typography-title>
 
-            <div class="post-stats">
-              <span class="stat">
-                <PhosphorIcon name="Eye" class="stat-icon" />
-                {{ post.views }}
-              </span>
-              <span class="stat">
-                <PhosphorIcon name="ChatCircle" class="stat-icon" />
-                {{ post.commentCount }}
-              </span>
-              <span class="stat" :class="{ liked: post.isLiked }" @click.stop="toggleLike(post.id)">
-                <PhosphorIcon :name="post.isLiked ? 'Heart' : 'HeartStraight'" class="stat-icon" :weight="post.isLiked ? 'fill' : 'regular'" />
-                {{ post.likes }}
-              </span>
-            </div>
-          </article>
+                    <a-typography-paragraph
+                      type="secondary"
+                      :ellipsis="{ rows: 2 }"
+                      style="margin-bottom: 0"
+                    >
+                      {{ excerpt(post.content) }}
+                    </a-typography-paragraph>
 
-          <div v-if="filteredPosts.length === 0" class="empty-state">
-            <p>{{ t('community.noPosts') }}</p>
-          </div>
-        </div>
-      </main>
-    </div>
+                    <a-space wrap>
+                      <a-tag v-for="tag in post.tags" :key="tag" color="default">
+                        {{ tag }}
+                      </a-tag>
+                    </a-space>
+
+                    <a-divider style="margin: 8px 0" />
+
+                    <a-space>
+                      <a-typography-text type="secondary">
+                        <EyeOutlined /> {{ post.views }}
+                      </a-typography-text>
+                      <a-typography-text type="secondary">
+                        <MessageOutlined /> {{ post.commentCount }}
+                      </a-typography-text>
+                      <a-typography-text
+                        :type="post.isLiked ? 'danger' : 'secondary'"
+                        style="cursor: pointer"
+                        @click.stop="toggleLike(post.id)"
+                      >
+                        <HeartFilled v-if="post.isLiked" />
+                        <HeartOutlined v-else />
+                        {{ post.likes }}
+                      </a-typography-text>
+                    </a-space>
+                  </a-space>
+                </a-card>
+              </a-list-item>
+            </template>
+
+            <template v-if="filteredPosts.length === 0" #empty>
+              <a-empty :description="t('community.noPosts')" />
+            </template>
+          </a-list>
+        </a-card>
+      </a-col>
+    </a-row>
 
     <!-- New Post Modal -->
-    <Teleport to="body">
-      <div v-if="showNewPostModal" class="modal-overlay" @click.self="showNewPostModal = false">
-        <div class="modal-content">
-          <header class="modal-header">
-            <h2>{{ t('community.createPost') }}</h2>
-            <button class="close-btn" @click="showNewPostModal = false">×</button>
-          </header>
+    <a-modal
+      v-model:open="showNewPostModal"
+      :title="t('community.createPost')"
+      width="600px"
+      @ok="submitPost"
+      @cancel="showNewPostModal = false"
+    >
+      <a-form layout="vertical">
+        <a-form-item :label="t('community.postTitle')" required>
+          <a-input
+            v-model:value="newPost.title"
+            :placeholder="t('community.titlePlaceholder')"
+            :maxlength="100"
+            show-count
+          />
+        </a-form-item>
 
-          <form class="post-form" @submit.prevent="submitPost">
-            <div class="form-group">
-              <label>{{ t('community.postTitle') }}</label>
-              <input
-                v-model="newPost.title"
-                type="text"
-                :placeholder="t('community.titlePlaceholder')"
-                required
-                maxlength="100"
-              />
-            </div>
+        <a-form-item :label="t('community.postCategory')" required>
+          <a-radio-group v-model:value="newPost.category">
+            <a-radio-button
+              v-for="cat in categoryOptions.filter(c => c.value !== 'all')"
+              :key="cat.value"
+              :value="cat.value"
+            >
+              {{ cat.label }}
+            </a-radio-button>
+          </a-radio-group>
+        </a-form-item>
 
-            <div class="form-group">
-              <label>{{ t('community.postCategory') }}</label>
-              <div class="category-options">
-                <label
-                  v-for="cat in categoryOptions.filter(c => c.value !== 'all')"
-                  :key="cat.value"
-                  :class="['category-option', { selected: newPost.category === cat.value }]"
-                >
-                  <input
-                    v-model="newPost.category"
-                    type="radio"
-                    :value="cat.value"
-                    required
-                  />
-                  <span class="option-icon">{{ cat.icon }}</span>
-                  <span>{{ cat.label }}</span>
-                </label>
-              </div>
-            </div>
+        <a-form-item :label="t('community.postContent')" required>
+          <a-textarea
+            v-model:value="newPost.content"
+            :placeholder="t('community.contentPlaceholder')"
+            :rows="6"
+            :maxlength="5000"
+            show-count
+          />
+        </a-form-item>
 
-            <div class="form-group">
-              <label>{{ t('community.postContent') }}</label>
-              <textarea
-                v-model="newPost.content"
-                :placeholder="t('community.contentPlaceholder')"
-                required
-                rows="8"
-                maxlength="5000"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>{{ t('community.postTags') }}</label>
-              <input
-                v-model="tagInput"
-                type="text"
-                :placeholder="t('community.tagsPlaceholder')"
-                @keydown.enter.prevent="addTag"
-              />
-              <div v-if="newPost.tags.length" class="selected-tags">
-                <span v-for="tag in newPost.tags" :key="tag" class="selected-tag">
-                  {{ tag }}
-                  <button type="button" @click="removeTag(tag)">×</button>
-                </span>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="cancel-btn" @click="showNewPostModal = false">
-                {{ t('common.cancel') }}
-              </button>
-              <button type="submit" class="submit-btn" :disabled="!isValidPost">
-                {{ t('community.publish') }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Teleport>
+        <a-form-item :label="t('community.postTags')">
+          <a-input
+            v-model:value="tagInput"
+            :placeholder="t('community.tagsPlaceholder')"
+            @pressEnter.prevent="addTag"
+          />
+          <a-space v-if="newPost.tags.length" wrap style="margin-top: 8px">
+            <a-tag
+              v-for="tag in newPost.tags"
+              :key="tag"
+              closable
+              @close="removeTag(tag)"
+            >
+              {{ tag }}
+            </a-tag>
+          </a-space>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+import {
+  EditOutlined,
+  EyeOutlined,
+  MessageOutlined,
+  HeartOutlined,
+  HeartFilled,
+  PushpinFilled,
+  AppstoreOutlined,
+  MessageFilled,
+  QuestionCircleFilled,
+  ShareAltOutlined,
+  FileTextFilled,
+} from '@ant-design/icons-vue'
 import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
 import { useCommunityStore, type CommunityFilter } from '@/stores/community'
-import PhosphorIcon from '@/components/PhosphorIcon.vue'
 
 const router = useRouter()
 const i18nStore = useI18nStore()
@@ -206,6 +237,8 @@ const filter = reactive<CommunityFilter>({
   tag: undefined,
 })
 
+const selectedCategoryKeys = ref(['all'])
+
 const showNewPostModal = ref(false)
 const tagInput = ref('')
 
@@ -217,12 +250,19 @@ const newPost = reactive({
 })
 
 const categoryOptions = computed(() => [
-  { value: 'all', label: t('community.catAll'), icon: 'ClipboardText' },
-  { value: 'discussion', label: t('community.catDiscussion'), icon: 'ChatCircle' },
-  { value: 'question', label: t('community.catQuestion'), icon: 'Question' },
-  { value: 'share', label: t('community.catShare'), icon: 'Share' },
-  { value: 'experience', label: t('community.catExperience'), icon: 'Note' },
+  { value: 'all', label: t('community.catAll'), icon: AppstoreOutlined },
+  { value: 'discussion', label: t('community.catDiscussion'), icon: MessageFilled },
+  { value: 'question', label: t('community.catQuestion'), icon: QuestionCircleFilled },
+  { value: 'share', label: t('community.catShare'), icon: ShareAltOutlined },
+  { value: 'experience', label: t('community.catExperience'), icon: FileTextFilled },
 ])
+
+const categoryColorMap: Record<string, string> = {
+  discussion: 'blue',
+  question: 'orange',
+  share: 'green',
+  experience: 'purple',
+}
 
 const sortTabs = computed(() => [
   { value: 'latest' as const, label: t('community.sortLatest') },
@@ -234,16 +274,8 @@ const filteredPosts = computed(() => communityStore.filteredPosts(filter))
 const hotTags = computed(() => communityStore.hotTags)
 const categoryStats = computed(() => communityStore.categoryStats)
 
-const isValidPost = computed(() => {
-  return newPost.title.trim() && newPost.content.trim() && newPost.category
-})
-
-const setCategory = (category: string) => {
-  filter.category = category
-}
-
-const setSortBy = (sortBy: CommunityFilter['sortBy']) => {
-  filter.sortBy = sortBy
+const handleCategoryClick = ({ key }: { key: string }) => {
+  filter.category = key
 }
 
 const toggleTag = (tag: string) => {
@@ -295,7 +327,7 @@ const removeTag = (tag: string) => {
 }
 
 const submitPost = () => {
-  if (!isValidPost.value) return
+  if (!newPost.title.trim() || !newPost.content.trim() || !newPost.category) return
 
   communityStore.createPost({
     title: newPost.title.trim(),
@@ -316,544 +348,53 @@ const submitPost = () => {
 
 <style scoped>
 .community-page {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 36px 20px 56px;
-}
-
-.header {
-  margin-bottom: 24px;
-}
-
-.back-link {
-  color: var(--text-tertiary);
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.header h1 {
-  margin-top: 10px;
-  font-size: 2.1rem;
-}
-
-.header p {
-  color: var(--text-tertiary);
-  margin-top: 6px;
+  padding: 0 20px 56px;
 }
 
 .community-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 24px;
-}
-
-.sidebar {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-}
-
-.sidebar h3 {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  margin-top: 16px;
 }
 
 .category-filter,
 .hot-tags {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.filter-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.filter-btn:hover {
-  background: var(--bg-secondary);
-}
-
-.filter-btn.active {
-  background: var(--primary-color);
-  color: white;
-}
-
-.cat-icon {
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.cat-label {
-  flex: 1;
-  text-align: left;
-}
-
-.cat-count {
-  font-size: 0.75rem;
-  opacity: 0.7;
-}
-
-.tag-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag-btn {
-  padding: 4px 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  border-radius: 999px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-}
-
-.tag-btn:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.tag-btn.active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: white;
+  position: sticky;
+  top: 20px;
 }
 
 .main-content {
-  min-width: 0;
-}
-
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.sort-tabs {
-  display: flex;
-  gap: 4px;
-}
-
-.tab-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  transition: all 0.2s;
-}
-
-.tab-btn:hover {
-  border-color: var(--primary-color);
-}
-
-.tab-btn.active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: white;
-}
-
-.new-post-btn {
-  padding: 10px 20px;
-  background: var(--primary-gradient);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
-
-.new-post-btn:hover {
-  opacity: 0.9;
-}
-
-.posts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  min-height: 600px;
 }
 
 .post-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 20px;
+  width: 100%;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .post-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .post-card.pinned {
   border-color: #f59e0b;
-  background: rgba(245, 158, 11, 0.05);
+  background: rgba(245, 158, 11, 0.02);
 }
 
-.pin-badge {
-  display: inline-block;
-  font-size: 0.75rem;
-  color: #f59e0b;
-  margin-bottom: 8px;
+:deep(.ant-list-item) {
+  padding: 8px 0;
 }
 
-.post-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.author-info {
+:deep(.ant-menu-item) {
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.author-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.post-time {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.category-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.category-badge.discussion {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-
-.category-badge.question {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.category-badge.share {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-}
-
-.category-badge.experience {
-  background: rgba(168, 85, 247, 0.1);
-  color: #a855f7;
-}
-
-.post-title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-
-.post-excerpt {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin-bottom: 12px;
-}
-
-.post-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.post-tag {
-  padding: 2px 8px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.post-stats {
-  display: flex;
-  gap: 16px;
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.stat-icon {
-  font-size: 0.9rem;
-}
-
-.stat.liked {
-  color: #ef4444;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-tertiary);
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-content {
-  background: var(--card-bg);
-  border-radius: var(--radius-md);
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h2 {
-  font-size: 1.25rem;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-muted);
-}
-
-.post-form {
-  padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.category-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.category-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.category-option:hover {
-  border-color: var(--primary-color);
-}
-
-.category-option.selected {
-  border-color: var(--primary-color);
-  background: rgba(99, 102, 241, 0.1);
-}
-
-.category-option input {
-  display: none;
-}
-
-.option-icon {
-  font-size: 1.2rem;
-}
-
-.selected-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.selected-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: var(--primary-color);
-  color: white;
-  border-radius: 999px;
-  font-size: 0.8rem;
-}
-
-.selected-tag button {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
-}
-
-.cancel-btn {
-  padding: 10px 20px;
-  border: 1px solid var(--border-color);
-  background: transparent;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-secondary);
-}
-
-.submit-btn {
-  padding: 10px 24px;
-  background: var(--primary-gradient);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.submit-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-@media (max-width: 900px) {
-  .community-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: static;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
+@media (max-width: 992px) {
   .category-filter,
   .hot-tags {
-    margin-bottom: 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .sidebar {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .sort-tabs {
-    justify-content: center;
-  }
-
-  .category-options {
-    grid-template-columns: 1fr;
+    position: static;
   }
 }
 </style>

@@ -1,78 +1,118 @@
 <template>
   <div class="search-page">
-    <header class="search-header">
-      <router-link to="/" class="back-link">{{ t('common.backHome') }}</router-link>
-      <h1>{{ t('search.title') }}</h1>
-      <p>{{ t('search.subtitle') }}</p>
-    </header>
+    <a-page-header
+      :title="t('search.title')"
+      :sub-title="t('search.subtitle')"
+      @back="() => $router.push('/dashboard')"
+    />
 
-    <section class="search-panel">
-      <input
-        v-model.trim="keyword"
-        class="search-input"
-        type="search"
+    <a-card class="search-panel" :bordered="true">
+      <a-input-search
+        v-model:value="keyword"
         :placeholder="t('search.placeholder')"
+        allow-clear
+        size="large"
+        class="search-input"
       />
 
-      <div class="filter-row">
-        <label class="filter-item">
-          <span>{{ t('search.category') }}</span>
-          <select v-model="selectedCategory">
-            <option value="all">{{ t('search.allCategories') }}</option>
-            <option v-for="option in categoryOptions" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </label>
+      <a-row :gutter="[16, 16]" class="filter-row">
+        <a-col :xs="24" :sm="12">
+          <a-space direction="vertical" style="width: 100%">
+            <span class="filter-label">{{ t('search.category') }}</span>
+            <a-select v-model:value="selectedCategory" style="width: 100%">
+              <a-select-option value="all">{{ t('search.allCategories') }}</a-select-option>
+              <a-select-option v-for="option in categoryOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </a-select-option>
+            </a-select>
+          </a-space>
+        </a-col>
 
-        <label class="filter-item">
-          <span>{{ t('search.tag') }}</span>
-          <select v-model="selectedTag">
-            <option value="all">{{ t('search.allTags') }}</option>
-            <option value="must">{{ t('common.tags.must') }}</option>
-            <option value="frequent">{{ t('common.tags.frequent') }}</option>
-            <option value="important">{{ t('common.tags.important') }}</option>
-          </select>
-        </label>
-      </div>
-    </section>
+        <a-col :xs="24" :sm="12">
+          <a-space direction="vertical" style="width: 100%">
+            <span class="filter-label">{{ t('search.tag') }}</span>
+            <a-select v-model:value="selectedTag" style="width: 100%">
+              <a-select-option value="all">{{ t('search.allTags') }}</a-select-option>
+              <a-select-option value="must">{{ t('common.tags.must') }}</a-select-option>
+              <a-select-option value="frequent">{{ t('common.tags.frequent') }}</a-select-option>
+              <a-select-option value="important">{{ t('common.tags.important') }}</a-select-option>
+            </a-select>
+          </a-space>
+        </a-col>
+      </a-row>
+    </a-card>
 
-    <section class="result-summary">
-      <p>{{ t('search.results', { count: filteredResults.length }) }}</p>
-      <button class="practice-btn" type="button" @click="startPractice">{{ t('search.startPractice') }}</button>
-    </section>
+    <a-row justify="space-between" align="middle" class="result-summary">
+      <a-typography-text>
+        <FileSearchOutlined />
+        {{ t('search.results', { count: filteredResults.length }) }}
+      </a-typography-text>
+      <a-button type="primary" @click="startPractice">
+        <PlayCircleOutlined />
+        {{ t('search.startPractice') }}
+      </a-button>
+    </a-row>
 
-    <section v-if="filteredResults.length" class="result-list">
-      <article v-for="item in filteredResults" :key="item.id" class="result-card">
-        <div class="result-meta">
-          <span class="category">{{ categoryLabelMap[item.category] }}</span>
-          <span class="divider">/</span>
-          <span>{{ item.sectionTitle }}</span>
-        </div>
+    <a-list
+      v-if="filteredResults.length"
+      :data-source="filteredResults"
+      :pagination="{ pageSize: 20 }"
+      class="result-list"
+    >
+      <template #renderItem="{ item }">
+        <a-list-item>
+          <a-card class="result-card" hoverable @click="goToQuestion(item.path, item.anchor)">
+            <a-space direction="vertical" style="width: 100%">
+              <a-space>
+                <a-tag color="blue">{{ categoryLabelMap[item.category as SearchCategory] }}</a-tag>
+                <a-typography-text type="secondary">{{ item.sectionTitle }}</a-typography-text>
+              </a-space>
 
-        <h2>
-          <button class="result-link" type="button" @click="goToQuestion(item.path, item.anchor)">
-            {{ item.question }}
-          </button>
-        </h2>
+              <a-typography-title :level="4" class="question-title">
+                {{ item.question }}
+              </a-typography-title>
 
-        <p class="snippet">{{ toSnippet(item.answer) }}</p>
+              <a-typography-paragraph
+                type="secondary"
+                :ellipsis="{ rows: 2 }"
+                class="snippet"
+              >
+                {{ toSnippet(item.answer) }}
+              </a-typography-paragraph>
 
-        <div class="tags">
-          <span v-for="tag in item.tags" :key="`${item.id}-${tag}`" :class="['tag', tag]">
-            {{ tagLabelMap[tag] }}
-          </span>
-        </div>
-      </article>
-    </section>
+              <a-space wrap>
+                <a-tag
+                  v-for="tag in item.tags"
+                  :key="`${item.id}-${tag}`"
+                  :color="tagColorMap[tag as SearchTag]"
+                >
+                  {{ tagLabelMap[tag as SearchTag] }}
+                </a-tag>
+              </a-space>
+            </a-space>
+          </a-card>
+        </a-list-item>
+      </template>
+    </a-list>
 
-    <section v-else class="empty-state">
-      <p>{{ t('search.noResults') }}</p>
-    </section>
+    <a-empty
+      v-else
+      :description="t('search.noResults')"
+      class="empty-state"
+    >
+      <template #image>
+        <SearchOutlined style="font-size: 64px; color: #bfbfbf" />
+      </template>
+    </a-empty>
   </div>
 </template>
 
 <script setup lang="ts">
+import {
+  FileSearchOutlined,
+  PlayCircleOutlined,
+  SearchOutlined,
+} from '@ant-design/icons-vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchItems } from '@/data/search-index'
@@ -120,6 +160,12 @@ const tagLabelMap: Record<SearchTag, string> = {
   must: t('common.tags.must'),
   frequent: t('common.tags.frequent'),
   important: t('common.tags.important'),
+}
+
+const tagColorMap: Record<SearchTag, string> = {
+  must: 'red',
+  frequent: 'green',
+  important: 'orange',
 }
 
 const normalize = (text: string) => text.toLowerCase().trim()
@@ -220,173 +266,68 @@ const startPractice = () => {
 <style scoped>
 .search-page {
   min-height: 100vh;
-  padding: 40px 24px 56px;
-  max-width: 1080px;
+  padding: 0 24px 56px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.search-header {
-  margin-bottom: 20px;
-}
-
-.back-link {
-  display: inline-block;
-  margin-bottom: 14px;
-  color: var(--text-tertiary);
-  text-decoration: none;
-}
-
-.search-header h1 {
-  font-size: 2.25rem;
-  margin-bottom: 10px;
-}
-
-.search-header p {
-  color: var(--text-tertiary);
-}
-
 .search-panel {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: var(--shadow-sm);
+  margin-top: 16px;
 }
 
 .search-input {
-  width: 100%;
-  height: 48px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  padding: 0 14px;
-  color: var(--text-primary);
-  font-size: 1rem;
+  margin-bottom: 16px;
 }
 
 .filter-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.filter-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.filter-item select {
-  height: 40px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-primary);
-  padding: 0 10px;
-}
-
-.result-summary {
-  margin: 16px 2px;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.practice-btn {
-  height: 34px;
-  padding: 0 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
-  cursor: pointer;
-}
-
-.result-list {
-  display: grid;
-  gap: 12px;
-}
-
-.result-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 16px;
-}
-
-.result-meta {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  margin-bottom: 8px;
-}
-
-.divider {
-  margin: 0 8px;
-}
-
-.result-link {
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 1.06rem;
-  text-align: left;
-  cursor: pointer;
-  padding: 0;
-}
-
-.result-link:hover {
-  color: var(--primary-color);
-}
-
-.snippet {
-  color: var(--text-secondary);
   margin-top: 8px;
 }
 
-.tags {
-  margin-top: 10px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.filter-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
-.tag {
-  font-size: 0.75rem;
-  border-radius: var(--radius-full);
-  padding: 4px 10px;
-  color: white;
+.result-summary {
+  margin: 16px 0;
+  padding: 0 8px;
 }
 
-.tag.must {
-  background: #2563eb;
+.result-list {
+  margin-top: 8px;
 }
 
-.tag.frequent {
-  background: #059669;
+.result-card {
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.tag.important {
-  background: #d97706;
+.result-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.question-title {
+  margin: 0 !important;
+  font-size: 1.1rem !important;
+  line-height: 1.5 !important;
+}
+
+.snippet {
+  margin-bottom: 0 !important;
 }
 
 .empty-state {
-  margin-top: 20px;
-  color: var(--text-tertiary);
-  text-align: center;
+  margin-top: 60px;
+}
+
+:deep(.ant-list-item) {
+  padding: 8px 0;
 }
 
 @media (max-width: 768px) {
   .search-page {
-    padding: 24px 16px 40px;
-  }
-
-  .filter-row {
-    grid-template-columns: 1fr;
+    padding: 0 16px 40px;
   }
 }
 </style>
