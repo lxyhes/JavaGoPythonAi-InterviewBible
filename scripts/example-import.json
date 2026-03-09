@@ -1,0 +1,26 @@
+[
+  {
+    "category": "backend",
+    "sectionId": "java-hot",
+    "question": "Java 8 中的 Stream API 有什么优势？",
+    "answer": "Stream API 提供了函数式编程风格的数据处理方式，主要优势包括：\n\n1. **代码简洁**：可以用声明式语法替代复杂的循环\n2. **链式操作**：支持 filter、map、reduce 等操作的链式调用\n3. **并行处理**：通过 parallelStream() 轻松实现并行计算\n4. **惰性求值**：中间操作不会立即执行，提高性能\n\n```java\nList<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);\nint sum = numbers.stream()\n    .filter(n -> n % 2 == 0)\n    .mapToInt(n -> n * n)\n    .sum();\n```",
+    "tags": ["must", "frequent"],
+    "source": "https://github.com/CyC2018/CS-Notes"
+  },
+  {
+    "category": "backend",
+    "sectionId": "java-hot",
+    "question": "Redis 缓存穿透、击穿、雪崩的区别及解决方案？",
+    "answer": "## 三者对比\n\n| 问题 | 原因 | 解决方案 |\n|------|------|----------|\n| **穿透** | 查询不存在的数据 | 布隆过滤器、缓存空值 |\n| **击穿** | 热点 key 过期 | 互斥锁、逻辑过期 |\n| **雪崩** | 大量 key 同时过期 | 随机过期时间、多级缓存 |\n\n### 详细方案\n\n**缓存穿透**：\n- 布隆过滤器：在缓存前加一层过滤\n- 缓存空值：将不存在的 key 也缓存（短时间）\n\n**缓存击穿**：\n- 互斥锁：保证只有一个线程重建缓存\n- 逻辑过期：不设置 TTL，通过逻辑时间判断\n\n**缓存雪崩**：\n- 过期时间加随机值\n- 多级缓存（Redis + 本地缓存）",
+    "tags": ["must", "important"],
+    "source": "https://www.cnblogs.com/xichji/p/11286443.html"
+  },
+  {
+    "category": "frontend",
+    "sectionId": "vue-hot",
+    "question": "Vue 3 Composition API 与 Options API 的区别？",
+    "answer": "## 核心区别\n\n### Options API\n- 按选项组织代码（data、methods、computed）\n- 逻辑分散在不同选项中\n- 适合小型组件\n\n### Composition API\n- 按功能组织代码\n- 相关逻辑可以聚合在一起\n- 更好的 TypeScript 支持\n- 更好的代码复用（Composables）\n\n```vue\n<script setup>\n// Composition API 示例\nimport { ref, computed } from 'vue'\n\n// 相关逻辑聚合\nconst useCounter = () => {\n  const count = ref(0)\n  const double = computed(() => count.value * 2)\n  const increment = () => count.value++\n  return { count, double, increment }\n}\n\nconst { count, double, increment } = useCounter()\n</script>\n```",
+    "tags": ["frequent", "important"],
+    "source": "https://vuejs.org/guide/extras/composition-api-faq.html"
+  }
+]

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="page-layout">
     <ReadingProgress />
     <MobileMenuBtn />
@@ -9,35 +9,39 @@
         <router-link to="/" class="back-link">返回首页</router-link>
         <h1 class="page-title">后端开发面试题</h1>
         <p class="page-subtitle">涵盖Java基础、进阶、Spring、并发等核心技术</p>
+        <div class="ai-actions">
+          <CodeAnalyzer />
+          <QuestionGenerator />
+        </div>
       </header>
 
       <div class="content-container">
         <section id="java-basics" class="section">
-          <ContentRenderer title="☕ Java 基础" :items="javaBasicsQA" anchor-prefix="java-basics" />
+          <ContentRenderer title="☕ Java 基础" :items="javaBasicsQA" anchor-prefix="java-basics" category="Java" />
         </section>
         <section id="java-advanced" class="section">
-          <ContentRenderer title="🔥 Java 进阶" :items="javaAdvancedQA" anchor-prefix="java-advanced" />
+          <ContentRenderer title="🔥 Java 进阶" :items="javaAdvancedQA" anchor-prefix="java-advanced" category="Java" />
         </section>
         <section id="java-jvm" class="section">
-          <ContentRenderer title="⚙️ JVM 原理" :items="javaJVMQA" anchor-prefix="java-jvm" />
+          <ContentRenderer title="⚙️ JVM 原理" :items="javaJVMQA" anchor-prefix="java-jvm" category="JVM" />
         </section>
         <section id="java-concurrent" class="section">
-          <ContentRenderer title="⚡ Java 并发" :items="javaConcurrentQA" anchor-prefix="java-concurrent" />
+          <ContentRenderer title="⚡ Java 并发" :items="javaConcurrentQA" anchor-prefix="java-concurrent" category="并发编程" />
         </section>
         <section id="java-network" class="section">
-          <ContentRenderer title="🌐 网络编程" :items="javaNetworkQA" anchor-prefix="java-network" />
+          <ContentRenderer title="🌐 网络编程" :items="javaNetworkQA" anchor-prefix="java-network" category="网络编程" />
         </section>
         <section id="java-spring" class="section">
-          <ContentRenderer title="🍃 Spring 框架" :items="javaSpringQA" anchor-prefix="java-spring" />
+          <ContentRenderer title="🍃 Spring 框架" :items="javaSpringQA" anchor-prefix="java-spring" category="Spring" />
         </section>
         <section id="java-distributed" class="section">
-          <ContentRenderer title="🔒 分布式系统" :items="javaDistributedQA" anchor-prefix="java-distributed" />
+          <ContentRenderer title="🔒 分布式系统" :items="javaDistributedQA" anchor-prefix="java-distributed" category="分布式" />
         </section>
         <section id="microservices" class="section">
-          <ContentRenderer title="🔧 微服务架构" :items="microservicesQA" anchor-prefix="microservices" />
+          <ContentRenderer title="🔧 微服务架构" :items="microservicesQA" anchor-prefix="microservices" category="微服务" />
         </section>
         <section id="project-backend" class="section">
-          <ContentRenderer title="💼 后端项目实战" :items="backendProjectQA" anchor-prefix="project-backend" />
+          <ContentRenderer title="💼 后端项目实战" :items="backendProjectQA" anchor-prefix="project-backend" category="项目实战" />
         </section>
       </div>
     </main>
@@ -54,6 +58,8 @@ import BackToTop from '@/components/BackToTop.vue'
 import MobileMenuBtn from '@/components/MobileMenuBtn.vue'
 import ReadingProgress from '@/components/ReadingProgress.vue'
 import ContentRenderer from '@/components/content/ContentRenderer.vue'
+import CodeAnalyzer from '@/components/CodeAnalyzer.vue'
+import QuestionGenerator from '@/components/QuestionGenerator.vue'
 import { javaBasicsQA, javaAdvancedQA, javaSpringQA, javaConcurrentQA } from '@/data/backend-java'
 import { javaJVMQA, javaNetworkQA, javaDistributedQA } from '@/data/backend-java-advanced'
 import { microservicesQA, backendProjectQA } from '@/data/backend'
@@ -162,6 +168,13 @@ onMounted(() => {
   color: var(--text-tertiary);
   font-weight: 400;
   max-width: 600px;
+}
+
+.ai-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
 }
 
 .section {

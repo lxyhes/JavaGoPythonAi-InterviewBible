@@ -19,6 +19,21 @@ export interface QaItem {
   question: string
   answer: string
   tags?: string[]
+  source?: string
+  hotScore?: number
+  status?: 'pending' | 'approved' | 'rejected'
+  submittedAt?: string
+  reviewedAt?: string
+}
+
+export interface QuestionSubmission {
+  category: string
+  sectionId: string
+  question: string
+  answer: string
+  tags: string[]
+  source: string
+  submitter?: string
 }
 
 export interface Section {

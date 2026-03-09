@@ -11,11 +11,18 @@
       <div class="content">
         <slot></slot>
       </div>
+      <AIExplanation
+        v-if="showAI"
+        :question="question"
+        :category="category"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import AIExplanation from '@/components/AIExplanation.vue'
+
 interface Tag {
   text: string
   type: 'must' | 'frequent' | 'important'
@@ -25,9 +32,13 @@ const props = withDefaults(
   defineProps<{
     question: string
     tags?: Tag[]
+    category?: string
+    showAI?: boolean
   }>(),
   {
     tags: () => [],
+    category: '通用',
+    showAI: true,
   }
 )
 </script>

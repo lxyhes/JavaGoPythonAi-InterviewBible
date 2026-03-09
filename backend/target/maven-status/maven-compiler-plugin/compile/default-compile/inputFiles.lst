@@ -1,0 +1,17 @@
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\config\IFlowProperties.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\client\IFlowWebSocketClient.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\config\IFlowAutoConfiguration.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\model\ToolCallStatus.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\model\IFlowMessage.java
+E:\mianshi-guid\backend\src\main\java\com\interview\model\QuestionSubmission.java
+E:\mianshi-guid\backend\src\main\java\com\interview\controller\GlobalExceptionHandler.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\model\StopReason.java
+E:\mianshi-guid\backend\src\main\java\com\interview\model\ApiResponse.java
+E:\mianshi-guid\backend\src\main\java\com\interview\model\InterviewRequest.java
+E:\mianshi-guid\backend\src\main\java\com\interview\controller\InterviewController.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\model\MessageType.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\service\IFlowLifecycleManager.java
+E:\mianshi-guid\backend\src\main\java\com\interview\controller\QuestionController.java
+E:\mianshi-guid\backend\src\main\java\com\interview\iflow\service\IFlowClient.java
+E:\mianshi-guid\backend\src\main\java\com\interview\InterviewGuideApplication.java
+E:\mianshi-guid\backend\src\main\java\com\interview\model\CoachPlanRequest.java

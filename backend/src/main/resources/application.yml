@@ -1,0 +1,62 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: interview-guide-backend
+
+  # 数据库配置
+  datasource:
+    url: jdbc:h2:mem:interviewdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  # H2 控制台
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# iFlow SDK 配置
+iflow:
+  # iFlow ACP Server WebSocket URL
+  url: ws://localhost:8090/acp
+
+  # 连接超时时间（秒）
+  connection-timeout: 30
+
+  # 读取超时时间（秒）
+  read-timeout: 600
+
+  # 是否自动启动 iFlow CLI 进程
+  auto-start-process: false
+
+  # iFlow CLI 可执行文件路径
+  cli-path: iflow
+
+  # 是否启用 ACP 协议
+  acp-enabled: true
+
+  # ACP 服务端口
+  acp-port: 8090
+
+  # 日志级别
+  log-level: INFO
+
+  # 最大重连次数
+  max-reconnect-attempts: 3
+
+  # 重连间隔（毫秒）
+  reconnect-interval: 5000
+
+# 日志配置
+logging:
+  level:
+    com.interview.iflow: DEBUG
+    org.springframework.web: INFO

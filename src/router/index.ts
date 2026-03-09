@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -71,6 +71,16 @@ const routes: RouteRecordRaw[] = [
     path: '/ai',
     name: 'AI',
     component: () => import('@/pages/AIPage.vue'),
+  },
+  {
+    path: '/submit',
+    name: 'SubmitQuestion',
+    component: () => import('@/pages/SubmitQuestionPage.vue'),
+  },
+  {
+    path: '/import',
+    name: 'BulkImport',
+    component: () => import('@/pages/BulkImportPage.vue'),
   },
   {
     path: '/:pathMatch(.*)*',

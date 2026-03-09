@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="content-section">
     <h2>{{ title }}</h2>
     <div class="qa-list">
@@ -8,6 +8,8 @@
         :key="index"
         :question="item.question"
         :tags="item.tags"
+        :category="category"
+        :show-ai="showAI"
       >
         <div v-html="renderAnswer(item.answer)"></div>
       </QAItem>
@@ -31,11 +33,16 @@ interface QAItemData {
   answer: string
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   title: string
   items: QAItemData[]
   anchorPrefix?: string
-}>()
+  category?: string
+  showAI?: boolean
+}>(), {
+  category: '通用',
+  showAI: true
+})
 
 const escapeHtml = (text: string) =>
   text

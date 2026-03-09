@@ -37,6 +37,8 @@
       </label>
     </section>
 
+    <p v-if="mode === 'weak'" class="mode-tip">薄弱题模式已开启：答“不会/模糊”的题会在后续自动再练。</p>
+
     <section v-if="items.length" class="progress-panel">
       <div>
         第 <strong>{{ currentIndex + 1 }}</strong> / {{ items.length }} 题
@@ -102,6 +104,8 @@ const route = useRoute()
 const router = useRouter()
 const learningStore = useLearningStore()
 
+const MAX_REVISITS_PER_ITEM = 2
+
 const keyword = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const selectedCategory = ref<'all' | SearchCategory>(
   typeof route.query.category === 'string' ? (route.query.category as 'all' | SearchCategory) : 'all'
@@ -114,6 +118,9 @@ const mode = ref<'all' | 'review' | 'weak'>(
 const currentIndex = ref(0)
 const showAnswer = ref(false)
 const isApplyingSession = ref(false)
+const revisitQueue = ref<string[]>([])
+const revisitCounts = ref<Record<string, number>>({})
+const itemLookup = new Map(searchItems.map((item) => [item.id, item]))
 
 const categoryOptions: { value: SearchCategory; label: string }[] = [
   { value: 'frontend', label: '前端开发' },
@@ -153,7 +160,7 @@ const masteryLabelMap: Record<MasteryLevel, string> = {
 
 const normalize = (value: string) => value.toLowerCase().trim()
 
-const items = computed(() => {
+const baseItems = computed(() => {
   const q = normalize(keyword.value)
   const tokens = q ? q.split(/\s+/).filter(Boolean) : []
 
@@ -188,6 +195,21 @@ const items = computed(() => {
   })
 })
 
+const items = computed(() => {
+  if (mode.value !== 'weak') {
+    return baseItems.value
+  }
+
+  const merged = [...baseItems.value]
+  for (const id of revisitQueue.value) {
+    const item = itemLookup.get(id)
+    if (item) {
+      merged.push(item)
+    }
+  }
+  return merged
+})
+
 const currentItem = computed<SearchItem | null>(() => {
   if (!items.value.length) return null
   return items.value[currentIndex.value] ?? null
@@ -197,6 +219,11 @@ const record = computed(() => {
   if (!currentItem.value) return null
   return learningStore.getRecord(currentItem.value.id)
 })
+
+const resetWeakRevisitState = () => {
+  revisitQueue.value = []
+  revisitCounts.value = {}
+}
 
 watch(items, (list) => {
   if (!list.length) {
@@ -212,6 +239,11 @@ watch(items, (list) => {
 watch([keyword, selectedCategory, selectedTag, mode], () => {
   currentIndex.value = 0
   showAnswer.value = false
+
+  if (mode.value !== 'weak') {
+    resetWeakRevisitState()
+  }
+
   void router.replace({
     path: '/practice',
     query: {
@@ -253,9 +285,37 @@ const prev = () => {
   }
 }
 
+const enqueueRevisit = (questionId: string) => {
+  const count = revisitCounts.value[questionId] ?? 0
+  if (count >= MAX_REVISITS_PER_ITEM) return
+
+  revisitQueue.value.push(questionId)
+  revisitCounts.value[questionId] = count + 1
+}
+
+const clearRevisit = (questionId: string) => {
+  if (!(questionId in revisitCounts.value)) return
+
+  const nextCounts = { ...revisitCounts.value }
+  delete nextCounts[questionId]
+  revisitCounts.value = nextCounts
+  revisitQueue.value = revisitQueue.value.filter((id) => id !== questionId)
+}
+
 const markAndNext = (mastery: MasteryLevel) => {
   if (!currentItem.value) return
-  learningStore.markMastery(currentItem.value.id, mastery)
+
+  const questionId = currentItem.value.id
+  learningStore.markMastery(questionId, mastery)
+
+  if (mode.value === 'weak') {
+    if (mastery === 'mastered') {
+      clearRevisit(questionId)
+    } else {
+      enqueueRevisit(questionId)
+    }
+  }
+
   next()
 }
 
@@ -363,6 +423,12 @@ onUnmounted(() => {
   padding: 0 10px;
   background: var(--card-bg);
   color: var(--text-primary);
+}
+
+.mode-tip {
+  margin-top: 12px;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
 }
 
 .progress-panel {

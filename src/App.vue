@@ -4,6 +4,7 @@
       <component :is="Component" />
     </transition>
   </router-view>
+  <CelebrationCenter />
   <BackToTop />
 </template>
 
@@ -11,6 +12,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BackToTop from './components/BackToTop.vue'
+import CelebrationCenter from './components/CelebrationCenter.vue'
 
 const router = useRouter()
 
