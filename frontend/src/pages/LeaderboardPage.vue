@@ -127,18 +127,14 @@
       </a-list>
     </a-card>
 
-    <!-- 底部悬浮我的排名 -->
+    <!-- 底部极简悬浮排名胶囊 -->
     <Transition name="slide-up">
       <div v-if="currentUserRank > 0" class="my-floating-rank">
-        <div class="rank-info">
-          <div class="rank-number">#{{ currentUserRank }}</div>
-          <div class="rank-user">
-            <div class="label">我的排名</div>
-            <div class="name">继续加油，即将超越前一位！</div>
-          </div>
-        </div>
-        <div class="rank-score">
-          {{ formatScore(getCurrentUserEntry()) }}
+        <div class="rank-pill-content">
+          <span class="rank-num">#{{ currentUserRank }}</span>
+          <span class="rank-divider"></span>
+          <span class="rank-label">我的排名</span>
+          <span class="rank-score">{{ formatScore(getCurrentUserEntry()) }}</span>
         </div>
       </div>
     </Transition>
@@ -231,7 +227,7 @@ const refresh = async () => {
 .leaderboard-page {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 20px 120px;
+  padding: 0 20px 160px; /* 超大底部留白 */
 }
 
 .header-stats {
@@ -463,52 +459,53 @@ const refresh = async () => {
   color: var(--primary-600);
 }
 
-/* 浮动排名 */
+/* 极简浮动排名胶囊 */
 .my-floating-rank {
   position: fixed;
-  bottom: 30px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 800px;
-  background: var(--gradient-primary);
-  border-radius: 20px;
-  padding: 16px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-  color: white;
   z-index: 100;
+  pointer-events: none;
 }
 
-.my-floating-rank .rank-info {
+.rank-pill-content {
+  pointer-events: auto;
+  background: rgba(99, 102, 241, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 8px 24px;
+  border-radius: 99px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
 }
 
-.my-floating-rank .rank-number {
-  font-size: 2rem;
+.rank-num {
+  font-size: 1.25rem;
   font-weight: 900;
+}
+
+.rank-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.rank-label {
+  font-size: 0.875rem;
+  font-weight: 600;
   opacity: 0.9;
 }
 
-.my-floating-rank .label {
-  font-size: 0.75rem;
-  opacity: 0.8;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.my-floating-rank .name {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.my-floating-rank .rank-score {
-  font-size: 1.5rem;
+.rank-score {
+  font-size: 1.1rem;
   font-weight: 800;
+  margin-left: 4px;
 }
 
 /* 动画 */
@@ -524,8 +521,9 @@ const refresh = async () => {
   .rank-1 .podium-base { height: 100px; }
   .rank-2 .podium-base { height: 70px; }
   .rank-3 .podium-base { height: 50px; }
-  .my-floating-rank { padding: 12px 20px; }
-  .my-floating-rank .rank-number { font-size: 1.5rem; }
-  .my-floating-rank .rank-score { font-size: 1.1rem; }
+  .my-floating-rank { bottom: 15px; }
+  .rank-pill-content { padding: 6px 18px; gap: 12px; }
+  .rank-num { font-size: 1.1rem; }
+  .rank-score { font-size: 1rem; }
 }
 </style>
