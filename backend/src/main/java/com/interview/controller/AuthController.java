@@ -54,7 +54,8 @@ public class AuthController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        // userDetails.getUsername() 返回的是用户ID（JWT的subject）
+        String userId = userDetails.getUsername();
         return authService.getCurrentUser(userId);
     }
 
@@ -68,7 +69,7 @@ public class AuthController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return authService.updateUser(userId, request.getUsername(), request.getAvatar());
     }
 
@@ -82,7 +83,7 @@ public class AuthController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return authService.changePassword(userId, request.getOldPassword(), request.getNewPassword());
     }
 

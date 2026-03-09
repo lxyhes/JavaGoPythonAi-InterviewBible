@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtUtil.getRoleFromToken(jwt);
 
                 UserDetails userDetails = User.builder()
-                        .username(email)
+                        .username(userId)  // 使用 userId 作为 username
                         .password("")
                         .authorities(role)
                         .build();

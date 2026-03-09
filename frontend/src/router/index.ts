@@ -145,12 +145,12 @@ const router = createRouter({
 })
 
 // Navigation guards
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
 
   // Initialize auth state if not already done
   if (!authStore.user && localStorage.getItem('auth_token')) {
-    authStore.initAuth()
+    await authStore.initAuth()
   }
 
   // Check if route requires authentication
