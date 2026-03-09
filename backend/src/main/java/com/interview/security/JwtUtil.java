@@ -53,6 +53,14 @@ public class JwtUtil {
     }
 
     /**
+     * 从 token 中获取用户名（这里返回用户ID作为用户名）
+     */
+    public String getUsernameFromToken(String token) {
+        Claims claims = parseToken(token);
+        return claims != null ? claims.getSubject() : null;
+    }
+
+    /**
      * 从 token 中获取邮箱
      */
     public String getEmailFromToken(String token) {

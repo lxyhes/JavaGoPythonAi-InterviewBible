@@ -5,12 +5,23 @@ spring:
   application:
     name: interview-guide-backend
 
+  # 激活的 profile
+  profiles:
+    active: dev
+
   # 数据库配置 (MySQL)
   datasource:
     url: jdbc:mysql://localhost:3306/interview_guide?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
+
+  # SQL 初始化配置
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      continue-on-error: true
 
 # MyBatis-Plus 配置
 mybatis-plus:

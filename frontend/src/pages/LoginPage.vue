@@ -45,6 +45,16 @@
           </p>
         </div>
 
+        <!-- 开发环境提示 -->
+        <a-alert
+          v-if="isDev"
+          message="开发模式：已自动填充测试账号"
+          type="info"
+          show-icon
+          style="margin-bottom: 16px"
+          closable
+        />
+
         <a-tabs v-model:activeKey="activeTab" centered class="login-tabs">
           <a-tab-pane key="login" :tab="t('auth.login')">
             <a-form
@@ -293,9 +303,18 @@ const forgotPasswordLoading = ref(false)
 const loginCaptchaCanvas = ref<HTMLCanvasElement | null>(null)
 const registerCaptchaCanvas = ref<HTMLCanvasElement | null>(null)
 
+// 是否为开发环境
+const isDev = import.meta.env.DEV
+
+// 开发环境默认账号配置
+const DEV_DEFAULT_ACCOUNT = {
+  email: 'dev@example.com',
+  password: '123456'
+}
+
 const loginForm = reactive({
-  email: '',
-  password: '',
+  email: import.meta.env.DEV ? DEV_DEFAULT_ACCOUNT.email : '',
+  password: import.meta.env.DEV ? DEV_DEFAULT_ACCOUNT.password : '',
   rememberMe: false,
   captcha: '',
 })
