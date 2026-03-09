@@ -4,10 +4,10 @@ import com.interview.iflow.service.IFlowClient;
 import com.interview.model.ApiResponse;
 import com.interview.model.CoachPlanRequest;
 import com.interview.model.InterviewRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,14 +20,28 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @RestController
 @RequestMapping("/api/interview")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class InterviewController {
 
+    @Nullable
     private final IFlowClient iflowClient;
+
+    public InterviewController(@Nullable IFlowClient iflowClient) {
+        this.iflowClient = iflowClient;
+    }
+
+    private boolean isIFlowAvailable() {
+        return iflowClient != null;
+    }
 
     @PostMapping("/explain")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> explainQuestion(@RequestBody InterviewRequest request) {
+        if (!isIFlowAvailable()) {
+            return CompletableFuture.completedFuture(
+                ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
+            );
+        }
+
         String question = requireNotBlank(request.getQuestion(), "question");
         String category = defaultIfBlank(request.getCategory(), "general");
 
@@ -42,6 +56,12 @@ public class InterviewController {
         String q = requireNotBlank(question, "q");
         String c = defaultIfBlank(category, "general");
         SseEmitter emitter = new SseEmitter(0L);
+
+        if (!isIFlowAvailable()) {
+            sendEvent(emitter, "error", "AI 功能当前不可用");
+            emitter.complete();
+            return emitter;
+        }
 
         iflowClient.streamExplainInterviewQuestion(
                 q,
@@ -63,6 +83,12 @@ public class InterviewController {
 
     @PostMapping("/generate")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> generateQuestions(@RequestBody InterviewRequest request) {
+        if (!isIFlowAvailable()) {
+            return CompletableFuture.completedFuture(
+                ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
+            );
+        }
+
         String topic = defaultIfBlank(request.getTopic(), request.getCategory());
         topic = requireNotBlank(topic, "topic");
         int count = normalizeCount(request.getCount());
@@ -78,6 +104,12 @@ public class InterviewController {
         String t = requireNotBlank(topic, "topic");
         int c = normalizeCount(count == null ? 5 : count);
         SseEmitter emitter = new SseEmitter(0L);
+
+        if (!isIFlowAvailable()) {
+            sendEvent(emitter, "error", "AI 功能当前不可用");
+            emitter.complete();
+            return emitter;
+        }
 
         iflowClient.streamGenerateInterviewQuestions(
                 t,
@@ -99,6 +131,12 @@ public class InterviewController {
 
     @PostMapping("/analyze-code")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> analyzeCode(@RequestBody InterviewRequest request) {
+        if (!isIFlowAvailable()) {
+            return CompletableFuture.completedFuture(
+                ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
+            );
+        }
+
         String codeContent = requireNotBlank(request.getCodeContent(), "codeContent");
         String filePath = defaultIfBlank(request.getFilePath(), "unknown-file");
 
@@ -109,6 +147,12 @@ public class InterviewController {
 
     @PostMapping("/query")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> query(@RequestBody InterviewRequest request) {
+        if (!isIFlowAvailable()) {
+            return CompletableFuture.completedFuture(
+                ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
+            );
+        }
+
         String question = requireNotBlank(request.getQuestion(), "question");
 
         return iflowClient.query(question)
@@ -120,6 +164,12 @@ public class InterviewController {
     public SseEmitter streamQuery(@RequestParam("q") String question) {
         String query = requireNotBlank(question, "q");
         SseEmitter emitter = new SseEmitter(0L);
+
+        if (!isIFlowAvailable()) {
+            sendEvent(emitter, "error", "AI 功能当前不可用");
+            emitter.complete();
+            return emitter;
+        }
 
         iflowClient.streamQuery(
                 query,
@@ -140,6 +190,12 @@ public class InterviewController {
 
     @PostMapping("/coach-plan")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> coachPlan(@RequestBody CoachPlanRequest request) {
+        if (!isIFlowAvailable()) {
+            return CompletableFuture.completedFuture(
+                ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
+            );
+        }
+
         String prompt = buildCoachPrompt(request);
 
         return iflowClient.query(prompt)
@@ -149,7 +205,8 @@ public class InterviewController {
 
     @GetMapping("/health")
     public ResponseEntity<ApiResponse<Boolean>> health() {
-        return ResponseEntity.ok(ApiResponse.success(iflowClient.isConnected()));
+        boolean connected = isIFlowAvailable() && iflowClient.isConnected();
+        return ResponseEntity.ok(ApiResponse.success(connected));
     }
 
     private static int normalizeCount(int count) {

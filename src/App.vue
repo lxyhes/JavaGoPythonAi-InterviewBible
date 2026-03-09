@@ -1,26 +1,29 @@
 <template>
-  <AppNavbar />
-  <main class="main-content">
+  <AppNavbar v-if="!isLoginPage" />
+  <main :class="['main-content', { 'no-padding': isLoginPage }]">
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />
       </transition>
     </router-view>
   </main>
-  <LanguageSwitcher />
+  <LanguageSwitcher v-if="!isLoginPage" />
   <CelebrationCenter />
   <BackToTop />
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import AppNavbar from './components/AppNavbar.vue'
 import BackToTop from './components/BackToTop.vue'
 import CelebrationCenter from './components/CelebrationCenter.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 
 const router = useRouter()
+const route = useRoute()
+
+const isLoginPage = computed(() => route.path === '/login')
 
 const isEditableElement = (target: EventTarget | null) => {
   if (!(target instanceof HTMLElement)) {
@@ -71,5 +74,9 @@ onUnmounted(() => {
 .main-content {
   padding-top: var(--header-height);
   min-height: 100vh;
+}
+
+.main-content.no-padding {
+  padding-top: 0;
 }
 </style>

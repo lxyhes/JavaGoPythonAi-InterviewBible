@@ -25,6 +25,9 @@ spring:
 
 # iFlow SDK 配置
 iflow:
+  # 是否启用 iFlow
+  enabled: true
+
   # iFlow ACP Server WebSocket URL
   url: ws://localhost:8090/acp
 

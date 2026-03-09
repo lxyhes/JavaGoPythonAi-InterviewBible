@@ -43,17 +43,82 @@
           />
         </button>
 
-        <!-- 用户状态 -->
-        <div class="user-stats">
-          <div class="stat-item" title="等级">
-            <PhosphorIcon name="star" class="stat-icon" :size="16" weight="fill" />
-            <span class="stat-value">Lv.{{ learningStore.level }}</span>
+        <!-- 用户状态 - 未登录 -->
+        <template v-if="!authStore.isLoggedIn">
+          <a-button type="primary" size="small" @click="goToLogin">
+            {{ t('auth.login') }}
+          </a-button>
+        </template>
+
+        <!-- 用户状态 - 已登录 -->
+        <template v-else>
+          <div class="user-stats">
+            <div class="stat-item" title="等级">
+              <PhosphorIcon name="star" class="stat-icon" :size="16" weight="fill" />
+              <span class="stat-value">Lv.{{ learningStore.level }}</span>
+            </div>
+            <div class="stat-item" title="连续学习">
+              <PhosphorIcon name="lightning" class="stat-icon" :size="16" weight="fill" />
+              <span class="stat-value">{{ learningStore.streakDays }}</span>
+            </div>
           </div>
-          <div class="stat-item" title="连续学习">
-            <PhosphorIcon name="lightning" class="stat-icon" :size="16" weight="fill" />
-            <span class="stat-value">{{ learningStore.streakDays }}</span>
-          </div>
-        </div>
+
+          <!-- 用户下拉菜单 -->
+          <a-dropdown placement="bottomRight" :trigger="['click']">
+            <div class="user-avatar-wrapper">
+              <a-avatar
+                :size="36"
+                :style="{ background: 'var(--primary-gradient)', cursor: 'pointer' }"
+              >
+                <template v-if="authStore.userAvatar">
+                  <img :src="authStore.userAvatar" :alt="authStore.userDisplayName" />
+                </template>
+                <template v-else>
+                  {{ getAvatarText(authStore.userDisplayName) }}
+                </template>
+              </a-avatar>
+            </div>
+            <template #overlay>
+              <a-menu class="user-dropdown-menu">
+                <div class="user-info-header">
+                  <a-avatar
+                    :size="48"
+                    :style="{ background: 'var(--primary-gradient)' }"
+                  >
+                    <template v-if="authStore.userAvatar">
+                      <img :src="authStore.userAvatar" :alt="authStore.userDisplayName" />
+                    </template>
+                    <template v-else>
+                      {{ getAvatarText(authStore.userDisplayName) }}
+                    </template>
+                  </a-avatar>
+                  <div class="user-info-text">
+                    <div class="user-name">{{ authStore.userDisplayName }}</div>
+                    <div class="user-email">{{ authStore.currentUser?.email }}</div>
+                  </div>
+                </div>
+                <a-menu-divider />
+                <a-menu-item key="dashboard" @click="goToDashboard">
+                  <DashboardOutlined />
+                  <span>{{ t('dashboard.title') }}</span>
+                </a-menu-item>
+                <a-menu-item key="profile" @click="goToProfile">
+                  <UserOutlined />
+                  <span>{{ t('auth.profile') }}</span>
+                </a-menu-item>
+                <a-menu-item key="settings" @click="goToSettings">
+                  <SettingOutlined />
+                  <span>{{ t('auth.settings') }}</span>
+                </a-menu-item>
+                <a-menu-divider />
+                <a-menu-item key="logout" @click="handleLogout">
+                  <LogoutOutlined />
+                  <span>{{ t('auth.logout') }}</span>
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </template>
 
         <!-- 移动端菜单按钮 -->
         <button class="mobile-menu-toggle" @click="mobileMenuOpen = !mobileMenuOpen">
@@ -70,14 +135,26 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
+import {
+  UserOutlined,
+  DashboardOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useLearningStore } from '@/stores/learning'
+import { useAuthStore } from '@/stores/auth'
+import { useI18nStore } from '@/stores/i18n'
 import PhosphorIcon from './PhosphorIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const learningStore = useLearningStore()
+const authStore = useAuthStore()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
 const isScrolled = ref(false)
 const mobileMenuOpen = ref(false)
@@ -100,6 +177,35 @@ const isActive = (path: string) => {
 
 const goToSearch = () => {
   router.push('/search')
+}
+
+const goToLogin = () => {
+  router.push('/login')
+}
+
+const goToDashboard = () => {
+  router.push('/dashboard')
+}
+
+const goToProfile = () => {
+  // TODO: Navigate to profile page when available
+  message.info('个人中心功能开发中...')
+}
+
+const goToSettings = () => {
+  // TODO: Navigate to settings page when available
+  message.info('账号设置功能开发中...')
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  message.success('已退出登录')
+  router.push('/')
+}
+
+const getAvatarText = (name: string) => {
+  if (!name) return '?'
+  return name.charAt(0).toUpperCase()
 }
 
 const handleScroll = () => {
@@ -267,6 +373,71 @@ onUnmounted(() => {
 }
 
 .stat-value {
+  color: var(--primary-color);
+}
+
+/* 用户头像 */
+.user-avatar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.user-avatar-wrapper:hover {
+  background: var(--bg-secondary);
+}
+
+/* 用户下拉菜单 */
+:global(.user-dropdown-menu) {
+  min-width: 220px !important;
+  padding: 8px 0 !important;
+}
+
+.user-info-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.user-info-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(.user-dropdown-menu .ant-dropdown-menu-item) {
+  padding: 10px 16px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+:global(.user-dropdown-menu .ant-dropdown-menu-item .anticon) {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+:global(.user-dropdown-menu .ant-dropdown-menu-item:hover .anticon) {
   color: var(--primary-color);
 }
 
