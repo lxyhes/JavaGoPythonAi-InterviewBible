@@ -3,12 +3,13 @@
     <a-page-header
       :title="t('community.title')"
       :sub-title="t('community.subtitle')"
+      class="page-header-fixed"
       @back="() => $router.push('/dashboard')"
     />
 
     <a-row :gutter="[24, 24]" class="community-layout">
-      <a-col :xs="24" :lg="6">
-        <a-space direction="vertical" style="width: 100%">
+      <a-col :xs="24" :lg="6" class="left-sidebar">
+        <div class="sticky-container">
           <a-card :title="t('community.categories')" class="category-filter">
             <a-menu
               v-model:selectedKeys="selectedCategoryKeys"
@@ -41,7 +42,7 @@
               </a-checkable-tag>
             </a-space>
           </a-card>
-        </a-space>
+        </div>
       </a-col>
 
       <a-col :xs="24" :lg="18">
@@ -357,10 +358,22 @@ const submitPost = () => {
   margin-top: 16px;
 }
 
-.category-filter,
-.hot-tags {
+.page-header-fixed {
   position: sticky;
-  top: calc(var(--header-height) + 20px);
+  top: var(--header-height);
+  z-index: 10;
+  background: var(--bg-color);
+  padding: 16px 0;
+  margin-bottom: 0;
+}
+
+.left-sidebar {
+  position: relative;
+}
+
+.sticky-container {
+  position: sticky;
+  top: calc(var(--header-height) + 70px);
 }
 
 .main-content {
@@ -392,8 +405,7 @@ const submitPost = () => {
 }
 
 @media (max-width: 992px) {
-  .category-filter,
-  .hot-tags {
+  .sticky-container {
     position: static;
   }
 }
