@@ -1,146 +1,147 @@
 <template>
   <div class="leaderboard-page">
-    <a-page-header
-      :title="t('leaderboard.title')"
-      :sub-title="t('leaderboard.subtitle')"
-      @back="() => $router.push('/dashboard')"
-    />
-
-    <a-segmented
-      v-model:value="currentType"
-      :options="typeTabOptions"
-      class="type-tabs"
-      block
-    />
-
-    <a-row :gutter="[16, 16]" class="top-three-section">
-      <a-col v-for="(user, index) in topThree" :key="user.userId" :xs="24" :sm="8">
-        <a-card
-          class="top-user-card"
-          :class="`rank-${index + 1}`"
-          :bordered="true"
-        >
-          <a-space direction="vertical" align="center" style="width: 100%">
-            <a-badge
-              :count="index + 1"
-              :number-style="{
-                backgroundColor: index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : '#cd7f32',
-                color: index === 2 ? '#fff' : '#000',
-                fontWeight: 'bold',
-              }"
-            />
-            <a-avatar
-              :size="64"
-              :style="{ background: getTierColor(getRankTier(index + 1)) }"
-            >
-              {{ user.userName[0] }}
-            </a-avatar>
-            <a-typography-title :level="5" style="margin: 0">{{ user.userName }}</a-typography-title>
-            <a-tag color="blue">Lv.{{ user.level }}</a-tag>
-            <a-typography-text strong style="font-size: 1.2rem; color: var(--primary-color)">
-              {{ formatScore(user) }}
+    <div class="sticky-header">
+      <a-page-header
+        :title="t('leaderboard.title')"
+        :sub-title="t('leaderboard.subtitle')"
+        @back="() => $router.push('/dashboard')"
+      >
+        <template #extra>
+          <div class="header-stats">
+            <a-typography-text type="secondary" class="last-updated">
+              <ReloadOutlined :spin="refreshing" @click="refresh" />
+              {{ formatTime(lastUpdated) }}
             </a-typography-text>
-            <a-tag :color="getTierColor(getRankTier(index + 1))">
-              {{ getTierLabel(getRankTier(index + 1)) }}
-            </a-tag>
-          </a-space>
-        </a-card>
-      </a-col>
-    </a-row>
+          </div>
+        </template>
+      </a-page-header>
+      
+      <!-- 选项卡移入固定区域 -->
+      <div class="type-tabs-sticky animate-fade-in">
+        <a-segmented
+          v-model:value="currentType"
+          :options="typeTabOptions"
+          class="type-tabs"
+          block
+        />
+      </div>
+    </div>
 
-    <a-card class="leaderboard-list" :title="leaderboardTitle">
-      <template #extra>
-        <a-typography-text type="secondary">{{ leaderboardDescription }}</a-typography-text>
-      </template>
+    <!-- 领奖台区域 -->
+    <div class="podium-container animate-fade-in-up">
+      <div class="podium-wrapper">
+        <!-- 第二名 -->
+        <div v-if="topThree[1]" class="podium-item rank-2 animate-fade-in-up delay-100">
+          <div class="podium-user-card">
+            <div class="rank-badge silver">2</div>
+            <a-avatar :size="72" class="podium-avatar silver-border">
+              {{ topThree[1].userName[0] }}
+            </a-avatar>
+            <div class="podium-info">
+              <div class="user-name">{{ topThree[1].userName }}</div>
+              <div class="user-score">{{ formatScore(topThree[1]) }}</div>
+              <a-tag class="tier-tag silver">银牌选手</a-tag>
+            </div>
+          </div>
+          <div class="podium-base silver"></div>
+        </div>
 
-      <a-list :data-source="leaderboardEntries">
-        <template #renderItem="{ item }">
+        <!-- 第一名 -->
+        <div v-if="topThree[0]" class="podium-item rank-1 animate-fade-in-up">
+          <div class="podium-user-card">
+            <div class="crown-icon">👑</div>
+            <div class="rank-badge gold">1</div>
+            <a-avatar :size="96" class="podium-avatar gold-border">
+              {{ topThree[0].userName[0] }}
+            </a-avatar>
+            <div class="podium-info">
+              <div class="user-name">{{ topThree[0].userName }}</div>
+              <div class="user-score highlight">{{ formatScore(topThree[0]) }}</div>
+              <a-tag class="tier-tag gold">金牌霸主</a-tag>
+            </div>
+          </div>
+          <div class="podium-base gold"></div>
+        </div>
+
+        <!-- 第三名 -->
+        <div v-if="topThree[2]" class="podium-item rank-3 animate-fade-in-up delay-200">
+          <div class="podium-user-card">
+            <div class="rank-badge bronze">3</div>
+            <a-avatar :size="64" class="podium-avatar bronze-border">
+              {{ topThree[2].userName[0] }}
+            </a-avatar>
+            <div class="podium-info">
+              <div class="user-name">{{ topThree[2].userName }}</div>
+              <div class="user-score">{{ formatScore(topThree[2]) }}</div>
+              <a-tag class="tier-tag bronze">铜牌选手</a-tag>
+            </div>
+          </div>
+          <div class="podium-base bronze"></div>
+        </div>
+      </div>
+    </div>
+
+    <a-card class="leaderboard-list-card animate-fade-in-up delay-300" :bordered="false">
+      <div class="list-header">
+        <h3 class="list-title">{{ leaderboardTitle }}</h3>
+        <span class="list-desc">{{ leaderboardDescription }}</span>
+      </div>
+
+      <a-list :data-source="leaderboardEntries.slice(3)" class="custom-list">
+        <template #renderItem="{ item, index }">
           <a-list-item
+            class="custom-list-item"
             :class="{ 'is-current-user': item.userId === 'current-user' }"
           >
-            <a-space style="width: 100%" align="center">
-              <a-avatar
-                :size="32"
-                :style="{
-                  background: getTierColor(getRankTier(item.rank ?? 0)),
-                  color: '#fff',
-                }"
-              >
-                {{ item.rank }}
-              </a-avatar>
+            <div class="item-rank">{{ index + 4 }}</div>
+            
+            <a-avatar
+              :size="44"
+              class="item-avatar"
+              :style="{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }"
+            >
+              {{ item.userName[0] }}
+            </a-avatar>
 
-              <a-avatar
-                :size="40"
-                :style="{ background: getTierColor(getRankTier(item.rank ?? 0)) }"
-              >
-                {{ item.userName[0] }}
-              </a-avatar>
+            <div class="item-main">
+              <div class="item-name">
+                {{ item.userName }}
+                <a-tag v-if="item.userId === 'current-user'" color="blue" size="small">我</a-tag>
+              </div>
+              <div class="item-meta">
+                <span>Lv.{{ item.level }}</span>
+                <span class="dot">•</span>
+                <span class="trend" :class="item.trend">
+                  <ArrowUpOutlined v-if="item.trend === 'up'" />
+                  <ArrowDownOutlined v-else-if="item.trend === 'down'" />
+                  {{ item.change || '-' }}
+                </span>
+              </div>
+            </div>
 
-              <a-space direction="vertical" size="small" style="flex: 1">
-                <a-typography-text strong>{{ item.userName }}</a-typography-text>
-                <a-tag size="small">Lv.{{ item.level }}</a-tag>
-              </a-space>
-
-              <a-space>
-                <a-typography-text
-                  v-if="item.trend === 'up'"
-                  type="success"
-                >
-                  <ArrowUpOutlined /> {{ item.change }}
-                </a-typography-text>
-                <a-typography-text
-                  v-else-if="item.trend === 'down'"
-                  type="danger"
-                >
-                  <ArrowDownOutlined /> {{ item.change }}
-                </a-typography-text>
-                <a-typography-text v-else type="secondary">-</a-typography-text>
-              </a-space>
-
-              <a-typography-text strong style="color: var(--primary-color); min-width: 80px; text-align: right">
-                {{ formatScore(item) }}
-              </a-typography-text>
-            </a-space>
+            <div class="item-score">
+              {{ formatScore(item) }}
+            </div>
           </a-list-item>
         </template>
       </a-list>
     </a-card>
 
-    <a-card v-if="currentUserRank > 0" class="my-rank-section" :bordered="false">
-      <template #title>
-        <TrophyOutlined /> {{ t('leaderboard.myRank') }}
-      </template>
-      <a-space align="center" size="large">
-        <a-avatar
-          :size="48"
-          :style="{
-            background: getTierColor(getRankTier(currentUserRank)),
-            color: '#fff',
-          }"
-        >
-          {{ currentUserRank }}
-        </a-avatar>
-        <a-space direction="vertical" size="small">
-          <a-tag :color="getTierColor(getRankTier(currentUserRank))">
-            {{ getTierLabel(getRankTier(currentUserRank)) }}
-          </a-tag>
-          <a-typography-text type="secondary">{{ t('leaderboard.keepGoing') }}</a-typography-text>
-        </a-space>
-        <a-typography-title :level="4" style="margin: 0; margin-left: auto">
+    <!-- 底部悬浮我的排名 -->
+    <Transition name="slide-up">
+      <div v-if="currentUserRank > 0" class="my-floating-rank">
+        <div class="rank-info">
+          <div class="rank-number">#{{ currentUserRank }}</div>
+          <div class="rank-user">
+            <div class="label">我的排名</div>
+            <div class="name">继续加油，即将超越前一位！</div>
+          </div>
+        </div>
+        <div class="rank-score">
           {{ formatScore(getCurrentUserEntry()) }}
-        </a-typography-title>
-      </a-space>
-    </a-card>
-
-    <a-space direction="vertical" align="center" class="refresh-section">
-      <a-button @click="refresh">
-        <ReloadOutlined />
-        {{ t('leaderboard.refresh') }}
-      </a-button>
-      <a-typography-text type="secondary">
-        {{ t('leaderboard.lastUpdated', { time: formatTime(lastUpdated) }) }}
-      </a-typography-text>
-    </a-space>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -148,7 +149,6 @@
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
-  TrophyOutlined,
   ReloadOutlined,
   StarFilled,
   FireFilled,
@@ -166,6 +166,7 @@ const t = i18nStore.t
 
 const currentType = ref<LeaderboardType>('xp')
 const lastUpdated = ref(leaderboardStore.lastUpdated)
+const refreshing = ref(false)
 
 const typeTabOptions = computed(() => [
   { value: 'xp', label: h('span', null, [h(StarFilled), ' ', t('leaderboard.tabXp')]) },
@@ -179,8 +180,6 @@ const topThree = computed(() => leaderboardStore.topThree(currentType.value))
 const currentUserRank = computed(() => leaderboardStore.currentUserRank(currentType.value))
 const leaderboardTitle = computed(() => leaderboardStore.getLeaderboardTitle(currentType.value))
 const leaderboardDescription = computed(() => leaderboardStore.getLeaderboardDescription(currentType.value))
-
-const { getRankTier, getTierColor, getTierLabel } = leaderboardStore
 
 const getCurrentUserEntry = (): LeaderboardEntry => {
   return leaderboardEntries.value.find(e => e.userId === 'current-user') ?? {
@@ -200,11 +199,11 @@ const formatScore = (entry: LeaderboardEntry) => {
     case 'xp':
       return `${entry.totalXp} XP`
     case 'streak':
-      return `${entry.streakDays} ${t('common.days')}`
+      return `${entry.streakDays} 天`
     case 'mastered':
-      return `${entry.masteredCount} ${t('leaderboard.questions')}`
+      return `${entry.masteredCount} 题`
     case 'weekly':
-      return `${entry.weeklyReviews} ${t('leaderboard.reviews')}`
+      return `${entry.weeklyReviews} 次`
     default:
       return ''
   }
@@ -213,93 +212,320 @@ const formatScore = (entry: LeaderboardEntry) => {
 const formatTime = (value: string) => {
   const date = new Date(value)
   return date.toLocaleString(i18nStore.locale === 'zh' ? 'zh-CN' : 'en-US', {
-    month: 'short',
-    day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit'
   })
 }
 
-const refresh = () => {
+const refresh = async () => {
+  refreshing.value = true
+  await new Promise(resolve => setTimeout(resolve, 800))
   leaderboardStore.refreshLeaderboard()
   lastUpdated.value = leaderboardStore.lastUpdated
+  refreshing.value = false
 }
 </script>
 
 <style scoped>
 .leaderboard-page {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 0 20px 56px;
+  padding: 0 20px 120px;
 }
 
-.type-tabs {
-  margin: 16px 0 24px;
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.top-three-section {
-  margin-bottom: 24px;
+.type-tabs-sticky {
+  padding: 0 20px 12px;
+  background: var(--bg-color);
 }
 
-.top-user-card {
-  text-align: center;
+.last-updated {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.last-updated .anticon {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
   transition: all 0.3s;
 }
 
-.top-user-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.top-user-card.rank-1 {
-  border-color: #ffd700;
-  transform: scale(1.02);
-}
-
-.top-user-card.rank-2 {
-  border-color: #c0c0c0;
-}
-
-.top-user-card.rank-3 {
-  border-color: #cd7f32;
-}
-
-.leaderboard-list {
-  margin-bottom: 24px;
-}
-
-.my-rank-section {
-  margin-bottom: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.my-rank-section :deep(.ant-card-head) {
-  color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.refresh-section {
-  width: 100%;
-  margin-top: 24px;
-}
-
-.is-current-user {
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 8px;
-}
-
-:deep(.ant-list-item) {
-  padding: 12px 16px;
-  transition: background 0.2s;
-}
-
-:deep(.ant-list-item:hover) {
+.last-updated .anticon:hover {
   background: var(--bg-secondary);
+  color: var(--primary-color);
 }
 
-@media (max-width: 640px) {
-  .top-user-card.rank-1 {
-    transform: none;
-  }
+/* 领奖台样式 */
+.podium-container {
+  margin-bottom: 40px;
+  padding-top: 40px;
+}
+
+.podium-wrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  height: 320px;
+}
+
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 200px;
+}
+
+.podium-user-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.crown-icon {
+  position: absolute;
+  top: -30px;
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  animation: bounce 2s infinite;
+}
+
+.rank-badge {
+  position: absolute;
+  top: 60px;
+  right: 20%;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 2;
+  border: 2px solid white;
+  box-shadow: var(--shadow-md);
+}
+
+.rank-badge.gold { background: linear-gradient(135deg, #ffd700, #f59e0b); color: white; }
+.rank-badge.silver { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: white; }
+.rank-badge.bronze { background: linear-gradient(135deg, #d97706, #78350f); color: white; }
+
+.podium-avatar {
+  background: var(--card-bg);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 12px;
+  border: 4px solid transparent;
+}
+
+.gold-border { border-color: #ffd700 !important; }
+.silver-border { border-color: #cbd5e1 !important; }
+.bronze-border { border-color: #cd7f32 !important; }
+
+.podium-info .user-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.podium-info .user-score {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--primary-600);
+}
+
+.podium-info .user-score.highlight {
+  font-size: 1.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tier-tag {
+  margin-top: 8px;
+  border: none;
+  font-weight: 600;
+}
+
+.tier-tag.gold { background: rgba(251, 191, 36, 0.1); color: #b45309; }
+.tier-tag.silver { background: rgba(148, 163, 184, 0.1); color: #475569; }
+.tier-tag.bronze { background: rgba(217, 119, 6, 0.1); color: #92400e; }
+
+.podium-base {
+  width: 100%;
+  border-radius: 12px 12px 0 0;
+  box-shadow: var(--shadow-md);
+}
+
+.rank-1 .podium-base { height: 140px; background: linear-gradient(180deg, #ffd700 0%, #f59e0b 100%); }
+.rank-2 .podium-base { height: 100px; background: linear-gradient(180deg, #e2e8f0 0%, #94a3b8 100%); }
+.rank-3 .podium-base { height: 70px; background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%); }
+
+/* 列表样式 */
+.leaderboard-list-card {
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.list-header {
+  margin-bottom: 24px;
+}
+
+.list-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.list-desc {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.custom-list-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px !important;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+
+.custom-list-item:hover {
+  background: var(--bg-secondary);
+  transform: translateX(8px);
+  border-color: var(--primary-100);
+}
+
+.custom-list-item.is-current-user {
+  background: rgba(99, 102, 241, 0.05);
+  border-color: var(--primary-200);
+}
+
+.item-rank {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 40px;
+}
+
+.item-avatar {
+  margin-right: 16px;
+  border: 2px solid white;
+}
+
+.item-main {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-meta {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.dot { opacity: 0.3; }
+
+.trend.up { color: var(--success-500); }
+.trend.down { color: var(--error-500); }
+
+.item-score {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary-600);
+}
+
+/* 浮动排名 */
+.my-floating-rank {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 800px;
+  background: var(--gradient-primary);
+  border-radius: 20px;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+  color: white;
+  z-index: 100;
+}
+
+.my-floating-rank .rank-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.my-floating-rank .rank-number {
+  font-size: 2rem;
+  font-weight: 900;
+  opacity: 0.9;
+}
+
+.my-floating-rank .label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.my-floating-rank .name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.my-floating-rank .rank-score {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* 动画 */
+.slide-up-enter-active, .slide-up-leave-active {
+  transition: all 0.5s var(--ease-spring);
+}
+.slide-up-enter-from { transform: translate(-50%, 100px); opacity: 0; }
+.slide-up-leave-to { transform: translate(-50%, 100px); opacity: 0; }
+
+@media (max-width: 768px) {
+  .podium-wrapper { height: 280px; gap: 5px; }
+  .podium-avatar { transform: scale(0.8); }
+  .rank-1 .podium-base { height: 100px; }
+  .rank-2 .podium-base { height: 70px; }
+  .rank-3 .podium-base { height: 50px; }
+  .my-floating-rank { padding: 12px 20px; }
+  .my-floating-rank .rank-number { font-size: 1.5rem; }
+  .my-floating-rank .rank-score { font-size: 1.1rem; }
 }
 </style>
