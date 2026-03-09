@@ -1,34 +1,91 @@
 package com.interview.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.interview.entity.LearningRecord;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.interview.mapper.LearningRecordMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 学习记录 Repository
+ */
 @Repository
-public interface LearningRecordRepository extends JpaRepository<LearningRecord, String> {
+@RequiredArgsConstructor
+public class LearningRecordRepository {
 
-    List<LearningRecord> findByUserId(String userId);
+    private final LearningRecordMapper learningRecordMapper;
 
-    Optional<LearningRecord> findByUserIdAndQuestionId(String userId, String questionId);
+    public Optional<LearningRecord> findById(String id) {
+        return Optional.ofNullable(learningRecordMapper.selectById(id));
+    }
 
-    @Query("SELECT lr FROM LearningRecord lr WHERE lr.userId = :userId AND lr.nextReviewAt <= :now")
-    List<LearningRecord> findDueForReview(@Param("userId") String userId, @Param("now") LocalDateTime now);
+    public List<LearningRecord> findByUserId(String userId) {
+        return learningRecordMapper.selectList(
+            new QueryWrapper<LearningRecord>().eq("user_id", userId)
+        );
+    }
 
-    @Query("SELECT lr FROM LearningRecord lr WHERE lr.userId = :userId AND lr.isWeak = true")
-    List<LearningRecord> findWeakQuestions(@Param("userId") String userId);
+    public Optional<LearningRecord> findByUserIdAndQuestionId(String userId, String questionId) {
+        return Optional.ofNullable(learningRecordMapper.selectOne(
+            new QueryWrapper<LearningRecord>()
+                .eq("user_id", userId)
+                .eq("question_id", questionId)
+        ));
+    }
 
-    @Query("SELECT COUNT(lr) FROM LearningRecord lr WHERE lr.userId = :userId AND lr.masteryStatus = 'mastered'")
-    long countMasteredByUserId(@Param("userId") String userId);
+    public List<LearningRecord> findDueForReview(String userId, LocalDateTime now) {
+        return learningRecordMapper.selectList(
+            new QueryWrapper<LearningRecord>()
+                .eq("user_id", userId)
+                .le("next_review_at", now)
+        );
+    }
 
-    @Query("SELECT COUNT(lr) FROM LearningRecord lr WHERE lr.userId = :userId")
-    long countByUserId(@Param("userId") String userId);
+    public List<LearningRecord> findWeakQuestions(String userId) {
+        return learningRecordMapper.selectList(
+            new QueryWrapper<LearningRecord>()
+                .eq("user_id", userId)
+                .eq("is_weak", true)
+        );
+    }
 
-    @Query("SELECT lr FROM LearningRecord lr WHERE lr.userId = :userId ORDER BY lr.lastReviewedAt DESC")
-    List<LearningRecord> findRecentByUserId(@Param("userId") String userId, org.springframework.data.domain.Pageable pageable);
+    public long countMasteredByUserId(String userId) {
+        return learningRecordMapper.selectCount(
+            new QueryWrapper<LearningRecord>()
+                .eq("user_id", userId)
+                .eq("mastery_status", "mastered")
+        );
+    }
+
+    public long countByUserId(String userId) {
+        return learningRecordMapper.selectCount(
+            new QueryWrapper<LearningRecord>().eq("user_id", userId)
+        );
+    }
+
+    public List<LearningRecord> findRecentByUserId(String userId, int limit) {
+        return learningRecordMapper.selectList(
+            new QueryWrapper<LearningRecord>()
+                .eq("user_id", userId)
+                .orderByDesc("last_reviewed_at")
+                .last("LIMIT " + limit)
+        );
+    }
+
+    public LearningRecord save(LearningRecord record) {
+        if (record.getId() == null) {
+            learningRecordMapper.insert(record);
+        } else {
+            learningRecordMapper.updateById(record);
+        }
+        return record;
+    }
+
+    public void deleteById(String id) {
+        learningRecordMapper.deleteById(id);
+    }
 }

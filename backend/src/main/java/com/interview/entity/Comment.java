@@ -1,12 +1,10 @@
 package com.interview.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -14,21 +12,18 @@ import java.time.LocalDateTime;
  * 评论实体
  */
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "comments")
+@TableName("comments")
 public class Comment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     /**
      * 帖子ID
      */
-    @Column(nullable = false)
     private String postId;
 
     /**
@@ -39,19 +34,16 @@ public class Comment {
     /**
      * 评论内容
      */
-    @Column(nullable = false, length = 5000)
     private String content;
 
     /**
      * 作者ID
      */
-    @Column(nullable = false)
     private String authorId;
 
     /**
      * 作者名称
      */
-    @Column(nullable = false)
     private String authorName;
 
     /**
@@ -60,9 +52,9 @@ public class Comment {
     @Builder.Default
     private Integer likeCount = 0;
 
-    @CreationTimestamp
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

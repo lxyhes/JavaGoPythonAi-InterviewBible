@@ -1,68 +1,55 @@
 package com.interview.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 社区帖子实体
  */
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "posts")
+@TableName("posts")
 public class Post {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     /**
      * 标题
      */
-    @Column(nullable = false, length = 200)
     private String title;
 
     /**
      * 内容
      */
-    @Column(nullable = false, length = 10000)
     private String content;
 
     /**
      * 作者ID
      */
-    @Column(nullable = false)
     private String authorId;
 
     /**
      * 作者名称
      */
-    @Column(nullable = false)
     private String authorName;
 
     /**
      * 分类：discussion/question/share/experience
      */
-    @Column(length = 20)
     private String category;
 
     /**
-     * 标签列表
+     * 标签列表（逗号分隔存储）
      */
-    @ElementCollection
-    @CollectionTable(name = "post_tags", joinColumns = @JoinColumn(name = "post_id"))
-    @Column(name = "tag")
-    private List<String> tags;
+    private String tags;
 
     /**
      * 是否置顶
@@ -88,9 +75,9 @@ public class Post {
     @Builder.Default
     private Integer commentCount = 0;
 
-    @CreationTimestamp
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

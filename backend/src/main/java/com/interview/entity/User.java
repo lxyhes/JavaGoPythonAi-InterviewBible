@@ -1,12 +1,10 @@
 package com.interview.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -14,33 +12,28 @@ import java.time.LocalDateTime;
  * 用户实体
  */
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@TableName("users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     /**
      * 用户名
      */
-    @Column(unique = true, nullable = false, length = 50)
     private String username;
 
     /**
      * 邮箱
      */
-    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
     /**
      * 密码（加密存储）
      */
-    @Column(nullable = false)
     private String password;
 
     /**
@@ -51,7 +44,6 @@ public class User {
     /**
      * 角色：user/admin
      */
-    @Column(length = 20)
     @Builder.Default
     private String role = "user";
 
@@ -90,9 +82,9 @@ public class User {
     @Builder.Default
     private Boolean enabled = true;
 
-    @CreationTimestamp
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

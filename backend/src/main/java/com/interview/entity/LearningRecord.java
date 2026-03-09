@@ -1,12 +1,10 @@
 package com.interview.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -14,33 +12,28 @@ import java.time.LocalDateTime;
  * 学习记录实体
  */
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "learning_records")
+@TableName("learning_records")
 public class LearningRecord {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     /**
      * 用户ID
      */
-    @Column(nullable = false)
     private String userId;
 
     /**
      * 题目ID
      */
-    @Column(nullable = false)
     private String questionId;
 
     /**
      * 掌握状态：unknown/vague/mastered
      */
-    @Column(length = 20)
     @Builder.Default
     private String masteryStatus = "unknown";
 
@@ -72,9 +65,9 @@ public class LearningRecord {
     @Builder.Default
     private Boolean isWeak = false;
 
-    @CreationTimestamp
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

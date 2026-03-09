@@ -1,62 +1,50 @@
 package com.interview.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * 面试题实体
  */
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "questions")
+@TableName("questions")
 public class Question {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     /**
      * 分类：frontend/backend/database/algorithm/system-design/devops/network/os/ai
      */
-    @Column(nullable = false, length = 50)
     private String category;
 
     /**
      * 章节ID
      */
-    @Column(length = 100)
     private String sectionId;
 
     /**
      * 问题内容
      */
-    @Column(nullable = false, length = 2000)
     private String question;
 
     /**
      * 答案内容
      */
-    @Column(nullable = false, length = 10000)
     private String answer;
 
     /**
-     * 标签列表
+     * 标签列表（逗号分隔存储）
      */
-    @ElementCollection
-    @CollectionTable(name = "question_tags", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "tag")
-    private List<String> tags;
+    private String tags;
 
     /**
      * 来源URL
@@ -66,13 +54,11 @@ public class Question {
     /**
      * 提交者ID
      */
-    @Column(length = 50)
     private String submitterId;
 
     /**
      * 状态：pending/approved/rejected
      */
-    @Column(length = 20)
     @Builder.Default
     private String status = "approved";
 
@@ -100,10 +86,10 @@ public class Question {
     @Builder.Default
     private Integer practiceCount = 0;
 
-    @CreationTimestamp
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
     /**

@@ -1,36 +1,91 @@
 package com.interview.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.interview.entity.Question;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.interview.mapper.QuestionMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * 面试题 Repository
+ */
 @Repository
-public interface QuestionRepository extends JpaRepository<Question, String> {
+@RequiredArgsConstructor
+public class QuestionRepository {
 
-    Page<Question> findByStatus(String status, Pageable pageable);
+    private final QuestionMapper questionMapper;
 
-    Page<Question> findByCategoryAndStatus(String category, String status, Pageable pageable);
+    public Optional<Question> findById(String id) {
+        return Optional.ofNullable(questionMapper.selectById(id));
+    }
 
-    @Query("SELECT q FROM Question q WHERE q.status = :status AND " +
-           "(LOWER(q.question) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(q.answer) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "EXISTS (SELECT t FROM q.tags t WHERE LOWER(t) LIKE LOWER(CONCAT('%', :keyword, '%'))))")
-    Page<Question> searchByKeyword(@Param("status") String status, @Param("keyword") String keyword, Pageable pageable);
+    public Page<Question> findByStatus(String status, Page<Question> page) {
+        return questionMapper.selectPage(page,
+            new QueryWrapper<Question>().eq("status", status)
+        );
+    }
 
-    @Query("SELECT q FROM Question q WHERE q.status = 'approved' ORDER BY q.hotScore DESC")
-    Page<Question> findHotQuestions(Pageable pageable);
+    public Page<Question> findByCategoryAndStatus(String category, String status, Page<Question> page) {
+        return questionMapper.selectPage(page,
+            new QueryWrapper<Question>()
+                .eq("category", category)
+                .eq("status", status)
+        );
+    }
 
-    List<Question> findByCategoryAndSectionIdAndStatus(String category, String sectionId, String status);
+    public Page<Question> searchByKeyword(String status, String keyword, Page<Question> page) {
+        return questionMapper.selectPage(page,
+            new QueryWrapper<Question>()
+                .eq("status", status)
+                .and(wrapper -> wrapper
+                    .like("question", keyword)
+                    .or()
+                    .like("answer", keyword)
+                    .or()
+                    .like("tags", keyword)
+                )
+        );
+    }
 
-    @Query("SELECT DISTINCT q.category FROM Question q WHERE q.status = 'approved'")
-    List<String> findAllCategories();
+    public Page<Question> findHotQuestions(Page<Question> page) {
+        return questionMapper.selectPage(page,
+            new QueryWrapper<Question>()
+                .eq("status", "approved")
+                .orderByDesc("hot_score")
+        );
+    }
 
-    @Query("SELECT DISTINCT t FROM Question q JOIN q.tags t WHERE q.status = 'approved'")
-    List<String> findAllTags();
+    public List<Question> findByCategoryAndSectionIdAndStatus(String category, String sectionId, String status) {
+        return questionMapper.selectList(
+            new QueryWrapper<Question>()
+                .eq("category", category)
+                .eq("section_id", sectionId)
+                .eq("status", status)
+        );
+    }
+
+    public List<String> findAllCategories() {
+        return questionMapper.selectObjs(
+            new QueryWrapper<Question>()
+                .select("DISTINCT category")
+                .eq("status", "approved")
+        ).stream().map(Object::toString).toList();
+    }
+
+    public Question save(Question question) {
+        if (question.getId() == null) {
+            questionMapper.insert(question);
+        } else {
+            questionMapper.updateById(question);
+        }
+        return question;
+    }
+
+    public void deleteById(String id) {
+        questionMapper.deleteById(id);
+    }
 }
