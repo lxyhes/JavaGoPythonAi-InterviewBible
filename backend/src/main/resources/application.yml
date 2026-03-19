@@ -5,26 +5,42 @@ spring:
   application:
     name: interview-guide-backend
 
-  # 数据库配置
+  # 激活的 profile
+  profiles:
+    active: dev
+
+  # 数据库配置 (MySQL)
   datasource:
-    url: jdbc:h2:mem:interviewdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://localhost:3306/interview_guide?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
 
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+  # SQL 初始化配置
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      continue-on-error: true
 
-  # H2 控制台
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+# MyBatis-Plus 配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: assign_uuid
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mapper/**/*.xml
 
 # iFlow SDK 配置
 iflow:
+  # 是否启用 iFlow
+  enabled: true
+
   # iFlow ACP Server WebSocket URL
   url: ws://localhost:8090/acp
 
