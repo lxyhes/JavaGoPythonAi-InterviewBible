@@ -5,12 +5,12 @@
         <PhosphorIcon name="robot" :size="32" weight="fill" />
       </div>
       <div class="coach-title">
-        <h3>AI 面试导师建议</h3>
-        <p>基于你最近的学习表现和面试目标生成</p>
+        <h3>{{ i18nStore.t('dashboard.coachTitle') }}</h3>
+        <p>{{ i18nStore.t('dashboard.coachSubtitle') }}</p>
       </div>
       <a-button type="ghost" size="small" @click="fetchCoachPlan" :disabled="loading">
         <template #icon><PhosphorIcon name="arrow-clockwise" :size="16" /></template>
-        刷新建议
+        {{ i18nStore.locale === 'zh' ? '刷新建议' : 'Refresh' }}
       </a-button>
     </div>
 
@@ -21,7 +21,7 @@
     <div v-else class="coach-content">
       <div v-if="plan" class="markdown-body" v-html="formattedPlan"></div>
       <div v-else class="placeholder-text">
-        准备好开始今天的练习了吗？点击刷新获取个性化建议。
+        {{ i18nStore.locale === 'zh' ? '准备好开始今天的练习了吗？点击刷新获取个性化建议。' : 'Ready to start? Click refresh for AI coaching.' }}
       </div>
     </div>
 
@@ -46,10 +46,12 @@ import PhosphorIcon from '@/components/PhosphorIcon.vue'
 import { interviewApi } from '@/services/api'
 import { useLearningStore } from '@/stores/learning'
 import { useMockInterviewStore } from '@/stores/mockInterview'
+import { useI18nStore } from '@/stores/i18n'
 import { message } from 'ant-design-vue'
 
 const learningStore = useLearningStore()
 const mockStore = useMockInterviewStore()
+const i18nStore = useI18nStore()
 const loading = ref(false)
 const plan = ref('')
 const error = ref('')

@@ -33,63 +33,7 @@
       </div>
     </section>
 
-    <!-- 快捷操作区 -->
-    <a-card title="快速开始" class="section-card">
-      <template #extra>选择适合你的学习方式</template>
-      <a-row :gutter="[16, 16]">
-        <a-col v-for="item in actionItems" :key="item.key" :xs="24" :sm="12" :lg="8">
-          <router-link :to="item.to" class="action-link">
-            <a-card
-              hoverable
-              :class="['action-card', { 'primary-card': item.isPrimary, 'highlight-card': item.isHighlight }]"
-            >
-              <a-card-meta
-                :title="item.title"
-                :description="item.desc"
-              >
-                <template #avatar>
-                  <a-avatar :class="item.isPrimary ? 'primary-avatar' : 'default-avatar'">
-                    <component :is="item.icon" />
-                  </a-avatar>
-                </template>
-              </a-card-meta>
-            </a-card>
-          </router-link>
-        </a-col>
-      </a-row>
-    </a-card>
 
-    <!-- 学习数据概览 -->
-    <a-row :gutter="[16, 16]" class="stats-row">
-      <a-col :xs="12" :sm="6">
-        <a-card class="stat-card">
-          <a-statistic title="当前等级" :value="`Lv.${learningStore.level}`">
-            <template #prefix><StarFilled style="color: #faad14" /></template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card class="stat-card">
-          <a-statistic title="连续学习" :value="learningStore.streakDays" suffix="天">
-            <template #prefix><ThunderboltFilled style="color: #ff4d4f" /></template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card class="stat-card">
-          <a-statistic title="已掌握" :value="learningStore.masteredQuestionCount" suffix="题">
-            <template #prefix><CheckCircleFilled style="color: #52c41a" /></template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-      <a-col :xs="12" :sm="6">
-        <a-card class="stat-card">
-          <a-statistic title="薄弱项" :value="learningStore.weakQuestionCount" suffix="题">
-            <template #prefix><WarningFilled style="color: #faad14" /></template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-    </a-row>
 
     <!-- 主要内容区 -->
     <a-row :gutter="[16, 16]">
@@ -124,48 +68,10 @@
           </a-space>
         </a-card>
 
-        <!-- AI 学习教练 -->
-        <LearningCoachPanel
-          category="mixed"
-          :heat-level="learningStore.heatLevel"
-          :next-action="learningStore.nextAction"
-          :level="learningStore.level"
-          :streak-days="learningStore.streakDays"
-          :reviewed-today="learningStore.reviewedTodayCount"
-          :daily-goal-target="learningStore.dailyGoalTarget"
-          :weak-count="learningStore.weakQuestionCount"
-          :due-count="learningStore.reviewQueueIds.length"
-          :unlocked-achievements="learningStore.unlockedAchievementCount"
-        />
+        <!-- AI 学习教练 (落地点) -->
+        <DailyCoachCard />
 
-        <!-- 成长进度 -->
-        <a-card title="成长进度" class="panel-card">
-          <template #extra>
-            <router-link to="/dashboard">查看详情 <RightOutlined /></router-link>
-          </template>
-          <div class="level-display">
-            <a-space size="large">
-              <a-tag color="blue" size="large">Lv.{{ learningStore.level }}</a-tag>
-              <span class="xp-value">{{ learningStore.totalXp }} XP</span>
-            </a-space>
-          </div>
-          <a-progress
-            :percent="learningStore.levelProgressRate"
-            :format="() => `距离 Lv.${learningStore.level + 1} 还需 ${learningStore.nextLevelRequiredXp - learningStore.currentLevelXp} XP`"
-            status="active"
-          />
-          <div v-if="nextLockedAchievement" class="achievement-preview">
-            <p class="achievement-count">已解锁 {{ learningStore.unlockedAchievementCount }}/{{ learningStore.achievements.length }} 个成就</p>
-            <a-alert
-              type="info"
-              show-icon
-            >
-              <template #message>{{ nextLockedAchievement.title }}</template>
-              <template #description>{{ nextLockedAchievement.description }}</template>
-              <template #icon><TrophyOutlined /></template>
-            </a-alert>
-          </div>
-        </a-card>
+
       </a-col>
 
       <!-- 右侧 -->
@@ -292,7 +198,7 @@ import {
   ApartmentOutlined,
 } from '@ant-design/icons-vue'
 import HeroSection from '@/components/HeroSection.vue'
-import LearningCoachPanel from '@/components/LearningCoachPanel.vue'
+import DailyCoachCard from '@/components/DailyCoachCard.vue'
 import PhosphorIcon from '@/components/PhosphorIcon.vue'
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
