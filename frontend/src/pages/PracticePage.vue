@@ -276,8 +276,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, onUpdated } from 'vue'
 import { marked } from 'marked'
+import mermaid from 'mermaid'
 import { useRoute, useRouter } from 'vue-router'
 import {
   FileTextOutlined,
@@ -310,16 +311,6 @@ const i18nStore = useI18nStore()
 const authStore = useAuthStore()
 const t = i18nStore.t
 
-const formattedAnswer = computed(() => {
-  if (!currentItem.value?.answer) return ''
-  return marked.parse(currentItem.value.answer, {
-    breaks: true,
-    gfm: true
-  })
-})
-
-const MAX_REVISITS_PER_ITEM = 2
-
 const keyword = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const selectedCategory = ref<'all' | SearchCategory>(typeof route.query.category === 'string' ? (route.query.category as 'all' | SearchCategory) : 'all')
 const selectedTag = ref<'all' | SearchTag>(typeof route.query.tag === 'string' ? (route.query.tag as 'all' | SearchTag) : 'all')
@@ -332,40 +323,6 @@ const revisitCounts = ref<Record<string, number>>({})
 const answerKey = ref<string[]>([])
 
 const itemLookup = new Map(searchItems.map((item) => [item.id, item]))
-
-const categoryOptions = computed(() => [
-  { value: 'frontend' as const, label: t('common.categories.frontend') },
-  { value: 'backend' as const, label: t('common.categories.backend') },
-  { value: 'database' as const, label: t('common.categories.database') },
-  { value: 'algorithm' as const, label: t('common.categories.algorithm') },
-  { value: 'system-design' as const, label: t('common.categories.system-design') },
-  { value: 'devops' as const, label: t('common.categories.devops') },
-  { value: 'network' as const, label: t('common.categories.network') },
-  { value: 'os' as const, label: t('common.categories.os') },
-  { value: 'ai' as const, label: t('common.categories.ai') },
-])
-
-const categoryLabel = (category: SearchCategory) => t(`common.categories.${category}`)
-const tagLabel = (tag: SearchTag) => t(`common.tags.${tag}`)
-const masteryLabel = (mastery: MasteryLevel) => t(`common.mastery.${mastery}`)
-
-const tagColor = (tag: SearchTag) => {
-  const colors: Record<string, string> = {
-    must: 'red',
-    frequent: 'green',
-    important: 'orange',
-  }
-  return colors[tag] || 'default'
-}
-
-const masteryColor = (mastery: MasteryLevel) => {
-  const colors: Record<string, string> = {
-    unknown: 'blue',
-    vague: 'orange',
-    mastered: 'success',
-  }
-  return colors[mastery] || 'default'
-}
 
 const normalize = (value: string) => value.toLowerCase().trim()
 
@@ -406,6 +363,85 @@ const items = computed(() => {
 })
 
 const currentItem = computed<SearchItem | null>(() => items.value[currentIndex.value] ?? null)
+
+const formattedAnswer = computed(() => {
+  if (!currentItem.value?.answer) return ''
+  return marked.parse(currentItem.value.answer, {
+    breaks: true,
+    gfm: true
+  })
+})
+
+const renderMermaid = async () => {
+  await nextTick()
+  const elements = document.querySelectorAll('.answer-markdown pre code.language-mermaid')
+  if (elements.length === 0) return
+
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral' })
+  
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i] as HTMLElement
+    const container = el.parentElement as HTMLElement
+    const content = el.innerText
+    
+    try {
+      const id = `mermaid-${currentIndex.value}-${i}`
+      const { svg } = await mermaid.render(id, content)
+      container.innerHTML = svg
+    } catch (e) {
+      console.error('Mermaid render error:', e)
+    }
+  }
+}
+
+watch([formattedAnswer, showAnswer], () => {
+  if (showAnswer.value) {
+    setTimeout(renderMermaid, 100)
+  }
+})
+
+onUpdated(() => {
+  if (showAnswer.value) {
+    renderMermaid()
+  }
+})
+
+const MAX_REVISITS_PER_ITEM = 2
+
+const categoryOptions = computed(() => [
+  { value: 'frontend' as const, label: t('common.categories.frontend') },
+  { value: 'backend' as const, label: t('common.categories.backend') },
+  { value: 'database' as const, label: t('common.categories.database') },
+  { value: 'algorithm' as const, label: t('common.categories.algorithm') },
+  { value: 'system-design' as const, label: t('common.categories.system-design') },
+  { value: 'devops' as const, label: t('common.categories.devops') },
+  { value: 'network' as const, label: t('common.categories.network') },
+  { value: 'os' as const, label: t('common.categories.os') },
+  { value: 'ai' as const, label: t('common.categories.ai') },
+])
+
+const categoryLabel = (category: SearchCategory) => t(`common.categories.${category}`)
+const tagLabel = (tag: SearchTag) => t(`common.tags.${tag}`)
+const masteryLabel = (mastery: MasteryLevel) => t(`common.mastery.${mastery}`)
+
+const tagColor = (tag: SearchTag) => {
+  const colors: Record<string, string> = {
+    must: 'red',
+    frequent: 'green',
+    important: 'orange',
+  }
+  return colors[tag] || 'default'
+}
+
+const masteryColor = (mastery: MasteryLevel) => {
+  const colors: Record<string, string> = {
+    unknown: 'blue',
+    vague: 'orange',
+    mastered: 'success',
+  }
+  return colors[mastery] || 'default'
+}
+
 const record = computed(() => (currentItem.value ? learningStore.getRecord(currentItem.value.id) : null))
 
 const getMasteryForIndex = (index: number) => {
@@ -733,10 +769,16 @@ onUnmounted(() => {
   color: var(--primary-600);
 }
 
-.answer-section {
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  overflow: hidden;
+:deep(.markdown-body pre:has(code.language-mermaid)) {
+  background-color: white !important;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+}
+
+:deep(.mermaid-svg) {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .answer-toggle {
