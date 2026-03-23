@@ -1,10 +1,11 @@
-﻿import { aiBasicsQA, aiProjectQA, deepLearningQA, promptEngineeringQA } from '@/data/ai'
+import { aiBasicsQA, aiProjectQA, deepLearningQA, promptEngineeringQA } from '@/data/ai'
 import { aiMoreQA, llmQA } from '@/data/ai-more'
 import { dataStructureQA, leetcodeQA, sortQA } from '@/data/algorithm'
 import { backendProjectQA, microservicesQA } from '@/data/backend'
 import { javaDistributedQA, javaJVMQA, javaNetworkQA } from '@/data/backend-java-advanced'
 import { javaAdvancedQA, javaBasicsQA, javaConcurrentQA, javaSpringQA } from '@/data/backend-java'
 import { mongodbQA, mysqlQA, redisQA } from '@/data/database'
+import { htmlCssQA, jsBasicsQA, vueReactQA, engineeringQA } from '@/data/frontend'
 import type { SearchCategory, SearchItem, SearchTag } from '@/types/search'
 import { buildQuestionAnchor } from '@/utils/questionAnchor'
 
@@ -54,6 +55,11 @@ const datasets: Dataset[] = [
   { category: 'ai', path: '/ai', sectionId: 'llm', sectionTitle: '大语言模型', items: llmQA },
   { category: 'ai', path: '/ai', sectionId: 'prompt-engineering', sectionTitle: '提示工程', items: promptEngineeringQA },
   { category: 'ai', path: '/ai', sectionId: 'ai-project', sectionTitle: 'AI 项目实战', items: aiProjectQA },
+
+  { category: 'frontend', path: '/frontend', sectionId: 'html-css', sectionTitle: 'HTML/CSS', items: htmlCssQA },
+  { category: 'frontend', path: '/frontend', sectionId: 'js-basics', sectionTitle: 'JavaScript 基础', items: jsBasicsQA },
+  { category: 'frontend', path: '/frontend', sectionId: 'vue-react', sectionTitle: 'Vue/React 框架', items: vueReactQA },
+  { category: 'frontend', path: '/frontend', sectionId: 'engineering', sectionTitle: '前端工程化', items: engineeringQA },
 ]
 
 export const searchItems: SearchItem[] = datasets.flatMap((dataset) => {

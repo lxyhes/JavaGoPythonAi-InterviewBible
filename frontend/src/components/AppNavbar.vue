@@ -191,10 +191,11 @@ let ticking = false
 const navItems = [
   { path: '/', icon: 'house', label: '首页' },
   { path: '/practice', icon: 'pencil-simple', label: '练习' },
+  { path: '/mock-interview', icon: 'exam', label: '模拟' },
   { path: '/review', icon: 'arrow-counter-clockwise', label: '复习' },
   { path: '/dashboard', icon: 'squares-four', label: '看板' },
+  { path: '/notes', icon: 'notebook', label: '笔记' },
   { path: '/community', icon: 'users', label: '社区' },
-  { path: '/leaderboard', icon: 'trophy', label: '排行' },
 ]
 
 const isActive = (path: string) => {

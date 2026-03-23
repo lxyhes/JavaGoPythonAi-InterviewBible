@@ -116,6 +116,16 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/LeaderboardPage.vue'),
   },
   {
+    path: '/mock-interview',
+    name: 'MockInterview',
+    component: () => import('@/pages/MockInterviewPage.vue'),
+  },
+  {
+    path: '/notes',
+    name: 'Notes',
+    component: () => import('@/pages/NotesPage.vue'),
+  },
+  {
     path: '/components-demo',
     name: 'ComponentsDemo',
     component: () => import('@/pages/ComponentsDemoPage.vue'),

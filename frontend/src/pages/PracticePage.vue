@@ -165,6 +165,10 @@
         </div>
       </div>
 
+      <div class="note-section" style="margin-top: 24px;">
+        <NoteEditor :question-id="currentItem.id" />
+      </div>
+
       <a-divider />
 
       <!-- 操作区域 -->
@@ -295,6 +299,7 @@ import { useLearningStore } from '@/stores/learning'
 import type { MasteryLevel } from '@/stores/learning'
 import type { SearchCategory, SearchItem, SearchTag } from '@/types/search'
 import { loadPracticeSession, savePracticeSession } from '@/utils/practiceSession'
+import NoteEditor from '@/components/NoteEditor.vue'
 
 const route = useRoute()
 const router = useRouter()
