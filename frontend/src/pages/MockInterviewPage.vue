@@ -189,6 +189,33 @@
           <pre class="answer-content">{{ store.currentQuestion.item.answer }}</pre>
         </div>
 
+        <!-- AI 导师评估 -->
+        <div v-if="store.currentQuestion.revealed" class="ai-eval-section">
+          <div class="ai-eval-header">
+            <h4>
+              <PhosphorIcon name="robot" :size="18" weight="fill" />
+              AI 导师评估
+            </h4>
+            <div class="ai-controls">
+              <button 
+                v-if="!store.currentQuestion.aiComment && !store.currentQuestion.isEvaluating" 
+                class="ai-eval-btn"
+                @click="store.evaluateAnswer(store.currentIndex)"
+              >
+                <PhosphorIcon name="sparkle" :size="16" weight="fill" />
+                让大模型为你打分并点评
+              </button>
+              <span v-else-if="store.currentQuestion.isEvaluating" class="evaluating-text">
+                <PhosphorIcon name="spinner-gap" class="spin-icon" :size="16" />
+                AI 正在评估中...
+              </span>
+            </div>
+          </div>
+          <div v-if="store.currentQuestion.aiComment" class="ai-comment-box">
+            <pre class="answer-content ai-text">{{ store.currentQuestion.aiComment }}</pre>
+          </div>
+        </div>
+
         <!-- 评分操作 -->
         <div v-if="store.currentQuestion.revealed" class="rating-section">
           <p class="rating-label">对比参考答案，评估你的掌握程度：</p>
@@ -907,6 +934,83 @@ function ratingLabel(rating: string | null) {
   font-family: inherit;
   font-size: 0.9rem;
   color: var(--text-secondary);
+}
+
+.ai-eval-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--primary-300);
+  border-radius: 16px;
+}
+
+.ai-eval-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.ai-eval-section .ai-comment-box {
+  margin-top: 16px;
+}
+
+.ai-eval-header h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-600);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ai-eval-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.ai-eval-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+.evaluating-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary-500);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.spin-icon {
+  animation: spin-anim 1s linear infinite;
+}
+
+@keyframes spin-anim {
+  100% { transform: rotate(360deg); }
+}
+
+.ai-comment-box {
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px dashed var(--primary-300);
+}
+
+.ai-text {
+  color: var(--text-primary);
 }
 
 .rating-section {

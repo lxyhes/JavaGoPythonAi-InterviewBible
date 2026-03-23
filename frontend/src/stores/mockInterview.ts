@@ -2,6 +2,8 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { searchItems } from '@/data/search-index'
 import type { SearchCategory, SearchItem } from '@/types/search'
+import { interviewApi } from '@/services/api'
+import { message } from 'ant-design-vue'
 
 export type InterviewDifficulty = 'easy' | 'medium' | 'hard' | 'mixed'
 export type InterviewStatus = 'config' | 'in-progress' | 'reviewing' | 'completed'
@@ -12,6 +14,8 @@ export interface InterviewQuestion {
   timeSpent: number // seconds
   selfRating: 'unknown' | 'vague' | 'mastered' | null
   revealed: boolean
+  aiComment?: string
+  isEvaluating?: boolean
 }
 
 export interface InterviewConfig {
@@ -168,6 +172,39 @@ export const useMockInterviewStore = defineStore('mockInterview', () => {
     }
   }
 
+  function evaluateAnswer(index: number) {
+    const q = questions.value[index]
+    if (!q) return
+
+    if (!q.userAnswer.trim()) {
+      message.warning('您还没有作答，无法进行 AI 打分')
+      return
+    }
+
+    q.isEvaluating = true
+    q.aiComment = ''
+
+    const prompt = `你是一个资深的IT技术面试官。请严格对比【参考答案】，对【候选人的回答】进行客观打分评价。
+【面试题目】：${q.item.question}
+【参考答案】：${q.item.answer}
+【候选人的回答】：${q.userAnswer}
+
+请不要过于客套。首先给出一个预估得分（0-100分，格式要求非常明确：【得分：85分】），然后分点指出回答的优点，以及由于遗漏或错误导致的扣分点，最后给出具体的改进建议。`
+
+    interviewApi.queryStream(prompt, {
+      onChunk: (chunk) => {
+        q.aiComment = (q.aiComment || '') + chunk
+      },
+      onDone: () => {
+        q.isEvaluating = false
+      },
+      onError: (err) => {
+        q.aiComment = (q.aiComment || '') + '\n\n[AI 点评失败：' + err + ']'
+        q.isEvaluating = false
+      }
+    })
+  }
+
   function rateAndNext(rating: 'unknown' | 'vague' | 'mastered') {
     if (!currentQuestion.value) return
 
@@ -291,6 +328,7 @@ export const useMockInterviewStore = defineStore('mockInterview', () => {
     daysUntilInterview,
     startInterview,
     revealAnswer,
+    evaluateAnswer,
     rateAndNext,
     goToQuestion,
     finishInterview,

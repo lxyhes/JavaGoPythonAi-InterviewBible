@@ -1,6 +1,6 @@
 package com.interview.controller;
 
-import com.interview.iflow.service.IFlowClient;
+import com.interview.ai.service.AiAssistantService;
 import com.interview.model.ApiResponse;
 import com.interview.model.CoachPlanRequest;
 import com.interview.model.InterviewRequest;
@@ -24,19 +24,19 @@ import java.util.concurrent.CompletableFuture;
 public class InterviewController {
 
     @Nullable
-    private final IFlowClient iflowClient;
+    private final AiAssistantService aiAssistantService;
 
-    public InterviewController(@Nullable IFlowClient iflowClient) {
-        this.iflowClient = iflowClient;
+    public InterviewController(@Nullable AiAssistantService aiAssistantService) {
+        this.aiAssistantService = aiAssistantService;
     }
 
-    private boolean isIFlowAvailable() {
-        return iflowClient != null;
+    private boolean isAIAvailable() {
+        return aiAssistantService != null && aiAssistantService.isConnected();
     }
 
     @PostMapping("/explain")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> explainQuestion(@RequestBody InterviewRequest request) {
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             return CompletableFuture.completedFuture(
                 ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
             );
@@ -45,7 +45,7 @@ public class InterviewController {
         String question = requireNotBlank(request.getQuestion(), "question");
         String category = defaultIfBlank(request.getCategory(), "general");
 
-        return iflowClient.explainInterviewQuestion(question, category)
+        return aiAssistantService.explainInterviewQuestion(question, category)
                 .thenApply(explanation -> ResponseEntity.ok(ApiResponse.success(explanation)))
                 .exceptionally(ex -> ResponseEntity.badRequest().body(ApiResponse.error(rootMessage(ex))));
     }
@@ -57,13 +57,13 @@ public class InterviewController {
         String c = defaultIfBlank(category, "general");
         SseEmitter emitter = new SseEmitter(0L);
 
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             sendEvent(emitter, "error", "AI 功能当前不可用");
             emitter.complete();
             return emitter;
         }
 
-        iflowClient.streamExplainInterviewQuestion(
+        aiAssistantService.streamExplainInterviewQuestion(
                 q,
                 c,
                 chunk -> sendEvent(emitter, "chunk", chunk),
@@ -83,7 +83,7 @@ public class InterviewController {
 
     @PostMapping("/generate")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> generateQuestions(@RequestBody InterviewRequest request) {
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             return CompletableFuture.completedFuture(
                 ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
             );
@@ -93,7 +93,7 @@ public class InterviewController {
         topic = requireNotBlank(topic, "topic");
         int count = normalizeCount(request.getCount());
 
-        return iflowClient.generateInterviewQuestions(topic, count)
+        return aiAssistantService.generateInterviewQuestions(topic, count)
                 .thenApply(questions -> ResponseEntity.ok(ApiResponse.success(questions)))
                 .exceptionally(ex -> ResponseEntity.badRequest().body(ApiResponse.error(rootMessage(ex))));
     }
@@ -105,13 +105,13 @@ public class InterviewController {
         int c = normalizeCount(count == null ? 5 : count);
         SseEmitter emitter = new SseEmitter(0L);
 
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             sendEvent(emitter, "error", "AI 功能当前不可用");
             emitter.complete();
             return emitter;
         }
 
-        iflowClient.streamGenerateInterviewQuestions(
+        aiAssistantService.streamGenerateInterviewQuestions(
                 t,
                 c,
                 chunk -> sendEvent(emitter, "chunk", chunk),
@@ -131,7 +131,7 @@ public class InterviewController {
 
     @PostMapping("/analyze-code")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> analyzeCode(@RequestBody InterviewRequest request) {
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             return CompletableFuture.completedFuture(
                 ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
             );
@@ -140,14 +140,14 @@ public class InterviewController {
         String codeContent = requireNotBlank(request.getCodeContent(), "codeContent");
         String filePath = defaultIfBlank(request.getFilePath(), "unknown-file");
 
-        return iflowClient.analyzeCode(filePath, codeContent)
+        return aiAssistantService.analyzeCode(filePath, codeContent)
                 .thenApply(analysis -> ResponseEntity.ok(ApiResponse.success(analysis)))
                 .exceptionally(ex -> ResponseEntity.badRequest().body(ApiResponse.error(rootMessage(ex))));
     }
 
     @PostMapping("/query")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> query(@RequestBody InterviewRequest request) {
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             return CompletableFuture.completedFuture(
                 ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
             );
@@ -155,7 +155,7 @@ public class InterviewController {
 
         String question = requireNotBlank(request.getQuestion(), "question");
 
-        return iflowClient.query(question)
+        return aiAssistantService.query(question)
                 .thenApply(response -> ResponseEntity.ok(ApiResponse.success(response)))
                 .exceptionally(ex -> ResponseEntity.badRequest().body(ApiResponse.error(rootMessage(ex))));
     }
@@ -165,13 +165,13 @@ public class InterviewController {
         String query = requireNotBlank(question, "q");
         SseEmitter emitter = new SseEmitter(0L);
 
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             sendEvent(emitter, "error", "AI 功能当前不可用");
             emitter.complete();
             return emitter;
         }
 
-        iflowClient.streamQuery(
+        aiAssistantService.streamQuery(
                 query,
                 chunk -> sendEvent(emitter, "chunk", chunk),
                 () -> {
@@ -190,7 +190,7 @@ public class InterviewController {
 
     @PostMapping("/coach-plan")
     public CompletableFuture<ResponseEntity<ApiResponse<String>>> coachPlan(@RequestBody CoachPlanRequest request) {
-        if (!isIFlowAvailable()) {
+        if (!isAIAvailable()) {
             return CompletableFuture.completedFuture(
                 ResponseEntity.ok(ApiResponse.success("AI 功能当前不可用，请稍后重试"))
             );
@@ -198,14 +198,14 @@ public class InterviewController {
 
         String prompt = buildCoachPrompt(request);
 
-        return iflowClient.query(prompt)
+        return aiAssistantService.query(prompt)
                 .thenApply(plan -> ResponseEntity.ok(ApiResponse.success(plan)))
                 .exceptionally(ex -> ResponseEntity.badRequest().body(ApiResponse.error(rootMessage(ex))));
     }
 
     @GetMapping("/health")
     public ResponseEntity<ApiResponse<Boolean>> health() {
-        boolean connected = isIFlowAvailable() && iflowClient.isConnected();
+        boolean connected = isAIAvailable();
         return ResponseEntity.ok(ApiResponse.success(connected));
     }
 
