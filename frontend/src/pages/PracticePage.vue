@@ -322,8 +322,6 @@ const revisitQueue = ref<string[]>([])
 const revisitCounts = ref<Record<string, number>>({})
 const answerKey = ref<string[]>([])
 
-const itemLookup = new Map(searchItems.map((item) => [item.id, item]))
-
 const normalize = (value: string) => value.toLowerCase().trim()
 
 const baseItems = computed(() => {
@@ -630,6 +628,8 @@ onUnmounted(() => {
 
 .filter-card {
   margin-bottom: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .filter-item {
@@ -644,7 +644,7 @@ onUnmounted(() => {
   gap: 6px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .mode-alert {
@@ -654,8 +654,9 @@ onUnmounted(() => {
 .progress-section {
   margin-bottom: 20px;
   padding: 16px;
-  background: #f5f5f5;
-  border-radius: 8px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .progress-header {
@@ -668,16 +669,19 @@ onUnmounted(() => {
 .progress-text {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .progress-fraction {
   font-size: 0.875rem;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .question-card {
   margin-bottom: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .question-header {
@@ -700,10 +704,10 @@ onUnmounted(() => {
 
 .question-title {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: var(--text-primary);
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .answer-markdown {
@@ -721,64 +725,35 @@ onUnmounted(() => {
   margin-top: 1.5em;
   margin-bottom: 0.5em;
   font-weight: 700;
-  color: var(--primary-700);
+  color: var(--primary-color);
   border-bottom: none;
 }
 
 :deep(.markdown-body code) {
-  background-color: rgba(99, 102, 241, 0.08);
-  color: var(--primary-600);
+  background-color: var(--bg-secondary);
+  color: var(--primary-dark);
   padding: 0.1em 0.3em;
   border-radius: 4px;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.85em;
-  word-break: break-word;
 }
 
 :deep(.markdown-body pre) {
-  background-color: #1e293b; /* 深色极客风背景 */
+  background-color: #1e293b;
   color: #e2e8f0;
   padding: 20px;
   border-radius: 12px;
-  border: 1px solid #334155;
+  border: 1px solid var(--border-color);
   margin: 20px 0;
   overflow-x: auto;
-  line-height: 1.45;
 }
 
 :deep(.markdown-body pre code) {
   background: transparent;
   color: inherit;
   padding: 0;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Lucida Console', Monaco, monospace;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
-  white-space: pre; /* 关键：保留 ASCII 画图的空格对齐 */
-}
-
-:deep(.markdown-body ul),
-:deep(.markdown-body ol) {
-  padding-left: 1.5em;
-  margin-bottom: 1em;
-}
-
-:deep(.markdown-body li) {
-  margin-bottom: 0.5em;
-}
-
-:deep(.markdown-body strong) {
-  color: var(--primary-600);
-}
-
-:deep(.markdown-body pre:has(code.language-mermaid)) {
-  background-color: white !important;
-  padding: 0;
-  border: 1px solid #e2e8f0;
-}
-
-:deep(.mermaid-svg) {
-  display: block;
-  margin: 0 auto;
-  max-width: 100%;
 }
 
 .answer-toggle {
@@ -786,8 +761,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #fafafa;
-  border-bottom: 1px solid #e8e8e8;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 10px;
 }
@@ -798,35 +774,24 @@ onUnmounted(() => {
   margin-left: 4px;
 }
 
-.answer-text {
-  margin: 0;
-  padding: 20px;
-  white-space: pre-wrap;
-  line-height: 1.8;
-  color: #666;
-  font-family: inherit;
-  font-size: 0.9375rem;
-  background: #fafafa;
-}
-
 .question-footer {
   padding-top: 20px;
 }
 
 .mastery-actions {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .actions-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #666;
+  color: var(--text-tertiary);
   margin-bottom: 12px;
 }
 
 .active-btn {
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  box-shadow: 0 0 0 2px var(--primary-200);
 }
 
 .nav-actions {
@@ -845,13 +810,14 @@ onUnmounted(() => {
 }
 
 .indicator-active {
-  background: #1890ff;
-  color: white;
+  background: var(--primary-color) !important;
+  color: white !important;
 }
 
 .indicator-answered {
-  background: #52c41a;
-  color: white;
+  background: var(--success-color) !important;
+  color: white !important;
+  opacity: 0.7;
 }
 
 .empty-card {
@@ -859,10 +825,12 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .empty-desc {
-  color: #999;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 
@@ -878,10 +846,12 @@ onUnmounted(() => {
 
   .answer-toggle {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .nav-actions {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .nav-indicators {

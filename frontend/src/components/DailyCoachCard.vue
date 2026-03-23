@@ -114,9 +114,9 @@ onMounted(() => {
 .daily-coach-card {
   margin-bottom: 24px;
   border-radius: 16px;
-  border: 1px solid var(--primary-200);
-  background: linear-gradient(to bottom right, #ffffff, #fcfdff);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-md);
 }
 
 .coach-header {

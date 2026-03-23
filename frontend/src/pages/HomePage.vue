@@ -391,7 +391,7 @@ onMounted(() => {
 .hero-title {
   font-size: 3rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -400,7 +400,7 @@ onMounted(() => {
 
 .hero-desc {
   font-size: 1.125rem;
-  color: #666;
+  color: var(--text-tertiary);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -413,6 +413,18 @@ onMounted(() => {
 
 .section-card {
   margin-bottom: 24px;
+}
+
+.section-card :deep(.ant-card-head) {
+  background: var(--primary-gradient);
+}
+
+.section-card :deep(.ant-card-head-title) {
+  color: white;
+}
+
+.section-card :deep(.ant-card-extra) {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .action-link {
@@ -434,11 +446,11 @@ onMounted(() => {
 }
 
 .primary-card {
-  border-color: #1890ff;
+  border-color: var(--primary-color);
 }
 
 .primary-card :deep(.ant-card-meta-title) {
-  color: #1890ff;
+  color: var(--primary-color);
 }
 
 .highlight-card {
@@ -447,16 +459,16 @@ onMounted(() => {
 }
 
 .highlight-card :deep(.ant-card-meta-title) {
-  color: #d97706;
+  color: var(--warning-color);
 }
 
 .primary-avatar {
-  background: #1890ff;
+  background: var(--primary-color);
 }
 
 .default-avatar {
-  background: #f0f0f0;
-  color: #666;
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
 }
 
 .stats-row {
@@ -469,7 +481,7 @@ onMounted(() => {
 
 .stat-card :deep(.ant-statistic-title) {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .stat-card :deep(.ant-statistic-content) {
@@ -481,8 +493,20 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
+.panel-card :deep(.ant-card-head) {
+  background: var(--primary-gradient);
+}
+
+.panel-card :deep(.ant-card-head-title) {
+  color: white;
+}
+
+.panel-card :deep(.ant-card-extra) a {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .panel-desc {
-  color: #666;
+  color: var(--text-tertiary);
   margin-bottom: 16px;
 }
 
@@ -494,7 +518,7 @@ onMounted(() => {
 }
 
 .selector-label {
-  color: #666;
+  color: var(--text-tertiary);
   font-size: 0.875rem;
 }
 
@@ -509,7 +533,7 @@ onMounted(() => {
 .xp-value {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1890ff;
+  color: var(--primary-color);
 }
 
 .achievement-preview {
@@ -517,7 +541,7 @@ onMounted(() => {
 }
 
 .achievement-count {
-  color: #666;
+  color: var(--text-tertiary);
   font-size: 0.875rem;
   margin-bottom: 12px;
 }

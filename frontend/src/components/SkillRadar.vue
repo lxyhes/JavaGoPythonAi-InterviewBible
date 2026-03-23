@@ -69,6 +69,14 @@ const links = [
   height: 100%;
 }
 
+.skill-radar-card :deep(.ant-card-head) {
+  background: var(--primary-gradient);
+}
+
+.skill-radar-card :deep(.ant-card-head-title) {
+  color: white;
+}
+
 .radar-container {
   position: relative;
   height: 320px;
@@ -100,8 +108,8 @@ const links = [
 }
 
 .node.unknown {
-  fill: #f1f5f9;
-  stroke: #cbd5e1;
+  fill: var(--bg-secondary);
+  stroke: var(--gray-300);
 }
 
 .node-label {

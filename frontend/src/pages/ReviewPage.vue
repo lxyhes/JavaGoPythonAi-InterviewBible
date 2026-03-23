@@ -25,7 +25,7 @@
           <a-statistic
             :title="t('review.dueToday')"
             :value="dueItems.length"
-            :value-style="{ color: dueItems.length ? '#cf1322' : '#52c41a' }"
+            :value-style="{ color: dueItems.length ? 'var(--error-color)' : 'var(--success-color)' }"
           >
             <template #prefix>
               <ClockCircleOutlined />
@@ -38,7 +38,7 @@
           <a-statistic
             :title="t('review.reviewedToday')"
             :value="learningStore.reviewedTodayCount"
-            :value-style="{ color: '#1890ff' }"
+            :value-style="{ color: 'var(--primary-color)' }"
           >
             <template #prefix>
               <CheckCircleOutlined />
@@ -95,11 +95,11 @@
                   <CloseCircleOutlined />
                   {{ t('common.mastery.unknown') }}
                 </a-button>
-                <a-button type="dashed" style="color: #d97706; border-color: #d97706" @click="quickMark(item.id, 'vague')">
+                <a-button type="dashed" style="color: var(--warning-color); border-color: var(--warning-color)" @click="quickMark(item.id, 'vague')">
                   <QuestionCircleOutlined />
                   {{ t('common.mastery.vague') }}
                 </a-button>
-                <a-button type="dashed" style="color: #059669; border-color: #059669" @click="quickMark(item.id, 'mastered')">
+                <a-button type="dashed" style="color: var(--success-color); border-color: var(--success-color)" @click="quickMark(item.id, 'mastered')">
                   <CheckCircleOutlined />
                   {{ t('common.mastery.mastered') }}
                 </a-button>
@@ -116,7 +116,7 @@
       class="empty-state"
     >
       <template #image>
-        <CheckCircleOutlined style="font-size: 64px; color: #52c41a" />
+        <CheckCircleOutlined style="font-size: 64px; color: var(--success-color)" />
       </template>
       <a-button type="primary" @click="$router.push('/practice')">
         <PlayCircleOutlined />
@@ -197,10 +197,13 @@ const startReviewPractice = () => {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .action-card {
   background: transparent;
+  border: none;
 }
 
 .review-list {
@@ -210,17 +213,21 @@ const startReviewPractice = () => {
 .review-item-card {
   width: 100%;
   transition: all 0.3s;
+  background: var(--card-bg);
+  border-color: var(--border-color);
 }
 
 .review-item-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
 }
 
 .question-title {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   line-height: 1.5;
+  color: var(--text-primary);
 }
 
 .empty-state {
@@ -233,5 +240,6 @@ const startReviewPractice = () => {
 
 :deep(.ant-statistic-content) {
   font-size: 1.8rem;
+  color: var(--text-primary);
 }
 </style>

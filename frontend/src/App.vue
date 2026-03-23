@@ -1,27 +1,45 @@
 <template>
-  <AppNavbar v-if="!isLoginPage" />
-  <main :class="['main-content', { 'no-padding': isLoginPage }]">
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </router-view>
-  </main>
-  <LanguageSwitcher v-if="!isLoginPage" />
-  <CelebrationCenter />
-  <BackToTop />
+  <a-config-provider
+    :theme="{
+      algorithm: appStore.isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      token: {
+        colorPrimary: '#6366f1',
+        borderRadius: 12,
+        colorBgContainer: appStore.isDark ? '#1e293b' : '#ffffff',
+        colorBgLayout: appStore.isDark ? '#0f172a' : '#f8fafc',
+        colorBorderSecondary: appStore.isDark ? '#334155' : '#f0f0f0',
+        colorText: appStore.isDark ? '#f8fafc' : '#0f172a',
+        colorTextSecondary: appStore.isDark ? '#cbd5e1' : '#475569',
+      }
+    }"
+  >
+    <AppNavbar v-if="!isLoginPage" />
+    <main :class="['main-content', { 'no-padding': isLoginPage }]">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </main>
+    <LanguageSwitcher v-if="!isLoginPage" />
+    <CelebrationCenter />
+    <BackToTop />
+  </a-config-provider>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { theme } from 'ant-design-vue'
 import AppNavbar from './components/AppNavbar.vue'
 import BackToTop from './components/BackToTop.vue'
 import CelebrationCenter from './components/CelebrationCenter.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import { useAppStore } from './stores/app'
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
 
 const isLoginPage = computed(() => route.path === '/login')
 
@@ -52,6 +70,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 onMounted(() => {
+  appStore.initTheme()
   window.addEventListener('keydown', handleKeydown)
 })
 

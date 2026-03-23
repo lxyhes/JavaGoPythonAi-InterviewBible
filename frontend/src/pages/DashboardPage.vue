@@ -304,12 +304,13 @@ const getProgressColor = (rate: number) => {
 
 .stat-card :deep(.ant-statistic-title) {
   font-size: 14px;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .stat-card :deep(.ant-statistic-content) {
   font-size: 24px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .level-card :deep(.ant-card-body) {
@@ -329,12 +330,12 @@ const getProgressColor = (rate: number) => {
 .level-value {
   font-size: 20px;
   font-weight: 600;
-  color: #1890ff;
+  color: var(--primary-color);
 }
 
 .level-desc {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 4px;
 }
 
@@ -344,10 +345,11 @@ const getProgressColor = (rate: number) => {
 
 .panel-card {
   margin-bottom: 16px;
+  border: 1px solid var(--border-color);
 }
 
 .panel-card :deep(.ant-card-head) {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  background: var(--primary-gradient);
 }
 
 .panel-card :deep(.ant-card-head-title) {
@@ -379,7 +381,7 @@ const getProgressColor = (rate: number) => {
 .activity-bar-track {
   width: 100%;
   height: 140px;
-  background: #f0f0f0;
+  background: var(--bg-secondary);
   border-radius: 4px;
   display: flex;
   align-items: flex-end;
@@ -388,7 +390,7 @@ const getProgressColor = (rate: number) => {
 
 .activity-bar {
   width: 100%;
-  background: linear-gradient(180deg, #1890ff 0%, #096dd9 100%);
+  background: var(--primary-gradient);
   border-radius: 4px 4px 0 0;
   transition: height 0.3s ease;
   min-height: 4px;
@@ -396,13 +398,13 @@ const getProgressColor = (rate: number) => {
 
 .activity-date {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .activity-count {
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 /* 分类列表 */
@@ -427,11 +429,12 @@ const getProgressColor = (rate: number) => {
 .category-name {
   font-size: 14px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .category-count {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 /* 成就列表 */
@@ -448,15 +451,17 @@ const getProgressColor = (rate: number) => {
 }
 
 .achievement-item.unlocked {
-  background: rgba(82, 196, 26, 0.05);
+  background: rgba(var(--success-color-rgb, 82, 196, 26), 0.1);
 }
 
 .achievement-item :deep(.ant-list-item-meta-title) {
   font-size: 14px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .achievement-item :deep(.ant-list-item-meta-description) {
   font-size: 12px;
+  color: var(--text-tertiary);
 }
 </style>

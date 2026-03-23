@@ -325,12 +325,23 @@ function profile(id: CareerTarget) {
   margin-bottom: 24px;
   padding: 24px;
   border-radius: 24px;
+  background: 
+    radial-gradient(circle at top right, rgba(99, 102, 241, 0.1), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent 40%),
+    var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xl);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+[data-theme='dark'] .competitiveness-panel {
   background:
-    radial-gradient(circle at top right, rgba(251, 191, 36, 0.14), transparent 26%),
-    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.14), transparent 28%),
-    linear-gradient(145deg, #0f172a, #172554 58%, #1d4ed8);
+    radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.1), transparent 30%),
+    linear-gradient(145deg, #1e293b, #0f172a);
+  border-color: rgba(255, 255, 255, 0.1);
   color: #eff6ff;
-  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.24);
 }
 
 .panel-header {
@@ -346,6 +357,11 @@ function profile(id: CareerTarget) {
   font-size: 0.78rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--primary-600);
+}
+
+[data-theme='dark'] .eyebrow,
+[data-theme='dark'] .section-kicker {
   color: rgba(191, 219, 254, 0.78);
 }
 
@@ -354,6 +370,12 @@ function profile(id: CareerTarget) {
 .insight-card h3 {
   margin: 0;
   font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .panel-header h2,
+[data-theme='dark'] .focus-card h3,
+[data-theme='dark'] .insight-card h3 {
   color: #f8fafc;
 }
 
@@ -361,8 +383,13 @@ function profile(id: CareerTarget) {
 .focus-summary {
   margin: 10px 0 0;
   max-width: 720px;
-  color: rgba(226, 232, 240, 0.86);
+  color: var(--text-secondary);
   line-height: 1.7;
+}
+
+[data-theme='dark'] .panel-summary,
+[data-theme='dark'] .focus-summary {
+  color: rgba(226, 232, 240, 0.86);
 }
 
 .panel-link {
@@ -370,13 +397,20 @@ function profile(id: CareerTarget) {
   align-items: center;
   justify-content: center;
   min-height: 40px;
-  padding: 0 14px;
+  padding: 0 20px;
   border-radius: 999px;
-  color: #0f172a;
-  background: #f8fafc;
+  color: white;
+  background: var(--primary-600);
   text-decoration: none;
   font-weight: 700;
   white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.panel-link:hover {
+  background: var(--primary-700);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-primary);
 }
 
 .target-grid {
@@ -392,17 +426,35 @@ function profile(id: CareerTarget) {
   gap: 6px;
   padding: 14px;
   text-align: left;
-  border: 1px solid rgba(191, 219, 254, 0.2);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
-  background: rgba(15, 23, 42, 0.28);
-  color: #dbeafe;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .target-chip:hover,
 .target-chip.active {
   transform: translateY(-2px);
+  border-color: var(--primary-400);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-md);
+}
+
+.target-chip.active {
+  border-color: var(--primary-600);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+[data-theme='dark'] .target-chip {
+  background: rgba(15, 23, 42, 0.28);
+  border-color: rgba(191, 219, 254, 0.2);
+  color: #dbeafe;
+}
+
+[data-theme='dark'] .target-chip:hover,
+[data-theme='dark'] .target-chip.active {
   border-color: rgba(251, 191, 36, 0.8);
   background: rgba(30, 41, 59, 0.72);
 }
@@ -414,7 +466,7 @@ function profile(id: CareerTarget) {
 
 .target-desc {
   font-size: 0.82rem;
-  color: rgba(226, 232, 240, 0.72);
+  color: var(--text-tertiary);
   line-height: 1.5;
 }
 
@@ -430,8 +482,15 @@ function profile(id: CareerTarget) {
 .focus-card,
 .insight-card {
   min-height: 100%;
-  padding: 18px;
+  padding: 20px;
   border-radius: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme='dark'] .score-card,
+[data-theme='dark'] .focus-card,
+[data-theme='dark'] .insight-card {
   background: rgba(15, 23, 42, 0.34);
   border: 1px solid rgba(191, 219, 254, 0.16);
   backdrop-filter: blur(8px);
@@ -448,44 +507,53 @@ function profile(id: CareerTarget) {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: conic-gradient(#fbbf24 var(--score), rgba(148, 163, 184, 0.18) 0);
+  background: conic-gradient(var(--primary-color) var(--score), var(--border-color) 0);
   display: grid;
   place-items: center;
   flex-shrink: 0;
+}
+
+[data-theme='dark'] .score-ring {
+  background: conic-gradient(#fbbf24 var(--score), rgba(148, 163, 184, 0.18) 0);
 }
 
 .score-inner {
   width: 104px;
   height: 104px;
   border-radius: 50%;
-  background: #0f172a;
+  background: var(--card-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
+[data-theme='dark'] .score-inner {
+  background: #0f172a;
+}
+
 .score-inner strong {
   font-size: 2rem;
   line-height: 1;
+  color: var(--text-primary);
 }
 
 .score-inner span {
   margin-top: 4px;
   font-size: 0.82rem;
-  color: rgba(226, 232, 240, 0.76);
+  color: var(--text-muted);
 }
 
 .score-copy h3 {
   margin: 0;
   font-size: 1.2rem;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .score-copy p {
   margin: 10px 0 0;
   line-height: 1.7;
-  color: rgba(226, 232, 240, 0.82);
+  color: var(--text-secondary);
 }
 
 .focus-tags {
@@ -507,7 +575,12 @@ function profile(id: CareerTarget) {
 }
 
 .focus-tag {
-  padding: 6px 10px;
+  padding: 6px 12px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+
+[data-theme='dark'] .focus-tag {
   background: rgba(59, 130, 246, 0.2);
   color: #dbeafe;
 }
@@ -515,7 +588,7 @@ function profile(id: CareerTarget) {
 .plan-list {
   margin: 16px 0 0;
   padding-left: 18px;
-  color: rgba(226, 232, 240, 0.86);
+  color: var(--text-secondary);
 }
 
 .plan-list li + li {
@@ -530,16 +603,16 @@ function profile(id: CareerTarget) {
 }
 
 .insight-badge {
-  padding: 6px 10px;
-  color: #0f172a;
+  padding: 6px 12px;
+  color: white;
 }
 
 .insight-badge.success {
-  background: #86efac;
+  background: var(--success-500);
 }
 
 .insight-badge.warn {
-  background: #fbbf24;
+  background: var(--warning-500);
 }
 
 .metric-list {
@@ -556,28 +629,44 @@ function profile(id: CareerTarget) {
   align-items: center;
   padding: 12px 14px;
   border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme='dark'] .metric-row {
   background: rgba(30, 41, 59, 0.55);
+  border-color: transparent;
 }
 
 .metric-row strong {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .metric-row p {
   margin: 6px 0 0;
   font-size: 0.84rem;
-  color: rgba(226, 232, 240, 0.72);
+  color: var(--text-tertiary);
 }
 
 .metric-pill {
   min-width: 48px;
   height: 34px;
   padding: 0 10px;
+  background: var(--success-50);
+  color: var(--success-600);
+}
+
+.metric-pill.danger {
+  background: var(--warning-50);
+  color: var(--warning-600);
+}
+
+[data-theme='dark'] .metric-pill {
   background: rgba(134, 239, 172, 0.16);
   color: #bbf7d0;
 }
 
-.metric-pill.danger {
+[data-theme='dark'] .metric-pill.danger {
   background: rgba(251, 191, 36, 0.16);
   color: #fde68a;
 }

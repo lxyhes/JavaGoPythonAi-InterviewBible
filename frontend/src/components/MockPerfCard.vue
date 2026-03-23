@@ -80,7 +80,18 @@ function formatDate(value: string) {
 <style scoped>
 .mock-perf-card {
   border-radius: 16px;
-  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.mock-perf-card :deep(.ant-card-head) {
+  background: var(--primary-gradient);
+  border-bottom: none;
+}
+
+.mock-perf-card :deep(.ant-card-head-title) {
+  color: white;
+  font-weight: 700;
 }
 
 .go-mock-link {
@@ -88,7 +99,13 @@ function formatDate(value: string) {
   align-items: center;
   gap: 4px;
   font-size: 0.85rem;
-  color: var(--primary-600);
+  color: white;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.go-mock-link:hover {
+  opacity: 1;
 }
 
 .empty-perf {
@@ -126,7 +143,7 @@ function formatDate(value: string) {
 .score-num {
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--primary-600);
+  color: var(--primary-color);
   line-height: 1;
 }
 
@@ -179,6 +196,13 @@ function formatDate(value: string) {
   background: var(--bg-secondary);
   border-radius: 10px;
   font-size: 0.85rem;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.recent-item:hover {
+  border-color: var(--primary-200);
+  background: var(--card-bg);
 }
 
 .recent-info {
@@ -201,8 +225,8 @@ function formatDate(value: string) {
   font-size: 1rem;
 }
 
-.score-a { color: #10b981; }
-.score-b { color: #3b82f6; }
-.score-c { color: #f59e0b; }
-.score-d { color: #ef4444; }
+.score-a { color: var(--success-color); }
+.score-b { color: var(--info-color, #3b82f6); }
+.score-c { color: var(--warning-color); }
+.score-d { color: var(--error-color); }
 </style>
