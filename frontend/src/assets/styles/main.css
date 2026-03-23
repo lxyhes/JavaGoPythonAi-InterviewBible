@@ -154,3 +154,56 @@ body {
     display: none !important;
   }
 }
+
+/* Markdown 内容样式 */
+.markdown-body {
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+  color: var(--text-secondary) !important;
+  word-wrap: break-word;
+}
+
+.markdown-body p {
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em !important;
+  margin-bottom: 16px !important;
+}
+
+.markdown-body li {
+  margin-bottom: 8px !important;
+}
+
+.markdown-body strong {
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+.markdown-body code {
+  padding: 0.2em 0.4em !important;
+  font-size: 85% !important;
+  background-color: var(--bg-secondary) !important;
+  border-radius: var(--radius-xs) !important;
+  font-family: var(--font-mono) !important;
+  color: var(--primary-dark) !important;
+}
+
+.markdown-body pre {
+  padding: 16px !important;
+  overflow: auto !important;
+  background-color: #1e1e2e !important;
+  color: #cdd6f4 !important;
+  border-radius: var(--radius-md) !important;
+  margin-bottom: 16px !important;
+}
+
+.markdown-body pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  font-size: 0.875rem !important;
+}

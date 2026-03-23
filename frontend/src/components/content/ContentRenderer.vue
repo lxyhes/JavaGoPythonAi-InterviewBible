@@ -11,7 +11,7 @@
         :category="category"
         :show-ai="showAI"
       >
-        <div v-html="renderAnswer(item.answer)"></div>
+        <div class="markdown-body" v-html="renderAnswer(item.answer)"></div>
       </QAItem>
     </div>
   </div>
@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import QAItem from './QAItem.vue'
+import { marked } from 'marked'
 import { sanitizeHtml } from '@/utils/sanitizeHtml'
 import { buildQuestionAnchor } from '@/utils/questionAnchor'
 
@@ -44,14 +45,6 @@ const props = withDefaults(defineProps<{
   showAI: true
 })
 
-const escapeHtml = (text: string) =>
-  text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-
 const getQuestionAnchor = (question: string, index: number) => {
   if (!props.anchorPrefix) {
     return undefined
@@ -60,29 +53,20 @@ const getQuestionAnchor = (question: string, index: number) => {
 }
 
 const renderAnswer = (answer: string) => {
-  const tokens: string[] = []
-
-  const tokenized = answer
-    .replace(/```(\w+)?\n([\s\S]*?)```/g, (_match, _lang, code) => {
-      const token = `__HTML_TOKEN_${tokens.length}__`
-      tokens.push(`<pre><code>${escapeHtml(code)}</code></pre>`)
-      return token
-    })
-    .replace(/`([^`]+)`/g, (_match, code) => {
-      const token = `__HTML_TOKEN_${tokens.length}__`
-      tokens.push(`<code>${escapeHtml(code)}</code>`)
-      return token
-    })
-
-  let rendered = escapeHtml(tokenized)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>')
-
-  tokens.forEach((html, index) => {
-    rendered = rendered.replace(`__HTML_TOKEN_${index}__`, html)
-  })
-
-  return sanitizeHtml(rendered, 'markdown')
+  if (!answer) return ''
+  
+  try {
+    // marked v11+ 推荐直接使用 parseSync 或 parse
+    const rawHtml = marked.parse(answer, {
+      gfm: true,
+      breaks: true
+    }) as string
+    
+    return sanitizeHtml(rawHtml, 'markdown')
+  } catch (e) {
+    console.error('Markdown parse error:', e)
+    return answer
+  }
 }
 </script>
 

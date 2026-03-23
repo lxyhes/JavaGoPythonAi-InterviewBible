@@ -3,40 +3,28 @@
     <div class="navbar-container">
       <!-- Logo -->
       <router-link to="/" class="navbar-brand">
-        <div class="brand-icon-wrapper master-piece">
+        <div class="brand-icon-wrapper mastermind">
           <svg viewBox="0 0 40 40" class="logo-svg-v3">
             <defs>
-              <linearGradient id="robotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="masterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:#a855f7" />
                 <stop offset="100%" style="stop-color:#6366f1" />
               </linearGradient>
-              <filter id="neonBlur" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="1.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
             </defs>
-            <!-- 机器人头部外廓 -->
-            <rect x="6" y="10" width="28" height="20" rx="6" fill="url(#robotGrad)" filter="url(#neonBlur)" />
-            <!-- 耳朵 -->
+            <rect x="6" y="10" width="28" height="20" rx="6" fill="url(#masterGrad)" />
             <path d="M4,16 L6,16 L6,24 L4,24 Z" fill="#a855f7" />
             <path d="M34,16 L36,16 L36,24 L34,24 Z" fill="#6366f1" />
-            <!-- 屏幕区 -->
             <rect x="10" y="14" width="20" height="12" rx="3" fill="#0f172a" fill-opacity="0.8" />
-            <!-- 心率/脉冲线 -->
             <path d="M12,20 L16,20 L18,16 L22,24 L24,20 L28,20" 
               stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="pulse-line" />
-            <!-- 天线 -->
+              class="pulse-line-v2" />
             <circle cx="20" cy="6" r="2" fill="#a855f7" />
             <line x1="20" y1="6" x2="20" y2="10" stroke="#a855f7" stroke-width="1" />
           </svg>
         </div>
-        <div class="brand-text-container">
-          <span class="brand-text main">{{ i18nStore.locale === 'zh' ? '面试指南' : 'INTERVIEW' }}</span>
-          <span class="brand-text meta">{{ i18nStore.locale === 'zh' ? '· IT 宝典 ·' : 'PI L O T' }}</span>
+        <div class="brand-text-container luxury">
+          <span class="brand-text main-eng">INTERVIEW</span>
+          <span class="brand-text sub-eng">G U I D E · B I B L E</span>
         </div>
       </router-link>
 
@@ -399,81 +387,136 @@ onUnmounted(() => {
   font-size: 24px;
 }
 
-/* 在模板中增加 LinearGradient 定义，或者用 CSS 模拟 */
-.logo-bg {
-  fill: #8b5cf6; /* 默认紫色 */
-  transition: all 0.3s ease;
-}
-
-.navbar-brand:hover .logo-bg {
-  fill: #6366f1; /* 悬浮切换 */
-}
-
-.navbar-brand:hover .brand-icon-wrapper {
-  transform: rotate(-5deg) scale(1.1);
-}
-
-.brand-text {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  white-space: nowrap;
-}
-
-.brand-icon-wrapper.high-end {
-  background: none;
-  box-shadow: none;
-  width: 50px; /* Slightly larger for bookmark */
+/* 在模板中增加 Lin*/
+.brand-icon-wrapper.career-pilot {
+  width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.logo-svg-v2 {
+.logo-svg-v4 {
   width: 44px;
   height: 44px;
 }
 
-.bookmark-path {
-  stroke: rgba(255, 255, 255, 0.2);
-  stroke-width: 0.5;
+.brand-icon-wrapper.mastermind {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
 }
 
-.brand-text-container {
+.logo-svg-v3 {
+  width: 44px;
+  height: 44px;
+}
+
+.pulse-line-v2 {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: pulseBeat 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulseBeat {
+  0% { stroke-dashoffset: 40; opacity: 0; }
+  10% { opacity: 1; }
+  50% { stroke-dashoffset: 0; }
+  90% { opacity: 1; }
+  100% { stroke-dashoffset: -40; opacity: 0; }
+}
+
+.brand-text-container.luxury {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
-  margin-left: 4px;
+  line-height: 1;
+  margin-left: 8px;
 }
 
-.brand-text.primary {
-  font-size: 1.2rem;
-  font-weight: 800;
+.brand-text.main-eng {
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-.brand-text.secondary {
-  font-size: 0.85rem;
-  font-weight: 700;
+.brand-text.sub-eng {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  background: linear-gradient(to right, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-top: 2px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  background: linear-gradient(to right, #a855f7, #6366f1);
+}
+
+.navbar-brand:hover .logo-svg-v3 {
+  transform: scale(1.1) rotate(-3deg);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[lang='en'] .brand-text.sub-eng {
+  letter-spacing: 6px;
+}
+
+.globe-main {
+  animation: globeRotate 20s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes globeRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.orbit-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: orbitEntry 2s ease-out forwards;
+}
+
+@keyframes orbitEntry {
+  to { stroke-dashoffset: 0; }
+}
+
+.brand-text.main-v2 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-[lang='en'] .brand-text.secondary {
-  letter-spacing: 3px;
+.brand-text.sub-v2 {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #fbbf24;
+  margin-top: 1px;
 }
 
-.navbar-brand:hover .bookmark-path {
-  transform: translateY(-2px);
+.navbar-brand:hover .rocket-tip {
+  transform: translate(2px, -2px);
+  filter: drop-shadow(0 0 5px #fbbf24);
+  transition: all 0.3s ease;
+}
+
+[lang='en'] .brand-text.sub-v2 {
+  letter-spacing: 5px;
+}
+
+.brand-text.meta {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 3px;
   filter: brightness(1.2) drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));
   transition: all 0.3s ease;
 }

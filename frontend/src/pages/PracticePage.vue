@@ -159,7 +159,7 @@
 
           <a-collapse v-model:activeKey="answerKey" :bordered="false">
             <a-collapse-panel v-if="showAnswer" key="1" :show-arrow="false">
-              <pre class="answer-text">{{ currentItem.answer }}</pre>
+              <div class="answer-markdown markdown-body" v-html="formattedAnswer"></div>
             </a-collapse-panel>
           </a-collapse>
         </div>
@@ -277,6 +277,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { marked } from 'marked'
 import { useRoute, useRouter } from 'vue-router'
 import {
   FileTextOutlined,
@@ -296,6 +297,7 @@ import {
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
 import { useLearningStore } from '@/stores/learning'
+import { useAuthStore } from '@/stores/auth'
 import type { MasteryLevel } from '@/stores/learning'
 import type { SearchCategory, SearchItem, SearchTag } from '@/types/search'
 import { loadPracticeSession, savePracticeSession } from '@/utils/practiceSession'
@@ -305,7 +307,16 @@ const route = useRoute()
 const router = useRouter()
 const learningStore = useLearningStore()
 const i18nStore = useI18nStore()
+const authStore = useAuthStore()
 const t = i18nStore.t
+
+const formattedAnswer = computed(() => {
+  if (!currentItem.value?.answer) return ''
+  return marked.parse(currentItem.value.answer, {
+    breaks: true,
+    gfm: true
+  })
+})
 
 const MAX_REVISITS_PER_ITEM = 2
 
@@ -657,6 +668,69 @@ onUnmounted(() => {
   color: #333;
   line-height: 1.6;
   margin-bottom: 20px;
+}
+
+.answer-markdown {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+:deep(.markdown-body) {
+  font-family: inherit;
+}
+
+:deep(.markdown-body h2),
+:deep(.markdown-body h3) {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 700;
+  color: var(--primary-700);
+  border-bottom: none;
+}
+
+:deep(.markdown-body code) {
+  background-color: rgba(99, 102, 241, 0.08);
+  color: var(--primary-600);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.85em;
+  word-break: break-word;
+}
+
+:deep(.markdown-body pre) {
+  background-color: #1e293b; /* 深色极客风背景 */
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  margin: 20px 0;
+  overflow-x: auto;
+  line-height: 1.45;
+}
+
+:deep(.markdown-body pre code) {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Lucida Console', Monaco, monospace;
+  font-size: 0.9rem;
+  white-space: pre; /* 关键：保留 ASCII 画图的空格对齐 */
+}
+
+:deep(.markdown-body ul),
+:deep(.markdown-body ol) {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+:deep(.markdown-body li) {
+  margin-bottom: 0.5em;
+}
+
+:deep(.markdown-body strong) {
+  color: var(--primary-600);
 }
 
 .answer-section {

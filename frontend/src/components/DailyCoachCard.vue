@@ -43,6 +43,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import PhosphorIcon from '@/components/PhosphorIcon.vue'
+import { marked } from 'marked'
 import { interviewApi } from '@/services/api'
 import { useLearningStore } from '@/stores/learning'
 import { useMockInterviewStore } from '@/stores/mockInterview'
@@ -69,12 +70,7 @@ const countdownLabel = computed(() => {
 // Simple markdown to HTML since we don't have a full renderer easily available
 const formattedPlan = computed(() => {
   if (!plan.value) return ''
-  return plan.value
-    .replace(/^## (.*$)/gim, '<h4 class="m-h4">$1</h4>')
-    .replace(/^### (.*$)/gim, '<h5 class="m-h5">$1</h5>')
-    .replace(/^\- (.*$)/gim, '<li class="m-li">$1</li>')
-    .replace(/\n\n/g, '<br/>')
-    .replace(/\n/g, '<br/>')
+  return marked.parse(plan.value, { breaks: true })
 })
 
 const fetchCoachPlan = async () => {
