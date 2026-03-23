@@ -214,12 +214,12 @@ const hasNotifications = ref(false)
 let ticking = false
 
 const navItems = [
-  { path: '/', icon: 'house', zh: '首页', en: 'Home' },
-  { path: '/practice', icon: 'pencil-simple', zh: '练习', en: 'Practice' },
-  { path: '/mock-interview', icon: 'exam', zh: '模拟', en: 'Mock' },
-  { path: '/review', icon: 'arrow-counter-clockwise', zh: '复习', en: 'Review' },
-  { path: '/dashboard', icon: 'squares-four', zh: '看板', en: 'Stats' },
-  { path: '/notes', icon: 'notebook', zh: '笔记', en: 'Notes' },
+  { path: '/', icon: 'House', zh: '首页', en: 'Home' },
+  { path: '/practice', icon: 'PencilSimple', zh: '练习', en: 'Practice' },
+  { path: '/mock-interview', icon: 'Exam', zh: '模拟', en: 'Mock' },
+  { path: '/review', icon: 'ArrowCounterClockwise', zh: '复习', en: 'Review' },
+  { path: '/dashboard', icon: 'SquaresFour', zh: '看板', en: 'Stats' },
+  { path: '/notes', icon: 'Notebook', zh: '笔记', en: 'Notes' },
 ]
 
 const localizedNavItems = computed(() => {
@@ -551,6 +551,8 @@ onUnmounted(() => {
   overflow: hidden;
   opacity: 0;
   animation: fadeInUp var(--duration-normal) var(--ease-out) forwards;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link:hover {

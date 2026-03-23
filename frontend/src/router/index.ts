@@ -172,11 +172,9 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
-  // Hide login page for authenticated users
-  if (to.meta.hideForAuth && authStore.isLoggedIn) {
-    next({ path: '/dashboard' })
-    return
-  }
+  // Dynamic Title
+  const pageTitle = typeof to.name === 'string' ? to.name : 'Home'
+  document.title = `${pageTitle} | INTERVIEW BIBLE`
 
   next()
 })
