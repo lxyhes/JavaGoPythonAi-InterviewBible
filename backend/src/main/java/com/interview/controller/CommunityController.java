@@ -3,7 +3,7 @@ package com.interview.controller;
 import com.interview.entity.Comment;
 import com.interview.entity.Post;
 import com.interview.model.ApiResponse;
-import com.interview.security.JwtUtil;
+import com.interview.repository.UserRepository;
 import com.interview.service.CommunityService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +28,7 @@ import java.util.Map;
 public class CommunityController {
 
     private final CommunityService communityService;
-    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     /**
      * 获取帖子分类
@@ -87,8 +87,8 @@ public class CommunityController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
-        String username = jwtUtil.getUsernameFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
+        String username = resolveUsername(userId);
         return communityService.createPost(userId, username, request.getTitle(), request.getContent(), request.getCategory(), request.getTags());
     }
 
@@ -103,7 +103,7 @@ public class CommunityController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return communityService.updatePost(id, userId, request.getTitle(), request.getContent());
     }
 
@@ -117,7 +117,7 @@ public class CommunityController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return communityService.deletePost(id, userId);
     }
 
@@ -153,8 +153,8 @@ public class CommunityController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
-        String username = jwtUtil.getUsernameFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
+        String username = resolveUsername(userId);
         return communityService.createComment(postId, userId, username, request.getContent(), request.getParentId());
     }
 
@@ -168,7 +168,7 @@ public class CommunityController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return communityService.deleteComment(id, userId);
     }
 
@@ -219,5 +219,11 @@ public class CommunityController {
         private String content;
 
         private String parentId;
+    }
+
+    private String resolveUsername(String userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getUsername() == null || user.getUsername().isBlank() ? userId : user.getUsername())
+                .orElse(userId);
     }
 }

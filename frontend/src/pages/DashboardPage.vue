@@ -111,6 +111,8 @@
     </a-row>
 
     <!-- 主要内容区 -->
+    <CompetitivenessPanel />
+
     <a-row :gutter="[16, 16]" class="main-content">
       <!-- 左侧：活动图表和分类进度 -->
       <a-col :xs="24" :lg="16">
@@ -214,6 +216,7 @@ import {
   TrophyOutlined,
   LockOutlined,
 } from '@ant-design/icons-vue'
+import CompetitivenessPanel from '@/components/CompetitivenessPanel.vue'
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
 import { useLearningStore } from '@/stores/learning'

@@ -186,7 +186,6 @@ const t = i18nStore.t
 const isScrolled = ref(false)
 const mobileMenuOpen = ref(false)
 const hasNotifications = ref(false)
-let lastScrollY = 0
 let ticking = false
 
 const navItems = [
@@ -248,7 +247,6 @@ const handleScroll = () => {
       // 检测是否滚动超过阈值（只改变样式，不隐藏）
       isScrolled.value = currentScrollY > 10
       
-      lastScrollY = currentScrollY
       ticking = false
     })
     ticking = true

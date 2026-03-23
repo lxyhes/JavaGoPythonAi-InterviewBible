@@ -4,26 +4,23 @@ server:
 spring:
   application:
     name: interview-guide-backend
-
-  # 激活的 profile
   profiles:
     active: dev
-
-  # 数据库配置 (MySQL)
   datasource:
-    url: jdbc:mysql://localhost:3306/interview_guide?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 123456
-
-  # SQL 初始化配置
+    url: jdbc:h2:file:./data/interview-guide;MODE=MySQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   sql:
     init:
       mode: always
-      schema-locations: classpath:schema.sql
-      continue-on-error: true
+      schema-locations: classpath:schema-h2.sql
+      continue-on-error: false
 
-# MyBatis-Plus 配置
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -31,48 +28,25 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: assign_uuid
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-  mapper-locations: classpath*:/mapper/**/*.xml
 
-# iFlow SDK 配置
 iflow:
-  # 是否启用 iFlow
-  enabled: true
-
-  # iFlow ACP Server WebSocket URL
+  enabled: false
   url: ws://localhost:8090/acp
-
-  # 连接超时时间（秒）
   connection-timeout: 30
-
-  # 读取超时时间（秒）
   read-timeout: 600
-
-  # 是否自动启动 iFlow CLI 进程
   auto-start-process: false
-
-  # iFlow CLI 可执行文件路径
   cli-path: iflow
-
-  # 是否启用 ACP 协议
-  acp-enabled: true
-
-  # ACP 服务端口
+  acp-enabled: false
   acp-port: 8090
-
-  # 日志级别
   log-level: INFO
-
-  # 最大重连次数
   max-reconnect-attempts: 3
-
-  # 重连间隔（毫秒）
   reconnect-interval: 5000
 
-# 日志配置
+jwt:
+  secret: mySecretKey12345678901234567890123456789012
+  expiration: 86400000
+
 logging:
   level:
-    com.interview.iflow: DEBUG
+    com.interview: INFO
     org.springframework.web: INFO

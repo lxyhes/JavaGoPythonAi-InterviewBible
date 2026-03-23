@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS questions (
     answer TEXT,
     tags JSON,
     source VARCHAR(100),
+    submitter_id VARCHAR(64),
+    status VARCHAR(20) DEFAULT 'approved',
     hot_score INT DEFAULT 0,
     view_count INT DEFAULT 0,
     favorite_count INT DEFAULT 0,

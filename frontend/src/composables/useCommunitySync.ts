@@ -42,7 +42,7 @@ export function useCommunitySync() {
   /**
    * 获取帖子列表
    */
-  const fetchPosts = async (category?: string, page = 0, size = 20) => {
+  const fetchPosts = async (_category?: string, _page = 0, _size = 20) => {
     if (!authStore.isLoggedIn) return []
     isLoading.value = true
     error.value = null
@@ -63,7 +63,7 @@ export function useCommunitySync() {
   /**
    * 获取帖子详情
    */
-  const fetchPostById = async (postId: string) => {
+  const fetchPostById = async (_postId: string) => {
     if (!authStore.isLoggedIn) return null
     try {
       // TODO: 调用后端 API
@@ -79,7 +79,7 @@ export function useCommunitySync() {
   /**
    * 创建帖子
    */
-  const createPost = async (title: string, content: string, category: string, tags?: string[]) => {
+  const createPost = async (_title: string, _content: string, _category: string, _tags?: string[]) => {
     if (!authStore.isLoggedIn) return null
     try {
       // TODO: 调用后端 API
@@ -95,7 +95,7 @@ export function useCommunitySync() {
   /**
    * 获取评论
    */
-  const fetchComments = async (postId: string) => {
+  const fetchComments = async (_postId: string) => {
     if (!authStore.isLoggedIn) return []
     try {
       // TODO: 调用后端 API
@@ -111,7 +111,7 @@ export function useCommunitySync() {
   /**
    * 创建评论
    */
-  const createComment = async (postId: string, content: string, parentId?: string) => {
+  const createComment = async (_postId: string, _content: string, _parentId?: string) => {
     if (!authStore.isLoggedIn) return null
     try {
       // TODO: 调用后端 API

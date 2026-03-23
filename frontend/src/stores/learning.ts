@@ -1,9 +1,17 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { searchItems } from '@/data/search-index'
+import type { SearchCategory } from '@/types/search'
 
 export type MasteryLevel = 'unknown' | 'vague' | 'mastered'
 export type LearningNextAction = 'review' | 'weak' | 'practice' | 'explore'
 export type LearningHeatLevel = 'hot' | 'warm' | 'cold'
+export type CareerTarget =
+  | 'frontend'
+  | 'backend'
+  | 'fullstack'
+  | 'system-design'
+  | 'ai'
 
 export interface LearningRecord {
   questionId: string
@@ -21,6 +29,7 @@ export interface LearningHistoryItem {
 
 export interface LearningSettings {
   dailyGoalTarget: number
+  careerTarget: CareerTarget
 }
 
 export interface WeeklyActivityItem {
@@ -58,6 +67,28 @@ export interface TomorrowPlan {
   generatedAt: string
 }
 
+export interface CategoryCompetencyStat {
+  category: SearchCategory
+  total: number
+  tracked: number
+  mastered: number
+  vague: number
+  unknown: number
+  due: number
+  weak: number
+  masteryRate: number
+  coverageRate: number
+  readinessScore: number
+}
+
+export interface CareerTargetProfile {
+  id: CareerTarget
+  label: string
+  summary: string
+  focusCategories: SearchCategory[]
+  weights: Record<SearchCategory, number>
+}
+
 const RECORDS_STORAGE_KEY = 'mianshi-learning-records-v1'
 const HISTORY_STORAGE_KEY = 'mianshi-learning-history-v1'
 const SETTINGS_STORAGE_KEY = 'mianshi-learning-settings-v1'
@@ -66,6 +97,107 @@ const TOMORROW_PLAN_STORAGE_KEY = 'mianshi-learning-tomorrow-plan-v1'
 
 const DEFAULT_DAILY_GOAL = 15
 const LEVEL_XP_STEP = 180
+const DEFAULT_CAREER_TARGET: CareerTarget = 'fullstack'
+
+const ALL_CATEGORIES: SearchCategory[] = [
+  'frontend',
+  'backend',
+  'database',
+  'algorithm',
+  'system-design',
+  'devops',
+  'network',
+  'os',
+  'ai',
+]
+
+const CAREER_TARGET_PROFILES: CareerTargetProfile[] = [
+  {
+    id: 'frontend',
+    label: 'Frontend Engineer',
+    summary: 'Strengthen UI delivery, engineering depth, and browser fundamentals.',
+    focusCategories: ['frontend', 'algorithm', 'network', 'system-design'],
+    weights: {
+      frontend: 5,
+      backend: 1,
+      database: 1,
+      algorithm: 3,
+      'system-design': 3,
+      devops: 1,
+      network: 2,
+      os: 1,
+      ai: 1,
+    },
+  },
+  {
+    id: 'backend',
+    label: 'Backend Engineer',
+    summary: 'Push deeper on services, storage, distributed systems, and reliability.',
+    focusCategories: ['backend', 'database', 'system-design', 'algorithm'],
+    weights: {
+      frontend: 1,
+      backend: 5,
+      database: 4,
+      algorithm: 3,
+      'system-design': 4,
+      devops: 2,
+      network: 2,
+      os: 2,
+      ai: 1,
+    },
+  },
+  {
+    id: 'fullstack',
+    label: 'Full Stack Engineer',
+    summary: 'Build balanced execution across UI, APIs, data, and system thinking.',
+    focusCategories: ['frontend', 'backend', 'database', 'system-design'],
+    weights: {
+      frontend: 4,
+      backend: 4,
+      database: 3,
+      algorithm: 2,
+      'system-design': 3,
+      devops: 2,
+      network: 2,
+      os: 1,
+      ai: 1,
+    },
+  },
+  {
+    id: 'system-design',
+    label: 'Senior / Architect',
+    summary: 'Prioritize design trade-offs, scalability, and technical leadership range.',
+    focusCategories: ['system-design', 'backend', 'database', 'devops'],
+    weights: {
+      frontend: 1,
+      backend: 4,
+      database: 4,
+      algorithm: 2,
+      'system-design': 5,
+      devops: 3,
+      network: 3,
+      os: 2,
+      ai: 1,
+    },
+  },
+  {
+    id: 'ai',
+    label: 'AI Engineer',
+    summary: 'Blend AI fundamentals with software delivery and productionization skills.',
+    focusCategories: ['ai', 'backend', 'algorithm', 'system-design'],
+    weights: {
+      frontend: 1,
+      backend: 3,
+      database: 2,
+      algorithm: 4,
+      'system-design': 3,
+      devops: 2,
+      network: 1,
+      os: 1,
+      ai: 5,
+    },
+  },
+]
 
 export const STREAK_MILESTONES: StreakMilestone[] = [
   {
@@ -207,7 +339,10 @@ export const useLearningStore = defineStore('learning', () => {
   const records = ref<Record<string, LearningRecord>>(loadJSON<Record<string, LearningRecord>>(RECORDS_STORAGE_KEY, {}))
   const history = ref<LearningHistoryItem[]>(loadJSON<LearningHistoryItem[]>(HISTORY_STORAGE_KEY, []))
   const settings = ref<LearningSettings>(
-    loadJSON<LearningSettings>(SETTINGS_STORAGE_KEY, { dailyGoalTarget: DEFAULT_DAILY_GOAL })
+    loadJSON<LearningSettings>(SETTINGS_STORAGE_KEY, {
+      dailyGoalTarget: DEFAULT_DAILY_GOAL,
+      careerTarget: DEFAULT_CAREER_TARGET,
+    })
   )
   const celebrations = ref<LearningCelebration[]>([])
   const unlockedMilestones = ref<Set<number>>(new Set(loadJSON<number[]>(MILESTONES_STORAGE_KEY, [])))
@@ -337,6 +472,11 @@ export const useLearningStore = defineStore('learning', () => {
     persist()
   }
 
+  const updateCareerTarget = (target: CareerTarget) => {
+    settings.value.careerTarget = target
+    persist()
+  }
+
   const reviewQueueIds = computed(() => {
     const now = Date.now()
 
@@ -409,9 +549,84 @@ export const useLearningStore = defineStore('learning', () => {
   const levelProgressRate = computed(() => Math.min(100, Math.round((currentLevelXp.value / LEVEL_XP_STEP) * 100)))
 
   const dailyGoalTarget = computed(() => settings.value.dailyGoalTarget)
+  const careerTarget = computed(() => settings.value.careerTarget || DEFAULT_CAREER_TARGET)
   const dailyGoalProgress = computed(() => Math.min(reviewedTodayCount.value, dailyGoalTarget.value))
   const dailyGoalDone = computed(() => reviewedTodayCount.value >= dailyGoalTarget.value)
   const dailyGoalRate = computed(() => Math.min(100, Math.round((dailyGoalProgress.value / dailyGoalTarget.value) * 100)))
+
+  const categoryCompetency = computed<CategoryCompetencyStat[]>(() => {
+    const questionTotals = new Map<SearchCategory, number>()
+    const trackedTotals = new Map<SearchCategory, number>()
+    const masteredTotals = new Map<SearchCategory, number>()
+    const vagueTotals = new Map<SearchCategory, number>()
+    const unknownTotals = new Map<SearchCategory, number>()
+    const dueTotals = new Map<SearchCategory, number>()
+    const weakTotals = new Map<SearchCategory, number>()
+
+    for (const category of ALL_CATEGORIES) {
+      questionTotals.set(category, 0)
+      trackedTotals.set(category, 0)
+      masteredTotals.set(category, 0)
+      vagueTotals.set(category, 0)
+      unknownTotals.set(category, 0)
+      dueTotals.set(category, 0)
+      weakTotals.set(category, 0)
+    }
+
+    const dueIdSet = new Set(reviewQueueIds.value)
+    const weakIdSet = new Set(weakQuestionIds.value)
+
+    for (const item of searchItems) {
+      questionTotals.set(item.category, (questionTotals.get(item.category) ?? 0) + 1)
+
+      const record = records.value[item.id]
+      if (!record) continue
+
+      trackedTotals.set(item.category, (trackedTotals.get(item.category) ?? 0) + 1)
+      if (record.mastery === 'mastered') {
+        masteredTotals.set(item.category, (masteredTotals.get(item.category) ?? 0) + 1)
+      }
+      if (record.mastery === 'vague') {
+        vagueTotals.set(item.category, (vagueTotals.get(item.category) ?? 0) + 1)
+      }
+      if (record.mastery === 'unknown') {
+        unknownTotals.set(item.category, (unknownTotals.get(item.category) ?? 0) + 1)
+      }
+      if (dueIdSet.has(item.id)) {
+        dueTotals.set(item.category, (dueTotals.get(item.category) ?? 0) + 1)
+      }
+      if (weakIdSet.has(item.id)) {
+        weakTotals.set(item.category, (weakTotals.get(item.category) ?? 0) + 1)
+      }
+    }
+
+    return ALL_CATEGORIES.map((category) => {
+      const total = questionTotals.get(category) ?? 0
+      const tracked = trackedTotals.get(category) ?? 0
+      const mastered = masteredTotals.get(category) ?? 0
+      const vague = vagueTotals.get(category) ?? 0
+      const unknown = unknownTotals.get(category) ?? 0
+      const due = dueTotals.get(category) ?? 0
+      const weak = weakTotals.get(category) ?? 0
+      const masteryRate = tracked ? Math.round((mastered / tracked) * 100) : 0
+      const coverageRate = total ? Math.round((tracked / total) * 100) : 0
+      const readinessScore = Math.round(masteryRate * 0.7 + coverageRate * 0.3)
+
+      return {
+        category,
+        total,
+        tracked,
+        mastered,
+        vague,
+        unknown,
+        due,
+        weak,
+        masteryRate,
+        coverageRate,
+        readinessScore,
+      }
+    })
+  })
 
   const weeklyActivity = computed<WeeklyActivityItem[]>(() => {
     const result: WeeklyActivityItem[] = []
@@ -436,6 +651,43 @@ export const useLearningStore = defineStore('learning', () => {
   })
 
   const streakDays = computed(() => getStreakDaysFromHistory(history.value))
+
+  const careerTargetProfile = computed<CareerTargetProfile>(() => {
+    return CAREER_TARGET_PROFILES.find((item) => item.id === careerTarget.value) ?? CAREER_TARGET_PROFILES[2]
+  })
+
+  const competitivenessScore = computed(() => {
+    const profile = careerTargetProfile.value
+    let earned = 0
+    let totalWeight = 0
+
+    for (const stat of categoryCompetency.value) {
+      const weight = profile.weights[stat.category] ?? 0
+      earned += stat.readinessScore * weight
+      totalWeight += weight
+    }
+
+    return totalWeight ? Math.round(earned / totalWeight) : 0
+  })
+
+  const categoryPriority = computed(() => {
+    const profile = careerTargetProfile.value
+    return [...categoryCompetency.value]
+      .map((item) => ({
+        ...item,
+        weight: profile.weights[item.category] ?? 0,
+        gapScore: Math.max(0, 100 - item.readinessScore) * (profile.weights[item.category] ?? 0) + item.weak * 4 + item.due * 2,
+      }))
+      .sort((a, b) => b.gapScore - a.gapScore || b.weight - a.weight || a.readinessScore - b.readinessScore)
+  })
+
+  const strongestCategories = computed(() =>
+    [...categoryCompetency.value]
+      .sort((a, b) => b.readinessScore - a.readinessScore || b.mastered - a.mastered)
+      .slice(0, 3)
+  )
+
+  const criticalGaps = computed(() => categoryPriority.value.filter((item) => item.weight > 0).slice(0, 3))
 
   const nextAction = computed<LearningNextAction>(() => {
     if (reviewQueueIds.value.length > 0) return 'review'
@@ -463,7 +715,7 @@ export const useLearningStore = defineStore('learning', () => {
   const clearAll = () => {
     records.value = {}
     history.value = []
-    settings.value = { dailyGoalTarget: DEFAULT_DAILY_GOAL }
+    settings.value = { dailyGoalTarget: DEFAULT_DAILY_GOAL, careerTarget: DEFAULT_CAREER_TARGET }
     celebrations.value = []
     unlockedMilestones.value.clear()
     tomorrowPlan.value = null
@@ -590,9 +842,15 @@ export const useLearningStore = defineStore('learning', () => {
     nextLevelRequiredXp,
     levelProgressRate,
     dailyGoalTarget,
+    careerTarget,
+    careerTargetProfile,
     dailyGoalProgress,
     dailyGoalDone,
     dailyGoalRate,
+    categoryCompetency,
+    competitivenessScore,
+    strongestCategories,
+    criticalGaps,
     weeklyActivity,
     streakDays,
     nextAction,
@@ -602,6 +860,7 @@ export const useLearningStore = defineStore('learning', () => {
     getRecord,
     markMastery,
     updateDailyGoalTarget,
+    updateCareerTarget,
     dismissCelebration,
     clearAll,
     getMilestoneProgress,

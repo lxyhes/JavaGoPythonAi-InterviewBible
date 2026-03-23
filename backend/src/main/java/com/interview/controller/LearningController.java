@@ -1,7 +1,6 @@
 package com.interview.controller;
 
 import com.interview.model.ApiResponse;
-import com.interview.security.JwtUtil;
 import com.interview.service.LearningService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +22,13 @@ import java.util.Map;
 public class LearningController {
 
     private final LearningService learningService;
-    private final JwtUtil jwtUtil;
 
     @GetMapping("/records")
     public ApiResponse<?> getUserRecords(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.getUserRecords(userId);
     }
 
@@ -41,7 +39,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.getOrCreateRecord(userId, questionId);
     }
 
@@ -53,7 +51,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.updateMasteryStatus(userId, questionId, request.getStatus());
     }
 
@@ -64,7 +62,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.toggleFavorite(userId, questionId);
     }
 
@@ -75,7 +73,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.toggleWeak(userId, questionId);
     }
 
@@ -84,7 +82,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.getDueForReview(userId);
     }
 
@@ -93,7 +91,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.getWeakQuestions(userId);
     }
 
@@ -102,7 +100,7 @@ public class LearningController {
         if (userDetails == null) {
             return ApiResponse.error("未登录");
         }
-        String userId = jwtUtil.getUserIdFromToken(userDetails.getUsername());
+        String userId = userDetails.getUsername();
         return learningService.getLearningStats(userId);
     }
 

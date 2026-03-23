@@ -11,6 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class IFlowProperties {
 
     /**
+     * Whether iFlow-backed AI endpoints should be enabled.
+     */
+    private boolean enabled = false;
+
+    /**
      * iFlow ACP Server WebSocket URL
      * 默认: ws://localhost:8090/acp
      */
