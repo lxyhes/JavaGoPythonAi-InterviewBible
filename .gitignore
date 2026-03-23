@@ -1,5 +1,5 @@
 # IDE
-../.idea/
+.idea/
 .vscode/
 *.swp
 *.swo
@@ -23,8 +23,14 @@ target/
 *.ear
 *.class
 .mvn/
+.m2/
 mvnw
 mvnw.cmd
+
+# Database files
+*.mv.db
+*.lock.db
+*.trace.db
 
 # Frontend (Node.js)
 node_modules/
