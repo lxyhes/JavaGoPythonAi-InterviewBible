@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
@@ -34,9 +35,10 @@ public class MybatisPlusConfig {
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
-        sqlSessionFactoryBean.setMapperLocations(
-            new PathMatchingResourcePatternResolver().getResources("classpath*:/mapper/**/*.xml")
-        );
+        Resource[] mapperResources = new PathMatchingResourcePatternResolver().getResources("classpath*:/mapper/**/*.xml");
+        if (mapperResources.length > 0) {
+            sqlSessionFactoryBean.setMapperLocations(mapperResources);
+        }
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor());
         return sqlSessionFactoryBean.getObject();
     }

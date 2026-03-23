@@ -1,7 +1,7 @@
 import type { ApiResponse } from './api'
 import type { QuestionSubmission } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 async function request<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
   const response = await fetch(`${API_BASE_URL}${url}`, {
