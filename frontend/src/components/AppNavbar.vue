@@ -6,13 +6,13 @@
         <div class="brand-icon-wrapper">
           <PhosphorIcon name="book-bookmark" class="brand-icon" :size="28" weight="fill" />
         </div>
-        <span class="brand-text">面试指南</span>
+        <span class="brand-text">{{ i18nStore.t('app.name') }}</span>
       </router-link>
 
       <!-- 主导航链接 -->
       <div class="navbar-links" :class="{ 'is-open': mobileMenuOpen }">
         <router-link
-          v-for="(item, index) in navItems"
+          v-for="(item, index) in localizedNavItems"
           :key="item.path"
           :to="item.path"
           class="nav-link"
@@ -31,9 +31,15 @@
       <!-- 右侧操作区 -->
       <div class="navbar-actions">
         <!-- 搜索按钮 -->
-        <button class="action-btn search-btn" title="搜索 (Ctrl+K)" @click="goToSearch">
+        <button class="action-btn search-btn" :title="i18nStore.t('home.actions.searchTitle')" @click="goToSearch">
           <PhosphorIcon name="magnifying-glass" class="btn-icon" :size="20" />
           <span class="shortcut">Ctrl+K</span>
+        </button>
+
+        <!-- 语言切换 (落地点) -->
+        <button class="action-btn lang-btn" @click="i18nStore.toggleLocale" :title="i18nStore.t('app.language')">
+          <PhosphorIcon name="translate" class="btn-icon" :size="20" />
+          <span class="lang-text">{{ i18nStore.locale === 'zh' ? 'EN' : '中' }}</span>
         </button>
 
         <!-- 主题切换 -->
@@ -160,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import {
@@ -189,14 +195,20 @@ const hasNotifications = ref(false)
 let ticking = false
 
 const navItems = [
-  { path: '/', icon: 'house', label: '首页' },
-  { path: '/practice', icon: 'pencil-simple', label: '练习' },
-  { path: '/mock-interview', icon: 'exam', label: '模拟' },
-  { path: '/review', icon: 'arrow-counter-clockwise', label: '复习' },
-  { path: '/dashboard', icon: 'squares-four', label: '看板' },
-  { path: '/notes', icon: 'notebook', label: '笔记' },
-  { path: '/community', icon: 'users', label: '社区' },
+  { path: '/', icon: 'house', zh: '首页', en: 'Home' },
+  { path: '/practice', icon: 'pencil-simple', zh: '练习', en: 'Practice' },
+  { path: '/mock-interview', icon: 'exam', zh: '模拟', en: 'Mock' },
+  { path: '/review', icon: 'arrow-counter-clockwise', zh: '复习', en: 'Review' },
+  { path: '/dashboard', icon: 'squares-four', zh: '看板', en: 'Stats' },
+  { path: '/notes', icon: 'notebook', zh: '笔记', en: 'Notes' },
 ]
+
+const localizedNavItems = computed(() => {
+  return navItems.map(item => ({
+    ...item,
+    label: i18nStore.locale === 'zh' ? item.zh : item.en
+  }))
+})
 
 const isActive = (path: string) => {
   if (path === '/') {
@@ -352,15 +364,21 @@ onUnmounted(() => {
   box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
 }
 
-.brand-icon {
-  color: white;
-}
-
 .brand-text {
-  background: var(--gradient-primary);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  white-space: nowrap;
+}
+
+[lang='en'] .brand-text {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.03em;
+  font-size: 1.15rem;
 }
 
 /* 导航链接 */
@@ -829,8 +847,30 @@ onUnmounted(() => {
     padding: 8px;
   }
 
-  .theme-btn {
-    padding: 8px;
-  }
+  .lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.lang-text {
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.lang-btn:hover .lang-text {
+  background: var(--primary-600);
+  color: white;
+}
+
+.theme-btn {
+  margin-left: 4px;
+}
 }
 </style>

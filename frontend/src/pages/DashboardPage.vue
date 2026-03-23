@@ -16,6 +16,10 @@
       </a-page-header>
     </div>
 
+    <!-- AI 导师建议区 -->
+    <DailyCoachCard />
+
+
     <!-- 核心统计卡片 -->
     <a-row :gutter="[16, 16]" class="stats-row">
       <!-- 等级卡片 -->
@@ -113,6 +117,10 @@
     <!-- 主要内容区 -->
     <CompetitivenessPanel />
 
+    <div style="margin-bottom: 24px; max-width: 1200px; margin-left: auto; margin-right: auto;">
+      <MockPerfCard />
+    </div>
+
     <a-row :gutter="[16, 16]" class="main-content">
       <!-- 左侧：活动图表和分类进度 -->
       <a-col :xs="24" :lg="16">
@@ -160,6 +168,9 @@
 
       <!-- 右侧：成就 -->
       <a-col :xs="24" :lg="8">
+        <!-- 能力连通图谱 (落地点) -->
+        <SkillRadar style="margin-bottom: 24px;" />
+
         <a-card title="成就" class="panel-card achievements-card">
           <template #extra>
             <a-badge
@@ -217,9 +228,14 @@ import {
   LockOutlined,
 } from '@ant-design/icons-vue'
 import CompetitivenessPanel from '@/components/CompetitivenessPanel.vue'
+import DailyCoachCard from '@/components/DailyCoachCard.vue'
+import MockPerfCard from '@/components/MockPerfCard.vue'
+import SkillRadar from '@/components/SkillRadar.vue'
 import { searchItems } from '@/data/search-index'
 import { useI18nStore } from '@/stores/i18n'
 import { useLearningStore } from '@/stores/learning'
+import { useMockInterviewStore } from '@/stores/mockInterview'
+const mockStore = useMockInterviewStore()
 import type { SearchCategory } from '@/types/search'
 
 const learningStore = useLearningStore()

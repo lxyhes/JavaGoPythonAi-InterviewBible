@@ -12,6 +12,7 @@ const zhMessages: Messages = {
     language: '语言',
     zh: '中文',
     en: 'English',
+    name: '面试指南',
   },
   common: {
     level: '等级',
@@ -191,7 +192,16 @@ const zhMessages: Messages = {
     last7Days: '最近7天',
     unlocked: '已解锁',
     locked: '未解锁',
+    noDue: '今天没有待复习的题目，去练习新题吧！',
     categoryMastery: '分类掌握度',
+    coachTitle: 'AI 面试导师建议',
+    coachSubtitle: '基于你最近的学习表现和面试目标生成',
+    radarTitle: '核心能力连通图谱',
+    radarFooter: '💡 图谱展示了你的知识点连接强度。深色节点表示已完全掌握并能跨领域关联。',
+    resumeBadge: 'AI 简历分析已就绪',
+    resumeTitle: '上传或贴入简历文字，让面试更有针对性',
+    resumePlaceholder: '在此处贴入你的简历内容，AI 将基于简历生成追问和专项题目...',
+    resumeSave: '保存并同步 AI 会话',
   },
   category: {
     frontend: {
@@ -460,6 +470,7 @@ const enMessages: Messages = {
     language: 'Language',
     zh: '中文',
     en: 'English',
+    name: 'Interview Bible',
   },
   common: {
     level: 'Level',
@@ -639,7 +650,16 @@ const enMessages: Messages = {
     last7Days: 'Last 7 Days',
     unlocked: 'Unlocked',
     locked: 'Locked',
+    noDue: 'No questions due today. Go practice some new ones!',
     categoryMastery: 'Category Mastery',
+    coachTitle: 'AI Interview Coach',
+    coachSubtitle: 'Generated based on your recent activity and targets',
+    radarTitle: 'Skill Connectivity Graph',
+    radarFooter: '💡 Graph shows your knowledge connection strength. Darker nodes indicate mastery.',
+    resumeBadge: 'AI Resume Analysis Ready',
+    resumeTitle: 'Upload or Paste Resume text for better targeting',
+    resumePlaceholder: 'Paste your resume content here, AI will generate follow-ups based on it...',
+    resumeSave: 'Save & Sync AI Session',
   },
   category: {
     frontend: {
@@ -917,6 +937,10 @@ export const useI18nStore = defineStore('i18n', () => {
     document.documentElement.setAttribute('lang', newLocale)
   }
 
+  function toggleLocale() {
+    setLocale(locale.value === 'zh' ? 'en' : 'zh')
+  }
+
   function t(key: string, params?: Record<string, string | number>): string {
     const keys = key.split('.')
     let value: unknown = messages.value
@@ -951,6 +975,7 @@ export const useI18nStore = defineStore('i18n', () => {
     locale,
     messages,
     setLocale,
+    toggleLocale,
     t,
     initLocale,
   }

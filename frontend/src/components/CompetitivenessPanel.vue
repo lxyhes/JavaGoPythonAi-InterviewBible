@@ -22,6 +22,31 @@
       </button>
     </div>
 
+    <!-- 简历解析与 AI 定向 (落地点) -->
+    <div class="resume-section">
+      <div class="resume-header" @click="toggleResume">
+        <div class="resume-header-left">
+          <span class="resume-badge">AI 简历分析已就绪</span>
+          <h3>上传或贴入简历文字，让面试更有针对性</h3>
+        </div>
+        <button class="expand-btn">
+          {{ showResume ? '收起' : '展开编辑' }}
+        </button>
+      </div>
+      <div v-show="showResume" class="resume-editor-wrap">
+        <textarea
+          class="resume-textarea"
+          v-model="resumeText"
+          placeholder="在此处贴入你的简历内容，AI 将基于简历生成追问和专项题目..."
+          rows="6"
+        ></textarea>
+        <div class="resume-footer">
+          <p class="resume-hint">💡 AI 会识别你简历中的技术栈（如 Java, React, Redis）并自动调整模拟面试的侧重。</p>
+          <button class="save-resume-btn" @click="saveResume">保存并同步 AI 会话</button>
+        </div>
+      </div>
+    </div>
+
     <div class="hero-grid">
       <article class="score-card">
         <div class="score-ring" :style="{ '--score': `${learningStore.competitivenessScore}%` }">
@@ -98,13 +123,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useLearningStore, type CareerTarget } from '@/stores/learning'
 import { useI18nStore } from '@/stores/i18n'
 import type { SearchCategory } from '@/types/search'
 
 const learningStore = useLearningStore()
 const i18nStore = useI18nStore()
+const showResume = ref(false)
+const resumeText = ref(learningStore.settings.resumeText)
+
+const toggleResume = () => {
+  showResume.value = !showResume.value
+}
+
+const saveResume = () => {
+  learningStore.updateResumeText(resumeText.value)
+  showResume.value = false
+}
 
 const isZh = computed(() => i18nStore.locale === 'zh')
 
@@ -142,6 +178,9 @@ const targetOptions = computed(() => [
   profile('fullstack'),
   profile('system-design'),
   profile('ai'),
+  profile('bytedance'),
+  profile('alibaba'),
+  profile('tencent'),
 ])
 
 const primaryRoute = computed(() => {
@@ -260,6 +299,9 @@ function profile(id: CareerTarget) {
       fullstack: { id: 'fullstack', label: '全栈工程师', summary: '追求前后端与系统思维的平衡。' },
       'system-design': { id: 'system-design', label: '高级工程师 / 架构方向', summary: '更重视架构 trade-off 与扩展性。' },
       ai: { id: 'ai', label: 'AI 工程师', summary: '强调 AI 基础与工程落地的结合。' },
+      bytedance: { id: 'bytedance', label: '字节跳动', summary: '极致算法、高并发业务场景。' },
+      alibaba: { id: 'alibaba', label: '阿里巴巴', summary: '中间件深度、JVM 调优、双 11 架构。' },
+      tencent: { id: 'tencent', label: '腾讯', summary: '底层网络、IM 架构、海量并发。' },
     }
     return zhProfiles[id]
   }
@@ -270,6 +312,9 @@ function profile(id: CareerTarget) {
     fullstack: { id: 'fullstack', label: 'Full Stack Engineer', summary: 'Balances frontend, backend, and systems thinking.' },
     'system-design': { id: 'system-design', label: 'Senior / Architect', summary: 'Emphasizes trade-offs, scale, and architecture.' },
     ai: { id: 'ai', label: 'AI Engineer', summary: 'Blends AI fundamentals with software delivery.' },
+    bytedance: { id: 'bytedance', label: 'ByteDance', summary: 'Algorithm intensive, heavy concurrency.' },
+    alibaba: { id: 'alibaba', label: 'Alibaba', summary: 'Middlewares, JVM, High Availability.' },
+    tencent: { id: 'tencent', label: 'Tencent', summary: 'Network protocols, IM, High Concurrency.' },
   }
   return enProfiles[id]
 }
@@ -568,5 +613,93 @@ function profile(id: CareerTarget) {
     width: 88px;
     height: 88px;
   }
+}
+.resume-section {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 1px dashed var(--primary-300);
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.resume-badge {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.resume-header h3 {
+  margin: 8px 0 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.expand-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.resume-editor-wrap {
+  margin-top: 16px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.resume-textarea {
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  resize: vertical;
+}
+
+.resume-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resume-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.save-resume-btn {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-resume-btn:hover {
+  background: var(--primary-700);
 }
 </style>

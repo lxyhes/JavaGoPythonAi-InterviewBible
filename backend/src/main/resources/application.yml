@@ -30,17 +30,18 @@ mybatis-plus:
       id-type: assign_uuid
 
 iflow:
-  enabled: false
-  url: ws://localhost:8090/acp
-  connection-timeout: 30
-  read-timeout: 600
-  auto-start-process: false
-  cli-path: iflow
-  acp-enabled: false
-  acp-port: 8090
-  log-level: INFO
-  max-reconnect-attempts: 3
-  reconnect-interval: 5000
+  enabled: false # 已切换到原生 AI 接入，此项废弃
+
+ai:
+  active-provider: deepseek
+  deepseek:
+    api-key: "sk-your-key-here" # 请在此处填入你的 DeepSeek API Key
+    base-url: "https://api.deepseek.com"
+    model: "deepseek-chat"
+  openai:
+    api-key: ""
+    base-url: "https://api.openai.com/v1"
+    model: "gpt-3.5-turbo"
 
 jwt:
   secret: mySecretKey12345678901234567890123456789012

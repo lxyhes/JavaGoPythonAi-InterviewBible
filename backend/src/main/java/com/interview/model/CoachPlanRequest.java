@@ -22,4 +22,5 @@ public class CoachPlanRequest {
     private int weakCount;
     private int dueCount;
     private int unlockedAchievements;
+    private String resumeText;
 }

@@ -4,6 +4,7 @@ import { searchItems } from '@/data/search-index'
 import type { SearchCategory, SearchItem } from '@/types/search'
 import { interviewApi } from '@/services/api'
 import { message } from 'ant-design-vue'
+import { useLearningStore } from './learning'
 
 export type InterviewDifficulty = 'easy' | 'medium' | 'hard' | 'mixed'
 export type InterviewStatus = 'config' | 'in-progress' | 'reviewing' | 'completed'
@@ -16,6 +17,9 @@ export interface InterviewQuestion {
   revealed: boolean
   aiComment?: string
   isEvaluating?: boolean
+  followUpQuestion?: string
+  followUpAnswer?: string
+  isGeneratingFollowUp?: boolean
 }
 
 export interface InterviewConfig {
@@ -205,6 +209,41 @@ export const useMockInterviewStore = defineStore('mockInterview', () => {
     })
   }
 
+  function generateFollowUp(index: number) {
+    const q = questions.value[index]
+    if (!q) return
+    
+    q.isGeneratingFollowUp = true
+    q.followUpQuestion = ''
+    
+    const learningStore = useLearningStore()
+    const resumeContext = learningStore.settings.resumeText 
+      ? `\n候选人简历背景：\n${learningStore.settings.resumeText}\n`
+      : ''
+
+    const prompt = `你是一个资深的程序员面试官。根据刚才的面试回答，请提出一个极具挑战性的【追问】。
+【当前题目】：${q.item.question}
+【候选人回答】：${q.userAnswer}
+${resumeContext}
+请基于候选人的回答或简历中提到的相关技术栈，进行由浅入深的二阶追问。要求：
+1. 问题要具体、专业，能考察出候选人的真实深度。
+2. 如果候选人回答得好，请深挖原理；如果回答得不好，请换个角度考察基础。
+3. 直接输出问题内容。`
+
+    interviewApi.queryStream(prompt, {
+      onChunk: (chunk) => {
+        q.followUpQuestion = (q.followUpQuestion || '') + chunk
+      },
+      onDone: () => {
+        q.isGeneratingFollowUp = false
+      },
+      onError: (err) => {
+        q.followUpQuestion = '无法生成追问: ' + err
+        q.isGeneratingFollowUp = false
+      }
+    })
+  }
+
   function rateAndNext(rating: 'unknown' | 'vague' | 'mastered') {
     if (!currentQuestion.value) return
 
@@ -329,6 +368,7 @@ export const useMockInterviewStore = defineStore('mockInterview', () => {
     startInterview,
     revealAnswer,
     evaluateAnswer,
+    generateFollowUp,
     rateAndNext,
     goToQuestion,
     finishInterview,

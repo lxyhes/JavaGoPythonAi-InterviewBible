@@ -12,6 +12,9 @@ export type CareerTarget =
   | 'fullstack'
   | 'system-design'
   | 'ai'
+  | 'bytedance'
+  | 'alibaba'
+  | 'tencent'
 
 export interface LearningRecord {
   questionId: string
@@ -30,6 +33,7 @@ export interface LearningHistoryItem {
 export interface LearningSettings {
   dailyGoalTarget: number
   careerTarget: CareerTarget
+  resumeText: string // 用户简历文本
 }
 
 export interface WeeklyActivityItem {
@@ -197,6 +201,57 @@ const CAREER_TARGET_PROFILES: CareerTargetProfile[] = [
       ai: 5,
     },
   },
+  {
+    id: 'bytedance',
+    label: '字节跳动',
+    summary: '高频考查极致的算法、系统设计深度以及对业务高并发场景的深刻理解。',
+    focusCategories: ['algorithm', 'system-design', 'backend', 'network'],
+    weights: {
+      frontend: 2,
+      backend: 4,
+      database: 3,
+      algorithm: 5,
+      'system-design': 5,
+      devops: 1,
+      network: 3,
+      os: 2,
+      ai: 1,
+    },
+  },
+  {
+    id: 'alibaba',
+    label: '阿里巴巴',
+    summary: '注重中间件原理、Java 深度、数据库优化、高可用架构及对 JVM 的极致调优。',
+    focusCategories: ['backend', 'database', 'system-design', 'os'],
+    weights: {
+      frontend: 1,
+      backend: 5,
+      database: 5,
+      algorithm: 3,
+      'system-design': 4,
+      devops: 2,
+      network: 2,
+      os: 3,
+      ai: 1,
+    },
+  },
+  {
+    id: 'tencent',
+    label: '腾讯',
+    summary: '聚焦于底层网络协议、C++/Go 生态、高可用 IM 架构以及海量并发处理。',
+    focusCategories: ['network', 'backend', 'system-design', 'os'],
+    weights: {
+      frontend: 1,
+      backend: 5,
+      database: 3,
+      algorithm: 3,
+      'system-design': 4,
+      devops: 2,
+      network: 5,
+      os: 4,
+      ai: 1,
+    },
+  },
 ]
 
 export const STREAK_MILESTONES: StreakMilestone[] = [
@@ -342,6 +397,7 @@ export const useLearningStore = defineStore('learning', () => {
     loadJSON<LearningSettings>(SETTINGS_STORAGE_KEY, {
       dailyGoalTarget: DEFAULT_DAILY_GOAL,
       careerTarget: DEFAULT_CAREER_TARGET,
+      resumeText: '',
     })
   )
   const celebrations = ref<LearningCelebration[]>([])
@@ -474,6 +530,11 @@ export const useLearningStore = defineStore('learning', () => {
 
   const updateCareerTarget = (target: CareerTarget) => {
     settings.value.careerTarget = target
+    persist()
+  }
+
+  const updateResumeText = (text: string) => {
+    settings.value.resumeText = text
     persist()
   }
 
@@ -715,7 +776,11 @@ export const useLearningStore = defineStore('learning', () => {
   const clearAll = () => {
     records.value = {}
     history.value = []
-    settings.value = { dailyGoalTarget: DEFAULT_DAILY_GOAL, careerTarget: DEFAULT_CAREER_TARGET }
+    settings.value = { 
+      dailyGoalTarget: DEFAULT_DAILY_GOAL, 
+      careerTarget: DEFAULT_CAREER_TARGET,
+      resumeText: '' 
+    }
     celebrations.value = []
     unlockedMilestones.value.clear()
     tomorrowPlan.value = null
@@ -861,6 +926,7 @@ export const useLearningStore = defineStore('learning', () => {
     markMastery,
     updateDailyGoalTarget,
     updateCareerTarget,
+    updateResumeText,
     dismissCelebration,
     clearAll,
     getMilestoneProgress,

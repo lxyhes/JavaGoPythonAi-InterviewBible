@@ -164,12 +164,24 @@
 
         <!-- 答题区 -->
         <div class="answer-area">
-          <textarea
-            v-model="store.currentQuestion.userAnswer"
-            class="answer-input"
-            placeholder="在这里组织你的回答... (模拟口述答题)"
-            rows="5"
-          ></textarea>
+          <div class="textarea-wrapper">
+            <textarea
+              v-model="store.currentQuestion.userAnswer"
+              class="answer-input"
+              placeholder="在这里组织你的回答... (建议直接开口说，点击右侧麦克风体验语音转文字)"
+              rows="5"
+            ></textarea>
+            <button 
+              class="mic-btn" 
+              :class="{ 'is-listening': isListening }" 
+              @click="toggleSpeechRecognition"
+              title="语音输入"
+            >
+              <PhosphorIcon v-if="!isListening" name="microphone" :size="20" />
+              <div v-else class="pulse-ring"></div>
+              <PhosphorIcon v-if="isListening" name="waveform" :size="20" weight="bold" />
+            </button>
+          </div>
         </div>
 
         <!-- 查看答案 -->
@@ -213,6 +225,33 @@
           </div>
           <div v-if="store.currentQuestion.aiComment" class="ai-comment-box">
             <pre class="answer-content ai-text">{{ store.currentQuestion.aiComment }}</pre>
+            
+            <!-- AI 追问区 -->
+            <div class="ai-followup">
+              <div v-if="!store.currentQuestion.followUpQuestion" class="followup-trigger">
+                <button 
+                  class="followup-btn" 
+                  :disabled="store.currentQuestion.isGeneratingFollowUp"
+                  @click="store.generateFollowUp(store.currentIndex)"
+                >
+                  <PhosphorIcon name="lightbulb" :size="16" />
+                  开启 AI 追问 (更深度的面试挑战)
+                </button>
+              </div>
+              <div v-else class="followup-content">
+                <div class="followup-q">
+                  <h5>💡 AI 面试官追问：</h5>
+                  <p>{{ store.currentQuestion.followUpQuestion }}</p>
+                </div>
+                <div class="followup-a">
+                  <textarea 
+                    v-model="store.currentQuestion.followUpAnswer"
+                    class="followup-input"
+                    placeholder="请输入对追问的回答..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -466,6 +505,55 @@ function scoreClass(score: number) {
   return 'score-d'
 }
 
+const isZh = computed(() => i18nStore.locale === 'zh')
+const isListening = ref(false)
+
+// Voice Recognition Logic
+let recognition: any = null
+if (typeof window !== 'undefined' && (window.webkitSpeechRecognition || (window as any).SpeechRecognition)) {
+  const SpeechRecognition = (window as any).SpeechRecognition || window.webkitSpeechRecognition
+  recognition = new SpeechRecognition()
+  recognition.continuous = true
+  recognition.interimResults = true
+  recognition.lang = isZh.value ? 'zh-CN' : 'en-US'
+
+  recognition.onresult = (event: any) => {
+    let interimTranscript = ''
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        if (store.currentQuestion) {
+          store.currentQuestion.userAnswer += event.results[i][0].transcript
+        }
+      } else {
+        interimTranscript += event.results[i][0].transcript
+      }
+    }
+  }
+
+  recognition.onerror = (event: any) => {
+    console.error('Speech recognition error:', event.error)
+    isListening.value = false
+    message.error('语音识别发生错误: ' + event.error)
+  }
+
+  recognition.onend = () => {
+    isListening.value = false
+  }
+}
+
+const toggleSpeechRecognition = () => {
+  if (!recognition) {
+    message.warning('当前浏览器不支持语音识别功能')
+    return
+  }
+
+  if (isListening.value) {
+    recognition.stop()
+  } else {
+    isListening.value = true
+    recognition.start()
+  }
+}
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(i18nStore.locale === 'zh' ? 'zh-CN' : 'en-US', {
     month: 'short',
@@ -595,6 +683,65 @@ function ratingLabel(rating: string | null) {
   font-size: 0.84rem;
   color: var(--text-muted);
   margin: 0 0 12px;
+}
+
+.textarea-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mic-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mic-btn:hover {
+  background: var(--primary-100);
+  color: var(--primary-600);
+  transform: scale(1.05);
+}
+
+.mic-btn.is-listening {
+  background: var(--primary-600);
+  color: white;
+  animation: breathe 2s infinite;
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--primary-400);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes breathe {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+.answer-input {
+  padding-right: 64px !important;
 }
 
 .category-chips {
@@ -1393,5 +1540,68 @@ function ratingLabel(rating: string | null) {
   .review-item-header {
     gap: 8px;
   }
+}
+.ai-followup {
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.followup-trigger {
+  display: flex;
+  justify-content: center;
+}
+
+.followup-btn {
+  background: var(--bg-tertiary);
+  border: 1px dashed var(--primary-400);
+  color: var(--primary-700);
+  padding: 8px 20px;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.followup-btn:hover:not(:disabled) {
+  background: var(--primary-50);
+  border-style: solid;
+  transform: translateY(-1px);
+}
+
+.followup-q {
+  background: var(--bg-primary);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-500);
+  margin-bottom: 12px;
+}
+
+.followup-q h5 {
+  margin: 0 0 6px;
+  color: var(--primary-700);
+  font-size: 0.9rem;
+}
+
+.followup-q p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.followup-input {
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 80px;
 }
 </style>

@@ -239,30 +239,35 @@ public class InterviewController {
     }
 
     private static String buildCoachPrompt(CoachPlanRequest request) {
-        String category = defaultIfBlank(request.getCategory(), "mixed");
+        String category = defaultIfBlank(request.getCategory(), "综合方向");
         String heatLevel = defaultIfBlank(request.getHeatLevel(), "hot");
         String nextAction = defaultIfBlank(request.getNextAction(), "practice");
         int target = request.getDailyGoalTarget() <= 0 ? 15 : request.getDailyGoalTarget();
 
+        String resumeContext = (request.getResumeText() == null || request.getResumeText().trim().isEmpty())
+                ? ""
+                : "- 用户简历关键背景: " + request.getResumeText() + "\n";
+
         return String.format(
-                "You are an interview prep coach. Build a practical one-day study plan with clear actions.\n" +
-                        "User profile:\n" +
-                        "- category focus: %s\n" +
-                        "- learning heat level: %s\n" +
-                        "- suggested next action: %s\n" +
-                        "- current level: %d\n" +
-                        "- streak days: %d\n" +
-                        "- reviewed today: %d\n" +
-                        "- daily target: %d\n" +
-                        "- weak questions: %d\n" +
-                        "- due for review: %d\n" +
-                        "- unlocked achievements: %d\n\n" +
-                        "Output in Markdown only with sections: \n" +
-                        "## Today Focus\n" +
-                        "## Next 3 Actions (with estimated minutes)\n" +
-                        "## If You Only Have 15 Minutes\n" +
-                        "## Anti-drop Strategy (how to come back tomorrow)\n" +
-                        "Keep it concise and highly actionable.",
+                "你是一个资深的程序员面试教练。请基于以下用户画像，为用户定制一份今天的学习建议。\n" +
+                        "用户当前状态：\n" +
+                        "- 目标方向: %s\n" +
+                        "- 学习热度: %s\n" +
+                        "- 建议下一步操作: %s\n" +
+                        "- 当前等级: %d\n" +
+                        "- 连续打卡天数: %d\n" +
+                        "- 今日已练习: %d 题\n" +
+                        "- 每日目标: %d 题\n" +
+                        "- 薄弱环节题目数: %d\n" +
+                        "- 待复习题目数: %d\n" +
+                        "- 已解锁成就: %d\n" +
+                        "%s\n" +
+                        "请仅输出 Markdown 格式，包含以下模块：\n" +
+                        "## 今日核心建议\n" +
+                        "## 推荐 3 个具体动作（建议结合简历背景提及具体技术栈）\n" +
+                        "## 如果只有 15 分钟（极速建议）\n" +
+                        "## 避坑/防断更贴士\n" +
+                        "语言要专业、有启发性、简洁明了且必须使用中文回复。",
                 category,
                 heatLevel,
                 nextAction,
@@ -272,7 +277,8 @@ public class InterviewController {
                 target,
                 Math.max(0, request.getWeakCount()),
                 Math.max(0, request.getDueCount()),
-                Math.max(0, request.getUnlockedAchievements())
+                Math.max(0, request.getUnlockedAchievements()),
+                resumeContext
         );
     }
 
