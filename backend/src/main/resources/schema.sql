@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS learning_records (
 CREATE TABLE IF NOT EXISTS posts (
     id VARCHAR(64) PRIMARY KEY,
     user_id VARCHAR(64) NOT NULL,
+    author_name VARCHAR(50),
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
     category VARCHAR(50),
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS comments (
     id VARCHAR(64) PRIMARY KEY,
     post_id VARCHAR(64) NOT NULL,
     user_id VARCHAR(64) NOT NULL,
+    author_name VARCHAR(50),
     parent_id VARCHAR(64),
     content TEXT NOT NULL,
     like_count INT DEFAULT 0,
@@ -99,3 +101,6 @@ CREATE TABLE IF NOT EXISTS comments (
     INDEX idx_user_id (user_id),
     INDEX idx_parent_id (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_name VARCHAR(50) NULL;
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS author_name VARCHAR(50) NULL;

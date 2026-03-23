@@ -48,7 +48,7 @@ public class PostRepository {
     public List<Post> findByAuthorIdOrderByCreatedAtDesc(String authorId) {
         return postMapper.selectList(
             new QueryWrapper<Post>()
-                .eq("author_id", authorId)
+                .eq("user_id", authorId)
                 .orderByDesc("created_at")
         );
     }

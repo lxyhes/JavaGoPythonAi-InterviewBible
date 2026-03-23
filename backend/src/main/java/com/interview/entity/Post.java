@@ -34,11 +34,13 @@ public class Post {
     /**
      * 作者ID
      */
+    @TableField("user_id")
     private String authorId;
 
     /**
      * 作者名称
      */
+    @TableField("author_name")
     private String authorName;
 
     /**

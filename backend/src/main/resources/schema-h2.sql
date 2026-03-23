@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS learning_records (
 CREATE TABLE IF NOT EXISTS posts (
     id VARCHAR(64) PRIMARY KEY,
     user_id VARCHAR(64) NOT NULL,
+    author_name VARCHAR(50),
     title VARCHAR(200) NOT NULL,
     content CLOB NOT NULL,
     category VARCHAR(50),
@@ -67,12 +68,16 @@ CREATE TABLE IF NOT EXISTS comments (
     id VARCHAR(64) PRIMARY KEY,
     post_id VARCHAR(64) NOT NULL,
     user_id VARCHAR(64) NOT NULL,
+    author_name VARCHAR(50),
     parent_id VARCHAR(64),
     content CLOB NOT NULL,
     like_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_name VARCHAR(50);
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS author_name VARCHAR(50);
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
@@ -85,3 +90,4 @@ CREATE INDEX IF NOT EXISTS idx_learning_records_next_review ON learning_records 
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts (user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_category ON posts (category);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments (post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user_id ON comments (user_id);

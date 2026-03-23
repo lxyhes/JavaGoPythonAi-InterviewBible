@@ -33,7 +33,7 @@ public class CommentRepository {
     public List<Comment> findByAuthorIdOrderByCreatedAtDesc(String authorId) {
         return commentMapper.selectList(
             new QueryWrapper<Comment>()
-                .eq("author_id", authorId)
+                .eq("user_id", authorId)
                 .orderByDesc("created_at")
         );
     }
